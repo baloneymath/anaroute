@@ -1,0 +1,36 @@
+/**
+ * @file   anaroute.cpp
+ * @brief  Analog Router
+ * @author Hao Chen
+ * @date   09/01/2019
+ *
+ **/
+
+#include "anaroute.hpp"
+#include "include/cmdline.h"
+
+using namespace std;
+
+PROJECT_NAMESPACE_START
+
+Anaroute::Anaroute(int argc, char** argv) {
+  parseArgs(argc, argv);
+
+}
+
+void Anaroute::parseArgs(int argc, char** argv) {
+  _args.add<string>("tech_lef", '\0', "technology lef file");
+  _args.add<string>("tech_file", '\0', "technology layer file");
+  _args.add<string>("design_type", '\0', "design type");
+  _args.add<string>("design_file", '\0', "design file");
+  _args.add<string>("tech_file", '\0', "design technology file");
+  _args.add<string>("placement_layout", '\0', "placement layout file");
+  _args.add<string>("iopin", '\0', "IO-Pin file");
+  _args.add<string>("symnet", '\0', "symmetric nets file");
+  _args.add<string>("out", 'o', "output file");
+}
+
+
+PROJECT_NAMESPACE_END
+
+
