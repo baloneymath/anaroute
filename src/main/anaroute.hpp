@@ -15,14 +15,14 @@
 PROJECT_NAMESPACE_START
 
 class Anaroute {
-  public:
-    Anaroute(int argc, char** argv);
-    ~Anaroute() {}
+public:
+  Anaroute(int argc, char** argv);
+  ~Anaroute() {}
     
-  private:
-    cmdline::parser _args;
+private:
+  cmdline::parser _args;
 
-    void parseArgs(int argc, char** argv);
+  void parseArgs(int argc, char** argv);
 };
 
 PROJECT_NAMESPACE_END
