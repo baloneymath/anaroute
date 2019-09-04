@@ -34,7 +34,7 @@ endif()
 message(STATUS "Find SparseHash: ${SPARSEHASH_ROOT_DIR}")
 
 # Find Boost
-find_package(Boost 1.6 COMPONENTS system graph REQUIRED)
+find_package(Boost 1.6 REQUIRED)
 
 # Find Zlib
 find_package(ZLIB REQUIRED)
