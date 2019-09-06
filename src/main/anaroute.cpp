@@ -9,6 +9,7 @@
 #include "anaroute.hpp"
 #include "include/cmdline.h"
 #include "src/geo/kdtree.hpp"
+#include "src/geo/box.hpp"
 
 using namespace std;
 
