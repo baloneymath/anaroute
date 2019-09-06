@@ -2,7 +2,7 @@
  * @file   box.hpp
  * @brief  Geometric Data Structure: Box type
  * @author Hao Chen
- * @date   09/02/2019
+ * @date   09/05/2019
  *
  **/
 
@@ -10,15 +10,16 @@
 #define ANAROUTE_BOX_HPP_
 
 #include "src/global/global.hpp"
+#include "point.hpp"
 
 PROJECT_NAMESPACE_START
 
 template<typename T>
 class Box {
 public:
-  Box(T left = 0, T bottom = 0, T right = 0, T top = 0)
-    : _bl(left, bottom), _tr(right, top) {
-    assert(left <= right && bottom <= top);
+  Box(T l = 0, T b = 0, T r = 0, T t = 0)
+    : _bl(l, b), _tr(r, t) {
+    assert(l <= r && b <= t);
   }
   Box(const Point<T>& p1, const Point<T>& p2) {
     assert(p1.x() <= p2.x() && p1.y() <= p2.y());
@@ -28,20 +29,20 @@ public:
   ~Box() {}
 
   // Basic setting functions
-  void  setL(T l)                      { _bl.setX(l); }
-  void  setR(T r)                      { _tr.setX(r); }
-  void  setB(T b)                      { _bl.setY(b); }
-  void  setT(T t)                      { _tr.setY(t); }
-  void  setBounds(T l, T b, T r, T t)  { setL(l); setB(b); setR(r); setT(t); }
+  void  setXL(T l)                      { _bl.setX(l); }
+  void  setXH(T r)                      { _tr.setX(r); }
+  void  setYL(T b)                      { _bl.setY(b); }
+  void  setYH(T t)                      { _tr.setY(t); }
+  void  setYLounds(T l, T b, T r, T t)  { setXL(l); setYL(b); setXH(r); setYH(t); }
   // Basic access functions
-  T          left()             const { return _bl.x(); }
-  T          bottom()           const { return _bl.y(); }
-  T          right()            const { return _tr.x(); }
-  T          top()              const { return _tr.y(); }
-  T          width()            const { return right() - left(); }
-  T          height()           const { return top() - bottom(); }
-  T          centerX()          const { return (left() + right()) / 2; }
-  T          centerY()          const { return (bottom() + top()) / 2; }
+  T          xl()               const { return _bl.x(); }
+  T          yl()               const { return _bl.y(); }
+  T          xh()               const { return _tr.x(); }
+  T          yh()               const { return _tr.y(); }
+  T          width()            const { return xh() - xl(); }
+  T          height()           const { return yh() - yl(); }
+  T          centerX()          const { return (xl() + xh()) / 2; }
+  T          centerY()          const { return (yl() + yh()) / 2; }
   T          hpwl()             const { return width() + height(); }
   T          perimeter()        const { return 2 * hpwl(); }
   T          area()             const { return width() * height(); }
@@ -73,9 +74,9 @@ public:
   void shrinkX(const T s);
   void shrinkY(const T s);
   void difference(const Box& r, std::vector<Box>& result);
-  void multi_diff(const std::vector<Box>& vRects, std::vector<Box>& result) const;
-  void multi_diff(const std::list<const Box*>& vRects, std::vector<Box>& result) const;
-  void multi_diff(const std::list<Index_t>& ord, const std::vector<Box>& vRects, std::vector<Box>& result) const;
+  void multi_diff(const std::vector<Box>& vBox, std::vector<Box>& result) const;
+  void multi_diff(const std::list<const Box*>& vBox, std::vector<Box>& result) const;
+  void multi_diff(const std::list<Index_t>& ord, const std::vector<Box>& vBox, std::vector<Box>& result) const;
 
   //static functions
   static T     Mdistance(const Box& box1, const Box& box2);
@@ -83,22 +84,22 @@ public:
   static T     Mdistance(const Box& box1, const Point<T>& pt);
   static bool  bOverlap(const Box& box1, const Box& box2);
   static bool  bConnect(const Box& box1, const Box& box2);
-  static bool  bInside(const Box& rect, const Point<T>& pt);
-  static bool  bConnect(const Box& rect, const Point<T>& pt);
+  static bool  bInside(const Box& box, const Point<T>& pt);
+  static bool  bConnect(const Box& box, const Point<T>& pt);
   static T     overlapArea(const Box& box1, const Box& box2);
   static void  intersection(const Box& box1, const Box& box2, std::vector<Box>& result);
   static void  intersection2(const Box& box1, const Box& box2, std::vector<Box>& result);
   static void  difference2(const Box& box1, const Box& box2, std::vector<Box>& result);
 
   //operator
-  bool operator < (const Box<T> &rect) const {
-    if (_bl.x()   != rect.left())   return _bl.x() < rect.left();
-    if (_bl.y() != rect.bottom()) return _bl.y() < rect.bottom();
-    if (_tr.x()  != rect.right())  return _tr.x() < rect.right();
-    return _tr.y() < rect.top();
+  bool operator < (const Box<T>& box) const {
+    if (_bl.x() != box.xl()) return _bl.x() < box.xl();
+    if (_bl.y() != box.yl()) return _bl.y() < box.yl();
+    if (_tr.x() != box.xh()) return _tr.x() < box.xh();
+    return _tr.y() < box.yh();
   }
-  bool operator == (const Box<T> &rect) const {
-    return _bl.x() == rect.left() && _bl.y() == rect.bottom() && _tr.x() == rect.right() && _tr.y() == rect.top();
+  bool operator == (const Box<T>& box) const {
+    return _bl.x() == box.xl() && _bl.y() == box.yl() && _tr.x() == box.xh() && _tr.y() == box.yh();
   }
 
   friend std::ostream& operator << (std::ostream& os, const Box& r) {
@@ -107,7 +108,7 @@ public:
   }
 
   //Debugging
-  void printRectInfo() const {
+  void printBoxInfo() const {
     std::cout << "  Bound : " << '(' << _bl.x() << ' ' << _bl.y() << ' ' << _tr.x() << ' ' << _tr.y() << ')';
     std::cout << "  CenterXY : " << ' ' << (_bl.x() + _tr.x()) / 2  << ' ' << (_bl.y() + _tr.y()) / 2 << ')' << std::endl;
   }
@@ -120,14 +121,14 @@ private:
 // member fucntions definition
 template<typename T>
 void Box<T>::shiftX(const T x) {
-  setL(_bl.x() + x);
-  setR(_tr.x() + x);
+  setXL(_bl.x() + x);
+  setXH(_tr.x() + x);
 }
 
 template<typename T>
 void Box<T>::shiftY(const T y) {
-  setB(_bl.y() + y);
-  setT(_tr.y() + y);
+  setYL(_bl.y() + y);
+  setYH(_tr.y() + y);
 }
 
 template<typename T>
@@ -142,10 +143,10 @@ void Box<T>::rotate90(const T x, const T y, const bool bClockWise) {
   Point<T> p2(_tr);
   p1.rotate90(x, y, bClockWise);
   p2.rotate90(x, y, bClockWise);
-  setL(std::min(p1.x(), p2.x()));
-  setB(std::min(p1.y(), p2.y()));
-  setR(std::max(p1.x(), p2.x()));
-  setT(std::max(p1.y(), p2.y()));
+  setXL(std::min(p1.x(), p2.x()));
+  setYL(std::min(p1.y(), p2.y()));
+  setXH(std::max(p1.x(), p2.x()));
+  setYH(std::max(p1.y(), p2.y()));
 }
 
 template<typename T>
@@ -154,79 +155,79 @@ void Box<T>::rotate180(const T x, const T y) {
   Point<T> p2(_tr);
   p1.rotate180(x, y);
   p2.rotate180(x, y);
-  setL(std::min(p1.x(), p2.x()));
-  setR(std::max(p1.x(), p2.x()));
-  setB(std::min(p1.y(), p2.y()));
-  setT(std::max(p1.y(), p2.y()));
+  setXL(std::min(p1.x(), p2.x()));
+  setXH(std::max(p1.x(), p2.x()));
+  setYL(std::min(p1.y(), p2.y()));
+  setYH(std::max(p1.y(), p2.y()));
 }
 
 template<typename T>
 void Box<T>::flipX(const T x) {
   int l = _bl.x();
   int r = _tr.x();
-  setL(x + (x - r));
-  setR(x + (x - l));
+  setXL(x + (x - r));
+  setXH(x + (x - l));
 }
 
 template<typename T>
 void Box<T>::flipY(const T y) {
   int b = _bl.y();
   int t = _tr.y();
-  setB(y + (y - t));
-  setT(y + (y - b));
+  setYL(y + (y - t));
+  setYH(y + (y - b));
 }
 
 template<typename T>
 void Box<T>::expand(const T s) {
-  setL(_bl.x() - s);
-  setB(_bl.y() - s);
-  setR(_tr.x() + s);
-  setT(_tr.y() + s);
+  setXL(_bl.x() - s);
+  setYL(_bl.y() - s);
+  setXH(_tr.x() + s);
+  setYH(_tr.y() + s);
 }
 
 template<typename T>
 void Box<T>::expand(const T s, const int dim) {
   if (dim == 0) {
-    setL(_bl.x() - s);
-    setR(_tr.x() + s);
+    setXL(_bl.x() - s);
+    setXH(_tr.x() + s);
   }
   else {
     assert(dim == 1);
-    setB(_bl.y() - s);
-    setT(_bl.y() + s);
+    setYL(_bl.y() - s);
+    setYH(_bl.y() + s);
   }
 }
 
 template<typename T>
 void Box<T>::expandX(const T s) {
-  setL(_bl.x() - s);
-  setR(_tr.x() + s);
+  setXL(_bl.x() - s);
+  setXH(_tr.x() + s);
 }
 
 template<typename T>
 void Box<T>::expandY(const T s) {
-  setB(_bl.y() - s);
-  setT(_bl.y() + s);
+  setYL(_bl.y() - s);
+  setYH(_bl.y() + s);
 }
 
 template<typename T>
 void Box<T>::shrink(const T s) {
-  setL(_bl.x() + s);
-  setB(_bl.y() + s);
-  setR(_tr.x() - s);
-  setT(_tr.y() - s);
+  setXL(_bl.x() + s);
+  setYL(_bl.y() + s);
+  setXH(_tr.x() - s);
+  setYH(_tr.y() - s);
 }
 
 template<typename T>
 void Box<T>::shrinkX(const T s) {
-  setL(_bl.x() + s);
-  setR(_tr.x() - s);
+  setXL(_bl.x() + s);
+  setXH(_tr.x() - s);
 }
 
 template<typename T>
 void Box<T>::shrinkY(const T s) {
-  setB(_bl.y() + s);
-  setT(_tr.y() - s);
+  setYL(_bl.y() + s);
+  setYH(_tr.y() - s);
 }
 
 template<typename T>
@@ -290,19 +291,19 @@ void Box<T>::difference(const Box<T>& r, std::vector<Box<T> >& result) {
 }
 
 template<typename T>
-void Box<T>::multi_diff(const std::vector<Box<T>>& vRects, std::vector<Box<T>>& result) const {
+void Box<T>::multi_diff(const std::vector<Box<T>>& vBox, std::vector<Box<T>>& result) const {
   std::vector<T> hor = { _bl.y(), _tr.y() };
   std::vector<T> ver = { _bl.x(), _tr.x() };
-  for (Index_t i = 0; i < vRects.size(); ++i) {
-    Box<T>& box= vRects[i];
-    if (box.left() > _bl.x() && box.left() < _tr.x())
-      ver.push_back(box.left());
-    if (box.right() > _bl.x() && box.right() < _tr.x())
-      ver.push_back(box.right());
-    if (box.bottom() > _bl.y() && box.bottom() < _tr.y())
-      hor.push_back(box.bottom());
-    if (box.top() > _bl.y() && box.top() < _tr.y())
-      hor.push_back(box.top());
+  for (Index_t i = 0; i < vBox.size(); ++i) {
+    Box<T>& box= vBox[i];
+    if (box.xl() > _bl.x() && box.xl() < _tr.x())
+      ver.push_back(box.xl());
+    if (box.xh() > _bl.x() && box.xh() < _tr.x())
+      ver.push_back(box.xh());
+    if (box.yl() > _bl.y() && box.yl() < _tr.y())
+      hor.push_back(box.yl());
+    if (box.yh() > _bl.y() && box.yh() < _tr.y())
+      hor.push_back(box.yh());
   }
   std::sort(hor.begin(), hor.end());
   std::sort(ver.begin(), ver.end());
@@ -314,19 +315,19 @@ void Box<T>::multi_diff(const std::vector<Box<T>>& vRects, std::vector<Box<T>>& 
 }
 
 template<typename T>
-void Box<T>::multi_diff(const std::list<Index_t>& ord, const std::vector<Box<T>>& vRects, std::vector<Box<T>>& result) const {
+void Box<T>::multi_diff(const std::list<Index_t>& ord, const std::vector<Box<T>>& vBox, std::vector<Box<T>>& result) const {
   std::vector<T> hor = { _bl.y(), _tr.y() };
   std::vector<T> ver = { _bl.x(), _tr.x() };
   for (Index_t i : ord) {
-    const Box<T>& rect = vRects[i];
-    if (rect.left() > _bl.x() && rect.left() < _tr.x())
-      ver.push_back(rect.left());
-    if (rect.right() > _bl.x() && rect.right() < _tr.x())
-      ver.push_back(rect.right());
-    if (rect.bottom() > _bl.y() && rect.bottom() < _tr.y())
-      hor.push_back(rect.bottom());
-    if (rect.top() > _bl.y() && rect.top() < _tr.y())
-      hor.push_back(rect.top());
+    const Box<T>& box = vBox[i];
+    if (box.xl() > _bl.x() && box.xl() < _tr.x())
+      ver.push_back(box.xl());
+    if (box.xh() > _bl.x() && box.xh() < _tr.x())
+      ver.push_back(box.xh());
+    if (box.yl() > _bl.y() && box.yl() < _tr.y())
+      hor.push_back(box.yl());
+    if (box.yh() > _bl.y() && box.yh() < _tr.y())
+      hor.push_back(box.yh());
   }
   std::sort(hor.begin(), hor.end());
   std::sort(ver.begin(), ver.end());
@@ -338,18 +339,18 @@ void Box<T>::multi_diff(const std::list<Index_t>& ord, const std::vector<Box<T>>
 }
 
 template<typename T>
-void Box<T>::multi_diff(const std::list<const Box<T>*>& vRects, std::vector<Box<T>>& result) const {
+void Box<T>::multi_diff(const std::list<const Box<T>*>& vBox, std::vector<Box<T>>& result) const {
   std::vector<T> hor = { _bl.y(), _tr.y() };
   std::vector<T> ver = { _bl.x(), _tr.x() };
-  for (const Box<T>* rect : vRects) {
-    if (rect->left() > _bl.x() && rect->left() < _tr.x())
-      ver.push_back(rect->left());
-    if (rect->right() > _bl.x() && rect->right() < _tr.x())
-      ver.push_back(rect->right());
-    if (rect->bottom() > _bl.y() && rect->bottom() < _tr.y())
-      hor.push_back(rect->bottom());
-    if (rect->top() > _bl.y() && rect->top() < _tr.y())
-      hor.push_back(rect->top());
+  for (const Box<T>* box: vBox) {
+    if (box->xl() > _bl.x() && box->xl() < _tr.x())
+      ver.push_back(box->xl());
+    if (box->xh() > _bl.x() && box->xh() < _tr.x())
+      ver.push_back(box->xh());
+    if (box->yl() > _bl.y() && box->yl() < _tr.y())
+      hor.push_back(box->yl());
+    if (box->yh() > _bl.y() && box->yh() < _tr.y())
+      hor.push_back(box->yh());
   }
   std::sort(hor.begin(), hor.end());
   std::sort(ver.begin(), ver.end());
@@ -370,21 +371,21 @@ T Box<T>::Mdistance(const Box<T>& box1, const Box<T>& box2) {
 
 template<typename T>
 T Box<T>::Mcenterdistance(const Box<T>& box1, const Box<T>& box2) {
-  return abs((box1.left() + box1.right()) / 2 - (box2.left() + box2.right()) / 2)
-       + abs((box1.bottom() + box1.top()) / 2 - (box2.bottom() + box2.top()) / 2);
+  return abs((box1.xl() + box1.xh()) / 2 - (box2.xl() + box2.xh()) / 2)
+       + abs((box1.yl() + box1.yh()) / 2 - (box2.yl() + box2.yh()) / 2);
 }
 
 template<typename T>
 T Box<T>::Mdistance(const Box<T>& box, const Point<T>& pt) {
   T d1 = 0, d2 = 0;
-  if (pt.x() < box.left())
-    d1 = box.left() - pt.x();
-  else if (pt.x() > box.right())
-    d1 = pt.x() - box.right();
-  if (pt.y() < box.bottom())
-    d2 = box.bottom() - pt.y();
+  if (pt.x() < box.xl())
+    d1 = box.xl() - pt.x();
+  else if (pt.x() > box.xh())
+    d1 = pt.x() - box.xh();
+  if (pt.y() < box.yl())
+    d2 = box.yl() - pt.y();
   else if
-    (pt.y() > box.top()) d2 = pt.y() - box.top();
+    (pt.y() > box.yh()) d2 = pt.y() - box.yh();
   return d1 + d2;
 }
 
@@ -408,14 +409,14 @@ bool Box<T>::bConnect(const Box<T>& box1, const Box<T>& box2) {
 
 template<typename T>
 bool Box<T>::bInside(const Box<T>& box, const Point<T>& pt) {
-  return (pt.x() > box.left() && pt.x() < box.right() &&
-          pt.y() > box.bottom() && pt.y() < box.top());
+  return (pt.x() > box.xl() && pt.x() < box.xh() &&
+          pt.y() > box.yl() && pt.y() < box.yh());
 }
 
 template<typename T>
 bool Box<T>::bConnect(const Box<T>& box, const Point<T>& pt) {
-  return (pt.x() >= box.left() && pt.x() <= box.right() &&
-          pt.y() >= box.bottom() && pt.y() <= box.top());
+  return (pt.x() >= box.xl() && pt.x() <= box.xh() &&
+          pt.y() >= box.yl() && pt.y() <= box.yh());
 }
 
 template<typename T>
@@ -432,10 +433,10 @@ void Box<T>::intersection(const Box<T>& box1, const Box<T>& box2, std::vector<Bo
   if (!bOverlap(box1, box2))
     return;
   Box<T> box;
-  box.setL(std::max(box1._bl.x(), box2._bl.x()));
-  box.setR(std::min(box1._tr.x(), box2._tr.x()));
-  box.setB(std::max(box1._bl.y(), box2._bl.y()));
-  box.setT(std::min(box1._tr.y(), box2._tr.y()));
+  box.setXL(std::max(box1._bl.x(), box2._bl.x()));
+  box.setXH(std::min(box1._tr.x(), box2._tr.x()));
+  box.setYL(std::max(box1._bl.y(), box2._bl.y()));
+  box.setYH(std::min(box1._tr.y(), box2._tr.y()));
   result.push_back(box);
 }
 
@@ -444,10 +445,10 @@ void Box<T>::intersection2(const Box<T>& box1, const Box<T>& box2, std::vector<B
   if (!bConnect(box1, box2))
     return;
   Box<T> box;
-  box.setL(std::max(box1._bl.x(), box2._bl.x()));
-  box.setR(std::min(box1._tr.x(), box2._tr.x()));
-  box.setB(std::max(box1._bl.y(), box2._bl.y()));
-  box.setT(std::min(box1._tr.y(), box2._tr.y()));
+  box.setXL(std::max(box1._bl.x(), box2._bl.x()));
+  box.setXH(std::min(box1._tr.x(), box2._tr.x()));
+  box.setYL(std::max(box1._bl.y(), box2._bl.y()));
+  box.setYH(std::min(box1._tr.y(), box2._tr.y()));
   result.push_back(box);
 }
 
