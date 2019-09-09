@@ -1,13 +1,13 @@
 /**
- * @file   segment.hpp
- * @brief  Geometric Data Structure: 2D segment type
+ * @file   segment3d.hpp
+ * @brief  Geometric Data Structure: 3D segment type
  * @author Hao Chen
  * @date   09/05/2019
  *
  **/
 
-#ifndef ANAROUTE_SEGMENT3D_HPP_
-#define ANAROUTE_SEGMENT3D_HPP_
+#ifndef _SEGMENT3D_HPP_
+#define _SEGMENT3D_HPP_
 
 #include "src/global/global.hpp"
 #include "point3d.hpp"
@@ -51,4 +51,4 @@ private:
 
 PROJECT_NAMESPACE_END
 
-#endif /// ANAROUTE_SEGMENT3D_HPP_
+#endif /// _SEGMENT3D_HPP_

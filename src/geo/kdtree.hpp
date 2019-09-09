@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef ANAROUTE_KDTREE_HPP_
-#define ANAROUTE_KDTREE_HPP_
+#ifndef _KDTREE_HPP_
+#define _KDTREE_HPP_
 
 #include "src/global/global.hpp"
 #include "include/nanoflann.hpp"
@@ -100,10 +100,10 @@ namespace kdtree {
 }
 
 template<typename T, template<typename U> class KD = kdtree::k2d>
-class K2dtree {
+class K2dTree {
 public:
-  K2dtree() : _kdtree(2, _pc) {}
-  ~K2dtree() {}
+  K2dTree() : _kdtree(2, _pc) {}
+  ~K2dTree() {}
 
   // utils
   void clear()                       { _pc.clear();                 }
@@ -138,10 +138,10 @@ private:
 };
 
 template<typename T, template<typename U> class KD = kdtree::k3d>
-class K3dtree {
+class K3dTree {
 public:
-  K3dtree() : _kdtree(3, _pc) {}
-  ~K3dtree() {}
+  K3dTree() : _kdtree(3, _pc) {}
+  ~K3dTree() {}
 
   // utils
   void clear()                                  { _pc.clear();                        }
@@ -178,4 +178,4 @@ private:
 
 PROJECT_NAMESPACE_END
 
-#endif /// ANAROUTE_KDTREE_HPP_
+#endif /// _KDTREE_HPP_

@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef ANAROUTE_POINT3D_HPP_
-#define ANAROUTE_POINT3D_HPP_
+#ifndef _POINT3D_HPP_
+#define _POINT3D_HPP_
 
 #include <boost/geometry.hpp>
 #include <boost/functional/hash.hpp>
@@ -91,5 +91,5 @@ private:
 
 PROJECT_NAMESPACE_END
 
-#endif /// ANAROUTE_POINT3D_HPP_
+#endif /// _POINT3D_HPP_
 

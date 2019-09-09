@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef ANAROUTE_SEGMENT_HPP_
-#define ANAROUTE_SEGMENT_HPP_
+#ifndef _SEGMENT_HPP_
+#define _SEGMENT_HPP_
 
 #include "src/global/global.hpp"
 #include "point.hpp"
@@ -66,4 +66,4 @@ private:
 
 PROJECT_NAMESPACE_END
 
-#endif /// ANAROUTE_SEGMENT_HPP_
+#endif /// _SEGMENT_HPP_

@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef ANAROUTE_BOX_HPP_
-#define ANAROUTE_BOX_HPP_
+#ifndef _BOX_HPP_
+#define _BOX_HPP_
 
 #include "src/global/global.hpp"
 #include "point.hpp"
@@ -523,4 +523,4 @@ void Box<T>::difference2(const Box<T>& box1, const Box<T>& box2, std::vector<Box
 
 PROJECT_NAMESPACE_END
 
-#endif /// ANAROUTE_BOX_HPP_
+#endif /// _BOX_HPP_
