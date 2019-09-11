@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef ANAROUTE_CORE_HPP_
-#define ANAROUTE_CORE_HPP_
+#ifndef _ANAROUTE_CORE_HPP_
+#define _ANAROUTE_CORE_HPP_
 
 #include "src/global/global.hpp"
 #include "include/cmdline.h"
@@ -27,4 +27,4 @@ private:
 
 PROJECT_NAMESPACE_END
 
-#endif /// ANAROUTE_CORE_HPP_
+#endif /// _ANAROUTE_CORE_HPP_

@@ -25,6 +25,8 @@ endif()
 message(STATUS "Find Limbo: ${LIMBO_ROOT_DIR}")
 unset(LIMBO_DIR CACHE)
 
+
+
 # Find SparseHash
 if (SPARSE_HASH_DIR)
   set(SPARSEHASH_ROOT_DIR ${SPARSE_HASH_DIR})
@@ -42,8 +44,45 @@ find_package(ZLIB REQUIRED)
 #set(CMAKE_CXX_FLAGS "-g -pg -std=c++14 -Wall -fPIC")
 set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR/include})
 
-add_subdirectory(src)
+##################################################
+#        Source Code                             #
+##################################################
+add_executable(${PROJECT_NAME}
+  src/main/main.cpp
+  src/main/anaroute.cpp
+  src/parser/lefreader.cpp
+)
 
+##################################################
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${ZLIB_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIR}
+  ${SPARSEHASH_ROOT_DIR}/include
+  ${LIMBO_ROOT_DIR}/include
+)
+
+file(GLOB LIMBO_LIB 
+  #lefdef
+  ${LIMBO_ROOT_DIR}/lib/libcdef.a 
+  ${LIMBO_ROOT_DIR}/lib/libcdefzlib.a 
+  ${LIMBO_ROOT_DIR}/lib/libdef.a 
+  ${LIMBO_ROOT_DIR}/lib/libdefzlib.a 
+	${LIMBO_ROOT_DIR}/lib/libdefparser.a
+	${LIMBO_ROOT_DIR}/lib/libdefparseradapt.a
+  ${LIMBO_ROOT_DIR}/lib/libclef.a 
+  ${LIMBO_ROOT_DIR}/lib/libclefzlib.a 
+  ${LIMBO_ROOT_DIR}/lib/liblef.a 
+  ${LIMBO_ROOT_DIR}/lib/liblefzlib.a
+	${LIMBO_ROOT_DIR}/lib/liblefparseradapt.a
+  #limbo gdsparser
+  ${LIMBO_ROOT_DIR}/lib/libgdsdb.a 
+  ${LIMBO_ROOT_DIR}/lib/libgdsparser.a
+)
+
+target_link_libraries(${PROJECT_NAME} ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
+
+#Install
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX_DIR}/bin)
 

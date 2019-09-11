@@ -8,6 +8,7 @@
 
 #include "anaroute.hpp"
 #include "include/cmdline.h"
+#include "src/parser/lefreader.hpp"
 
 using namespace std;
 
@@ -15,7 +16,7 @@ PROJECT_NAMESPACE_START
 
 Anaroute::Anaroute(int argc, char** argv) {
   parseArgs(argc, argv);
-  
+  LefReader lefr;
 }
 
 void Anaroute::parseArgs(int argc, char** argv) {
