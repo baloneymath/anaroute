@@ -17,7 +17,8 @@ PROJECT_NAMESPACE_START
 
 class Parser {
 public:
-  Parser(CirDB& c) : _cir(c) {}
+  Parser(CirDB& c)
+    : _cir(c), _lefr(c.lef()){}
   ~Parser() {}
 
 private:

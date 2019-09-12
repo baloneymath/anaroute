@@ -10,7 +10,7 @@
 #define _DB_CIRCUIT_HPP_
 
 #include "src/global/global.hpp"
-#include "dbTech.hpp"
+#include "dbLef.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -19,9 +19,13 @@ class CirDB {
 public:
   CirDB() {}
   ~CirDB() {}
-
+  //////////////////////////////////
+  //  Getter                      //
+  //////////////////////////////////
+  LefDB&       lef()       { return _lef; }
+  const LefDB& lef() const { return _lef; }
 private:
-  TechDB _tech;
+  LefDB _lef;
 };
 
 PROJECT_NAMESPACE_END
