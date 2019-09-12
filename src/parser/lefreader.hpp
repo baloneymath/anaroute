@@ -28,20 +28,20 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
   LefReader(LefDB& t) : _lef(t) {}
   ~LefReader() {}
 
-  void parse(const std::string& filename) {
+  void parse(const String_t& filename) {
     LefParser::read(*this, filename.c_str()); // Limbo defined function
   }
   // Override functions
-  void lef_version_cbk(std::string const& v) override;
-  //void lef_version_cbk(double v) override;
-  void lef_dividerchar_cbk(const std::string &v) override;
+  void lef_version_cbk(String_t const& v) override;
+  void lef_version_cbk(double v) override;
+  void lef_dividerchar_cbk(const String_t &v) override;
   //void lef_casesensitive_cbk(int v) override;
-  //void lef_nowireextension_cbk(const std::string &v) override;
+  //void lef_nowireextension_cbk(const String_t &v) override;
   void lef_manufacturing_cbk(double v) override;
   //void lef_useminspacing_cbk(lefiUseMinSpacing const &v) override;
-  void lef_clearancemeasure_cbk(const std::string &v) override;
+  void lef_clearancemeasure_cbk(const String_t &v) override;
   void lef_units_cbk(lefiUnits const &v) override;
-  void lef_busbitchars_cbk(const std::string &v) override;
+  void lef_busbitchars_cbk(const String_t &v) override;
   void lef_layer_cbk(lefiLayer const &v) override;
   //void lef_maxstackvia_cbk(lefiMaxStackVia const &v) override;
   //void lef_via_cbk(lefiVia const &v) override;
@@ -52,7 +52,7 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
   //void lef_dielectric_cbk(double v) override;
   //void lef_nondefault_cbk(lefiNonDefault const &v) override;
   //void lef_site_cbk(lefiSite const &v) override;
-  //void lef_macrobegin_cbk(std::string const &v) override;
+  //void lef_macrobegin_cbk(String_t const &v) override;
   //void lef_macro_cbk(lefiMacro const &v) override;
   //void lef_pin_cbk(lefiPin const &v) override;
   //void lef_obstruction_cbk(lefiObstruction const &v) override;
@@ -72,7 +72,7 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
   //void lef_antennainput_cbk(double v) override;
   //void lef_antennaoutput_cbk(double v) override;
   //void lef_antennainout_cbk(double v) override;
-  //void lef_extension_cbk(const std::string &v) override;
+  //void lef_extension_cbk(const String_t &v) override;
 
  private:
   LefDB& _lef;

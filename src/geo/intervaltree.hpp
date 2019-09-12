@@ -6,14 +6,12 @@
  *
  **/
 
-#ifndef _INTERVALTREE_HPP_
-#define _INTERVALTREE_HPP_
+#ifndef _GEO_INTERVALTREE_HPP_
+#define _GEO_INTERVALTREE_HPP_
 
-#include <utility> // for std::pair
 #include <ext/pb_ds/assoc_container.hpp>
 
 #include "src/global/global.hpp"
-
 
 
 PROJECT_NAMESPACE_START
@@ -25,7 +23,7 @@ struct my_node_update {
   class intervals_node_update {
   public:
     typedef T metadata_type;
-    void query_all(const std::pair<T, T> q_interval, std::list<std::pair<std::pair<T, T>, U> > &l, bool open=true) const {
+    void query_all(const Pair_t<T, T> q_interval, std::list<Pair_t<Pair_t<T, T>, U> > &l, bool open=true) const {
       if (q_interval.first == q_interval.second)
         contain_point_all(node_begin(), q_interval.first, l);
       else if (open)
@@ -33,7 +31,7 @@ struct my_node_update {
       else
         intersects_all(node_begin(), q_interval, l);
     }
-    void query_interval(const std::pair<T, T> q_interval, std::list<std::pair<T, T> > &l, bool open=true) const {
+    void query_interval(const Pair_t<T, T> q_interval, std::list<Pair_t<T, T> > &l, bool open=true) const {
       if (q_interval.first == q_interval.second)
         contain_point_interval(node_begin(), q_interval.first, l);
       else if (open)
@@ -41,7 +39,7 @@ struct my_node_update {
       else
         intersects_interval(node_begin(), q_interval, l);
     }
-    void query(const std::pair<T, T> q_interval, std::list<U> &l, bool open=true) const {
+    void query(const Pair_t<T, T> q_interval, std::list<U> &l, bool open=true) const {
       if (q_interval.first == q_interval.second)
         contain_point(node_begin(), q_interval.first, l);
       else if (open)
@@ -63,7 +61,7 @@ struct my_node_update {
     virtual ~intervals_node_update() {}
 
   private:
-    void overlaps(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<U>& l) const {
+    void overlaps(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<U>& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first >= nd_it.get_metadata())
@@ -75,7 +73,7 @@ struct my_node_update {
         return;
       overlaps(nd_it.get_r_child(), q_interval, l);
     }
-    void intersects(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<U>& l) const {
+    void intersects(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<U>& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first > nd_it.get_metadata())
@@ -99,7 +97,7 @@ struct my_node_update {
         return;
       contain_point(nd_it.get_r_child(), q_pt, l);
     }
-    void overlaps_interval(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<std::pair<T, T> >& l) const {
+    void overlaps_interval(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<Pair_t<T, T> >& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first >= nd_it.get_metadata())
@@ -111,7 +109,7 @@ struct my_node_update {
         return;
       overlaps_interval(nd_it.get_r_child(), q_interval, l);
     }
-    void intersects_interval(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<std::pair<T, T> >& l) const {
+    void intersects_interval(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<Pair_t<T, T> >& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first > nd_it.get_metadata())
@@ -123,7 +121,7 @@ struct my_node_update {
         return;
       intersects_interval(nd_it.get_r_child(), q_interval, l);
     }
-    void contain_point_interval(Node_CItr nd_it, const T q_pt, std::list<std::pair<T, T> > &l) const {
+    void contain_point_interval(Node_CItr nd_it, const T q_pt, std::list<Pair_t<T, T> > &l) const {
       if (nd_it == node_end())
         return;
       if (q_pt > nd_it.get_metadata())
@@ -135,7 +133,7 @@ struct my_node_update {
         return;
       contain_point_interval(nd_it.get_r_child(), q_pt, l);
     }
-    void overlaps_all(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<std::pair<std::pair<T, T>, U> >& l) const {
+    void overlaps_all(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<Pair_t<Pair_t<T, T>, U> >& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first >= nd_it.get_metadata())
@@ -147,7 +145,7 @@ struct my_node_update {
         return;
       overlaps_all(nd_it.get_r_child(), q_interval, l);
     }
-    void intersects_all(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<std::pair<std::pair<T, T>, U> >& l) const {
+    void intersects_all(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<Pair_t<Pair_t<T, T>, U> >& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first > nd_it.get_metadata())
@@ -159,7 +157,7 @@ struct my_node_update {
         return;
       intersects_all(nd_it.get_r_child(), q_interval, l);
     }
-    void contain_point_all(Node_CItr nd_it, const T q_pt, std::list<std::pair<std::pair<T, T>, U> > &l) const {
+    void contain_point_all(Node_CItr nd_it, const T q_pt, std::list<Pair_t<Pair_t<T, T>, U> > &l) const {
       if (nd_it == node_end())
         return;
       if (q_pt > nd_it.get_metadata())
@@ -176,7 +174,7 @@ struct my_node_update {
 }; // Struct my_node_update
 
 template<typename T, typename U>
-using IntervalTree = typename __gnu_pbds::tree<std::pair<T, T>, U, std::less<std::pair<T, T> >, __gnu_pbds::rb_tree_tag, my_node_update<T, U>::template intervals_node_update>;
+using IntervalTree = typename __gnu_pbds::tree<Pair_t<T, T>, U, std::less<Pair_t<T, T> >, __gnu_pbds::rb_tree_tag, my_node_update<T, U>::template intervals_node_update>;
 
 template<typename T, typename U>
 struct my_multi_node_update {
@@ -186,7 +184,7 @@ struct my_multi_node_update {
   public:
 
     typedef T metadata_type;
-    void query_interval(const std::pair<T, T> q_interval, std::list<std::pair<T, T> > &l, bool open=true) const {
+    void query_interval(const Pair_t<T, T> q_interval, std::list<Pair_t<T, T> > &l, bool open=true) const {
       if (q_interval.first == q_interval.second)
         contain_point_interval(node_begin(), q_interval.first, l);
       else if (open)
@@ -194,7 +192,7 @@ struct my_multi_node_update {
       else
         intersects_interval(node_begin(), q_interval, l);
     }
-    void query(const std::pair<T, T> q_interval, std::list<U> &l, bool open=true) const {
+    void query(const Pair_t<T, T> q_interval, std::list<U> &l, bool open=true) const {
       if (q_interval.first == q_interval.second)
         contain_point(node_begin(), q_interval.first, l);
       else if (open)
@@ -216,7 +214,7 @@ struct my_multi_node_update {
     virtual ~intervals_node_update() {}
     
   private:
-    void overlaps(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<U>& l) const {
+    void overlaps(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<U>& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first >= nd_it.get_metadata())
@@ -228,7 +226,7 @@ struct my_multi_node_update {
         return;
       overlaps(nd_it.get_r_child(), q_interval, l);
     }
-    void intersects(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<U>& l) const {
+    void intersects(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<U>& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first > nd_it.get_metadata())
@@ -252,7 +250,7 @@ struct my_multi_node_update {
         return;
       contain_point(nd_it.get_r_child(), q_pt, l);
     }
-    void overlaps_interval(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<std::pair<T, T> >& l) const {
+    void overlaps_interval(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<Pair_t<T, T> >& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first >= nd_it.get_metadata())
@@ -264,7 +262,7 @@ struct my_multi_node_update {
         return;
       overlaps_interval(nd_it.get_r_child(), q_interval, l);
     }
-    void intersects_interval(Node_CItr nd_it, const std::pair<T, T> q_interval, std::list<std::pair<T, T> >& l) const {
+    void intersects_interval(Node_CItr nd_it, const Pair_t<T, T> q_interval, std::list<Pair_t<T, T> >& l) const {
       if (nd_it == node_end())
         return;
       if (q_interval.first > nd_it.get_metadata())
@@ -276,7 +274,7 @@ struct my_multi_node_update {
         return;
       intersects_interval(nd_it.get_r_child(), q_interval, l);
     }
-    void contain_point_interval(Node_CItr nd_it, const T q_pt, std::list<std::pair<T, T> > &l) const {
+    void contain_point_interval(Node_CItr nd_it, const T q_pt, std::list<Pair_t<T, T> > &l) const {
       if (nd_it == node_end())
         return;
       if (q_pt > nd_it.get_metadata())
@@ -293,7 +291,7 @@ struct my_multi_node_update {
 }; // Struct my_multi_node_update 
 
 template<typename T, typename U>
-using MultiIntervalTree = typename __gnu_pbds::tree<std::pair<T, T>, __gnu_pbds::list_update<U, __gnu_pbds::null_type>, std::less<std::pair<T, T> >, __gnu_pbds::rb_tree_tag, my_multi_node_update<T, U>::template intervals_node_update>;
+using MultiIntervalTree = typename __gnu_pbds::tree<Pair_t<T, T>, __gnu_pbds::list_update<U, __gnu_pbds::null_type>, std::less<Pair_t<T, T> >, __gnu_pbds::rb_tree_tag, my_multi_node_update<T, U>::template intervals_node_update>;
 
 
 
@@ -301,4 +299,4 @@ using MultiIntervalTree = typename __gnu_pbds::tree<std::pair<T, T>, __gnu_pbds:
 PROJECT_NAMESPACE_END
 
 
-#endif /// _INTERVALTREE_HPP_
+#endif /// _GEO_INTERVALTREE_HPP_

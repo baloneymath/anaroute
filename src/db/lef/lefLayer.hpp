@@ -16,13 +16,13 @@ PROJECT_NAMESPACE_START
 
 
 struct LefSpacingTable {
-  std::vector<Int_t> vParallelRunLength; // v[0] = runlength0, v[1] = runlength1 ...
-  std::vector<std::pair<Int_t, std::vector<Int_t>>> table; // table[0] = {width, {spacing 0, spacing1...}}
+  Vector_t<Int_t> vParallelRunLength; // v[0] = runlength0, v[1] = runlength1 ...
+  Vector_t<Pair_t<Int_t, Vector_t<Int_t>>> table; // table[0] = {width, {spacing 0, spacing1...}}
 };
 
 
 class LefLayer {
- friend class LefReader;
+  friend class LefReader;
 
  public:
   enum class RouteDir : Byte_t {
@@ -45,9 +45,9 @@ class LefLayer {
   ////////////////////////////////////////
   //   Getter                           //
   ////////////////////////////////////////
-  std::string             name()          const { return _name; }
-  std::string             type()          const { return _type; }
-  std::string             routeDirStr()   const { return _routeDirStr; }
+  const String_t&         name()          const { return _name; }
+  const String_t&         type()          const { return _type; }
+  const String_t&         routeDirStr()   const { return _routeDirStr; }
   RouteDir                routeDir()      const { return _routeDir; }
   Int_t                   minArea()       const { return _minArea; }
   Int_t                   minWidth()      const { return _minWidth; }
@@ -64,9 +64,9 @@ class LefLayer {
   //////////////////////////////////////
   //    Members                       //
   //////////////////////////////////////
-  std::string       _name;
-  std::string       _type;
-  std::string       _routeDirStr;
+  String_t          _name;
+  String_t          _type;
+  String_t          _routeDirStr;
   RouteDir          _routeDir;
   Int_t             _minArea;
   Int_t             _minWidth;
@@ -82,9 +82,9 @@ class LefLayer {
   //////////////////////////////////////
   //    Setter                        //
   //////////////////////////////////////
-  void setName(const std::string& n) { _name = n; }
-  void setType(const std::string& t) { _type = t; }
-  void setRouteDir(const std::string& d) {
+  void setName(const String_t& n) { _name = n; }
+  void setType(const String_t& t) { _type = t; }
+  void setRouteDir(const String_t& d) {
     _routeDirStr = d;
     if (d == "HORIZONTAL") _routeDir = RouteDir::HORIZONTAL;
     else if (d == "VERTICAL") _routeDir = RouteDir::VERTICAL;
@@ -101,7 +101,7 @@ class LefLayer {
   void setPitchY(const Int_t p) { _pitchY = p; }
   
   void addParallelRunLength(const Int_t p) { _spacingTable.vParallelRunLength.emplace_back(p); }
-  void addSpacingTableWidth(const Int_t w) { _spacingTable.table.emplace_back(w, std::vector<Int_t>()); }
+  void addSpacingTableWidth(const Int_t w) { _spacingTable.table.emplace_back(w, Vector_t<Int_t>()); }
   void addSpacingTableWidthSpacing(const Index_t idx, const Int_t s) { _spacingTable.table[idx].second.emplace_back(s); }
 };
 

@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef _KDTREE_HPP_
-#define _KDTREE_HPP_
+#ifndef _GEO_KDTREE_HPP_
+#define _GEO_KDTREE_HPP_
 
 #include "src/global/global.hpp"
 #include "include/nanoflann.hpp"
@@ -43,7 +43,7 @@ namespace kdtree {
     void reserve(size_t n)                { _vPts.reserve(n);         }
 
   private:
-    std::vector<Point<T>>  _vPts;
+    Vector_t<Point<T>>  _vPts;
   };
   
   template <typename T>
@@ -74,7 +74,7 @@ namespace kdtree {
     void reserve(size_t n)                            { _vPts.reserve(n);            }
 
   private:
-    std::vector<Point3d<T>>  _vPts;
+    Vector_t<Point3d<T>>  _vPts;
   };
 
   // k2d types
@@ -120,10 +120,10 @@ public:
     _kdtree.findNeighbors(resultSet, qt, nanoflann::SearchParams(10));
     ret = _pc.point(ret_index);
   }
-  void knnSearch(const Point<T>& query_pt, const size_t n_search, std::vector<Point<T> >& vRet_pts, std::vector<T>& vDists) {
+  void knnSearch(const Point<T>& query_pt, const size_t n_search, Vector_t<Point<T> >& vRet_pts, Vector_t<T>& vDists) {
     vRet_pts.resize(n_search);
     vDists.resize(n_search, 0);
-    std::vector<size_t> vRet_indexes(n_search);
+    Vector_t<size_t> vRet_indexes(n_search);
     nanoflann::KNNResultSet<T> resultSet(n_search);
     resultSet.init(&vRet_indexes[0], &vDists[0]);
     T qt[2] = {query_pt.x(), query_pt.y()};
@@ -158,10 +158,10 @@ public:
     _kdtree.findNeighbors(resultSet, qt, nanoflann::SearchParams(10));
     ret = _pc.point(ret_index);
   }
-  void knnSearch(const Point3d<T>& query_pt, const size_t n_search, std::vector<Point3d<T> >& vRet_pts, std::vector<T>& vDists) {
+  void knnSearch(const Point3d<T>& query_pt, const size_t n_search, Vector_t<Point3d<T> >& vRet_pts, Vector_t<T>& vDists) {
     vRet_pts.resize(n_search);
     vDists.resize(n_search, 0);
-    std::vector<size_t> vRet_indexes(n_search);
+    Vector_t<size_t> vRet_indexes(n_search);
     nanoflann::KNNResultSet<T> resultSet(n_search);
     resultSet.init(&vRet_indexes[0], &vDists[0]);
     T qt[3] = {query_pt.x(), query_pt.y(), query_pt.z()};
@@ -178,4 +178,4 @@ private:
 
 PROJECT_NAMESPACE_END
 
-#endif /// _KDTREE_HPP_
+#endif /// _GEO_KDTREE_HPP_

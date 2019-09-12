@@ -12,15 +12,28 @@
 #include <cstdint>
 #include <limits>
 #include <climits>
+#include <string>
 #include "namespace.hpp"
 
 PROJECT_NAMESPACE_START
 
-using Int_t   = std::int32_t;
-using Index_t = std::uint32_t;
-using Real_t  = double;
-using Loc_t   = std::int32_t; // Location
-using Byte_t  = std::uint8_t;
+using Int_t     = std::int32_t;
+using Index_t   = std::uint32_t;
+using Real_t    = double;
+using Loc_t     = std::int32_t; // Location
+using Byte_t    = std::uint8_t;
+using String_t  = std::string;
+template<typename T, typename U>
+using Pair_t    = std::pair<T, U>;
+template<typename T>
+using Vector_t  = std::vector<T>;
+template<typename T>
+using List_t    = std::list<T>;
+template<typename T>
+using Set_t     = std::set<T>;
+template<typename T, typename U>
+using Map_t     = std::map<T, U>;
+
 
 constexpr Int_t   MAX_INT   = std::numeric_limits<Int_t>::max()       / 3;
 constexpr Index_t MAX_INDEX = std::numeric_limits<Index_t>::max()     / 3;

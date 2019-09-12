@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef _SEGMENT3D_HPP_
-#define _SEGMENT3D_HPP_
+#ifndef _GEO_SEGMENT3D_HPP_
+#define _GEO_SEGMENT3D_HPP_
 
 #include "src/global/global.hpp"
 #include "point3d.hpp"
@@ -51,4 +51,4 @@ private:
 
 PROJECT_NAMESPACE_END
 
-#endif /// _SEGMENT3D_HPP_
+#endif /// _GEO_SEGMENT3D_HPP_

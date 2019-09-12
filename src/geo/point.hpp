@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef _POINT_HPP_
-#define _POINT_HPP_
+#ifndef _GEO_POINT_HPP_
+#define _GEO_POINT_HPP_
 
 #include <boost/geometry.hpp>
 #include <boost/functional/hash.hpp>
@@ -121,4 +121,4 @@ namespace boost { namespace geometry { namespace traits {
   };
 }}}
 
-#endif /// _POINT_HPP_
+#endif /// _GEO_POINT_HPP_

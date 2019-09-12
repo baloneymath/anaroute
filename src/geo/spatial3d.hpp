@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef _SPATIAL3d_HPP_
-#define _SPATIAL3d_HPP_
+#ifndef _GEO_SPATIAL3d_HPP_
+#define _GEO_SPATIAL3d_HPP_
 
 #include <vector>
 #include <boost/geometry.hpp>
@@ -26,7 +26,7 @@ namespace spatial3d {
   using b_box = bg::model::box<Point3d<T> >;
 
   template<typename T, typename Value>
-  using b_value = std::pair<b_box<T>, Value>;
+  using b_value = Pair_t<b_box<T>, Value>;
 
   template<typename T>
   struct B_box_equal {
@@ -53,28 +53,28 @@ namespace spatial3d {
 
   template<typename T>
   struct SearchCallback { // return b_box or b_value
-    SearchCallback(std::vector<T>& ret)
+    SearchCallback(Vector_t<T>& ret)
       : _ret(ret) {}
     void operator () (const T& t) { _ret.push_back(t); }
-    std::vector<T>& _ret;
+    Vector_t<T>& _ret;
   };
   
   template<typename BBox>
   struct SearchCallback_first { // return b_value.first
-    SearchCallback_first(std::vector<BBox>& ret)
+    SearchCallback_first(Vector_t<BBox>& ret)
       : _ret(ret) {}
     template<typename BValue>
     void operator () (const BValue& bv) { _ret.push_back(bv.first); }
-    std::vector<BBox>& _ret;
+    Vector_t<BBox>& _ret;
   };
   
   template<typename Value>
   struct SearchCallback_second { // return b_value.second
-    SearchCallback_second(std::vector<Value>& ret)
+    SearchCallback_second(Vector_t<Value>& ret)
       : _ret(ret) {}
     template<typename BValue>
     void operator () (const BValue& bv) { _ret.push_back(bv.second); }
-    std::vector<Value>& _ret;
+    Vector_t<Value>& _ret;
   };
 
 }
@@ -134,7 +134,7 @@ public:
   bool    erase(const Point3d<T>& min_corner, const Point3d<T>& max_corner)   { return _rtree.remove({min_corner, max_corner}); }
   
   // query
-  void    query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, std::vector<spatial3d::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
+  void    query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
 
 };
 
@@ -194,14 +194,14 @@ public:
   bool    erase(const Point3d<T>& min_corner, const Point3d<T>& max_corner, const Value& val)   { return _rtreeMap.remove({{min_corner, max_corner}, val}); }
   
   // query
-  void    query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, std::vector<Value>& ret, Query_Type qt = Query_Type::intersects) const;
-  void    queryBox(const Point3d<T>& min_corner, const Point3d<T>& max_corner, std::vector<spatial3d::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
-  void    queryBoth(const Point3d<T>& min_corner, const Point3d<T>& max_corner, std::vector<spatial3d::b_value<T, Value> >& ret, Query_Type qt = Query_Type::intersects) const;
+  void    query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<Value>& ret, Query_Type qt = Query_Type::intersects) const;
+  void    queryBox(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
+  void    queryBoth(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_value<T, Value> >& ret, Query_Type qt = Query_Type::intersects) const;
 };
 
 ////////// Spatial3d Implementation /////////////
 template<typename T>
-void Spatial3d<T>::query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, std::vector<spatial3d::b_box<T> >& ret, Query_Type qt) const {
+void Spatial3d<T>::query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, Query_Type qt) const {
   spatial3d::SearchCallback<spatial3d::b_box<T> > callback(ret);
   spatial3d::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
@@ -226,7 +226,7 @@ void Spatial3d<T>::query(const Point3d<T>& min_corner, const Point3d<T>& max_cor
 
 ////////// SpatialMap3d Implementation /////////////
 template<typename T, typename Value>
-void SpatialMap3d<T, Value>::query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, std::vector<Value>& ret, Query_Type qt) const {
+void SpatialMap3d<T, Value>::query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<Value>& ret, Query_Type qt) const {
   spatial3d::SearchCallback_second<Value> callback(ret);
   spatial3d::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
@@ -250,7 +250,7 @@ void SpatialMap3d<T, Value>::query(const Point3d<T>& min_corner, const Point3d<T
 }
 
 template<typename T, typename Value>
-void SpatialMap3d<T, Value>::queryBox(const Point3d<T>& min_corner, const Point3d<T>& max_corner, std::vector<spatial3d::b_box<T> >& ret, Query_Type qt) const {
+void SpatialMap3d<T, Value>::queryBox(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, Query_Type qt) const {
   spatial3d::SearchCallback_first<spatial3d::b_box<T> > callback(ret);
   spatial3d::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
@@ -274,7 +274,7 @@ void SpatialMap3d<T, Value>::queryBox(const Point3d<T>& min_corner, const Point3
 }
 
 template<typename T, typename Value>
-void SpatialMap3d<T, Value>::queryBoth(const Point3d<T>& min_corner, const Point3d<T>& max_corner, std::vector<spatial3d::b_value<T, Value> >& ret, Query_Type qt) const {
+void SpatialMap3d<T, Value>::queryBoth(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_value<T, Value> >& ret, Query_Type qt) const {
   spatial3d::SearchCallback<spatial3d::b_value<T, Value> > callback(ret);
   spatial3d::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
@@ -300,4 +300,4 @@ void SpatialMap3d<T, Value>::queryBoth(const Point3d<T>& min_corner, const Point
 
 PROJECT_NAMESPACE_END
 
-#endif /// _SPATIAL3d_HPP_
+#endif /// _GEO_SPATIAL3d_HPP_

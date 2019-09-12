@@ -20,7 +20,8 @@ public:
   Parser(CirDB& c)
     : _cir(c), _lefr(c.lef()){}
   ~Parser() {}
-
+  
+  void parse();
 private:
   CirDB& _cir;
   LefReader _lefr;

@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef _BOX_HPP_
-#define _BOX_HPP_
+#ifndef _GEO_BOX_HPP_
+#define _GEO_BOX_HPP_
 
 #include "src/global/global.hpp"
 #include "point.hpp"
@@ -73,10 +73,10 @@ public:
   void shrink(const T s);
   void shrinkX(const T s);
   void shrinkY(const T s);
-  void difference(const Box& r, std::vector<Box>& result);
-  void multi_diff(const std::vector<Box>& vBox, std::vector<Box>& result) const;
-  void multi_diff(const std::list<const Box*>& vBox, std::vector<Box>& result) const;
-  void multi_diff(const std::list<Index_t>& ord, const std::vector<Box>& vBox, std::vector<Box>& result) const;
+  void difference(const Box& r, Vector_t<Box>& result);
+  void multi_diff(const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
+  void multi_diff(const std::list<const Box*>& vBox, Vector_t<Box>& result) const;
+  void multi_diff(const std::list<Index_t>& ord, const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
 
   //static functions
   static T     Mdistance(const Box& box1, const Box& box2);
@@ -87,9 +87,9 @@ public:
   static bool  bInside(const Box& box, const Point<T>& pt);
   static bool  bConnect(const Box& box, const Point<T>& pt);
   static T     overlapArea(const Box& box1, const Box& box2);
-  static void  intersection(const Box& box1, const Box& box2, std::vector<Box>& result);
-  static void  intersection2(const Box& box1, const Box& box2, std::vector<Box>& result);
-  static void  difference2(const Box& box1, const Box& box2, std::vector<Box>& result);
+  static void  intersection(const Box& box1, const Box& box2, Vector_t<Box>& result);
+  static void  intersection2(const Box& box1, const Box& box2, Vector_t<Box>& result);
+  static void  difference2(const Box& box1, const Box& box2, Vector_t<Box>& result);
 
   //operator
   bool operator < (const Box<T>& box) const {
@@ -231,7 +231,7 @@ void Box<T>::shrinkY(const T s) {
 }
 
 template<typename T>
-void Box<T>::difference(const Box<T>& r, std::vector<Box<T> >& result) {
+void Box<T>::difference(const Box<T>& r, Vector_t<Box<T> >& result) {
   T a = std::min(_bl.x(), r._bl.x());
   T b = std::max(_bl.x(), r._bl.x());
   T c = std::min(_tr.x(), r._tr.x());
@@ -291,9 +291,9 @@ void Box<T>::difference(const Box<T>& r, std::vector<Box<T> >& result) {
 }
 
 template<typename T>
-void Box<T>::multi_diff(const std::vector<Box<T>>& vBox, std::vector<Box<T>>& result) const {
-  std::vector<T> hor = { _bl.y(), _tr.y() };
-  std::vector<T> ver = { _bl.x(), _tr.x() };
+void Box<T>::multi_diff(const Vector_t<Box<T>>& vBox, Vector_t<Box<T>>& result) const {
+  Vector_t<T> hor = { _bl.y(), _tr.y() };
+  Vector_t<T> ver = { _bl.x(), _tr.x() };
   for (Index_t i = 0; i < vBox.size(); ++i) {
     Box<T>& box= vBox[i];
     if (box.xl() > _bl.x() && box.xl() < _tr.x())
@@ -315,9 +315,9 @@ void Box<T>::multi_diff(const std::vector<Box<T>>& vBox, std::vector<Box<T>>& re
 }
 
 template<typename T>
-void Box<T>::multi_diff(const std::list<Index_t>& ord, const std::vector<Box<T>>& vBox, std::vector<Box<T>>& result) const {
-  std::vector<T> hor = { _bl.y(), _tr.y() };
-  std::vector<T> ver = { _bl.x(), _tr.x() };
+void Box<T>::multi_diff(const std::list<Index_t>& ord, const Vector_t<Box<T>>& vBox, Vector_t<Box<T>>& result) const {
+  Vector_t<T> hor = { _bl.y(), _tr.y() };
+  Vector_t<T> ver = { _bl.x(), _tr.x() };
   for (Index_t i : ord) {
     const Box<T>& box = vBox[i];
     if (box.xl() > _bl.x() && box.xl() < _tr.x())
@@ -339,9 +339,9 @@ void Box<T>::multi_diff(const std::list<Index_t>& ord, const std::vector<Box<T>>
 }
 
 template<typename T>
-void Box<T>::multi_diff(const std::list<const Box<T>*>& vBox, std::vector<Box<T>>& result) const {
-  std::vector<T> hor = { _bl.y(), _tr.y() };
-  std::vector<T> ver = { _bl.x(), _tr.x() };
+void Box<T>::multi_diff(const std::list<const Box<T>*>& vBox, Vector_t<Box<T>>& result) const {
+  Vector_t<T> hor = { _bl.y(), _tr.y() };
+  Vector_t<T> ver = { _bl.x(), _tr.x() };
   for (const Box<T>* box: vBox) {
     if (box->xl() > _bl.x() && box->xl() < _tr.x())
       ver.push_back(box->xl());
@@ -429,7 +429,7 @@ T Box<T>::overlapArea(const Box<T>& box1, const Box<T>& box2) {
 }
 
 template<typename T>
-void Box<T>::intersection(const Box<T>& box1, const Box<T>& box2, std::vector<Box<T> >& result) {
+void Box<T>::intersection(const Box<T>& box1, const Box<T>& box2, Vector_t<Box<T> >& result) {
   if (!bOverlap(box1, box2))
     return;
   Box<T> box;
@@ -441,7 +441,7 @@ void Box<T>::intersection(const Box<T>& box1, const Box<T>& box2, std::vector<Bo
 }
 
 template<typename T>
-void Box<T>::intersection2(const Box<T>& box1, const Box<T>& box2, std::vector<Box<T> >& result) {
+void Box<T>::intersection2(const Box<T>& box1, const Box<T>& box2, Vector_t<Box<T> >& result) {
   if (!bConnect(box1, box2))
     return;
   Box<T> box;
@@ -453,7 +453,7 @@ void Box<T>::intersection2(const Box<T>& box1, const Box<T>& box2, std::vector<B
 }
 
 template<typename T>
-void Box<T>::difference2(const Box<T>& box1, const Box<T>& box2, std::vector<Box<T> >& result) {
+void Box<T>::difference2(const Box<T>& box1, const Box<T>& box2, Vector_t<Box<T> >& result) {
   // X = intersection, 0-7 = possible difference areas
   // h +-+-+-+
   // . |5|6|7|
@@ -523,4 +523,4 @@ void Box<T>::difference2(const Box<T>& box1, const Box<T>& box2, std::vector<Box
 
 PROJECT_NAMESPACE_END
 
-#endif /// _BOX_HPP_
+#endif /// _GEO_BOX_HPP_
