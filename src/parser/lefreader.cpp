@@ -60,13 +60,107 @@ void LefReader::lef_units_cbk(lefiUnits const &v) {
     units.setFrequency(round(v.frequency()));
   }
 }
+
 void LefReader::lef_busbitchars_cbk(const String_t &v) {
   _lef.setBusbitChars(v);
 }
+
 void LefReader::lef_layer_cbk(lefiLayer const &v) {
   assert(_lef.units().databaseNumber() != 0);
-  LefLayer layer;
+  if (v.hasType()) {
+    if (strcmp(v.type(), "IMPLANT") == 0) {
+
+    }
+    else if (strcmp(v.type(), "MASTERSLICE") == 0) {
+
+    }
+    else if (strcmp(v.type(), "CUT") == 0) {
+
+    }
+    else if (strcmp(v.type(), "ROUTING") == 0) {
+      parseRoutingLayer(v);
+    }
+    else if (strcmp(v.type(), "OVERLAP") == 0) {
+
+    }
+    else
+      assert(false);
+  }
+  else
+    assert(false);
 }
+void LefReader::parseRoutingLayer(const lefiLayer& v) {
+  LefRoutingLayer layer;
+  // name, type
+  layer.setName(v.name());
+  layer.setType(v.type());
+  // direction
+  if (v.hasDirection()) {
+    layer.setRouteDir(v.direction());
+  }
+  // area
+  if (v.hasArea()) {
+    layer.setMinArea(to_lef_unit_2d(v.area()));
+  }
+  // width
+  if (v.hasWidth()) {
+    Int_t width = to_lef_unit_1d(v.width());
+    layer.setDefaultWidth(width);
+    layer.setMinWidth(width);
+  }
+  if (v.hasMinwidth()) {
+    layer.setMinWidth(to_lef_unit_1d(v.minwidth()));
+  }
+  if (v.hasMaxwidth()) {
+    layer.setMaxWidth(to_lef_unit_1d(v.maxwidth()));
+  }
+  // spacing
+  for (Index_t i = 0; i < (Index_t)v.numSpacing(); ++i) {
+    if (v.hasSpacingEndOfLine(i)) {
+      layer.addEolSpacing(to_lef_unit_1d(v.spacing(i)),
+                          to_lef_unit_1d(v.spacingEolWidth(i)),
+                          to_lef_unit_1d(v.spacingEolWithin(i)));
+    }
+    else {
+      layer.addSpacing(to_lef_unit_1d(v.spacing(i)));
+    }
+  }
+  // spacing table
+  for (Index_t i = 0; i < (Index_t)const_cast<lefiLayer&>(v).numSpacingTable(); ++i) {
+    const lefiSpacingTable* spTable = const_cast<lefiLayer&>(v).spacingTable(i);
+    if (spTable->isParallel()) {
+      const lefiParallel* parallel = spTable->parallel();
+      for (Index_t j = 0; j < (Index_t)parallel->numLength(); ++j) {
+        layer.addParallelRunLength(to_lef_unit_1d(parallel->length(j)));
+      }
+      for (Index_t j = 0; j < (Index_t)parallel->numWidth(); ++j) {
+        layer.addSpacingTableWidth(to_lef_unit_1d(parallel->width(j)));
+        for (Index_t k = 0; k < (Index_t)parallel->numLength(); ++k) {
+          layer.addSpacingTableWidthSpacing(j, to_lef_unit_1d(parallel->widthSpacing(j, k)));
+        }
+      }
+    }
+  }
+  // pitch
+  if (v.hasPitch()) {
+    layer.setPitch(to_lef_unit_1d(v.pitch()));
+  }
+  if (v.hasXYPitch()) {
+    layer.setPitchX(to_lef_unit_1d(v.pitchX()));
+    layer.setPitchY(to_lef_unit_1d(v.pitchY()));
+  }
+  // offset
+  if (v.hasOffset()) {
+    layer.setOffset(to_lef_unit_1d(v.offset()));
+  }
+  if (v.hasXYOffset()) {
+    layer.setOffsetX(to_lef_unit_1d(v.offsetX()));
+    layer.setOffsetY(to_lef_unit_1d(v.offsetY()));
+  }
+  // add to LefDB
+  _lef.addRoutingLayer(layer);
+}
+
 //void LefReader::lef_maxstackvia_cbk(lefiMaxStackVia const &v) {}
 //void LefReader::lef_via_cbk(lefiVia const &v) {}
 //void LefReader::lef_viarule_cbk(lefiViaRule const &v) {}
@@ -83,7 +177,9 @@ void LefReader::lef_layer_cbk(lefiLayer const &v) {
 //void LefReader::lef_density_cbk(lefiDensity const &v) {}
 //void LefReader::lef_timing_cbk(lefiTiming const &v) {}
 //void LefReader::lef_array_cbk(lefiArray const &v) {}
-//void LefReader::lef_prop_cbk(lefiProp const &v) {}
+void LefReader::lef_prop_cbk(lefiProp const &v) {
+
+}
 //void LefReader::lef_noisemargin_cbk(lefiNoiseMargin const &v) {}
 //void LefReader::lef_edgeratethreshold1_cbk(double v) {}
 //void LefReader::lef_edgeratethreshold2_cbk(double v) {}

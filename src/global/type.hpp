@@ -33,7 +33,10 @@ template<typename T>
 using Set_t     = std::set<T>;
 template<typename T, typename U>
 using Map_t     = std::map<T, U>;
-
+template<typename T>
+using USet_t    = std::unordered_set<T>;
+template<typename T, typename U>
+using UMap_t    = std::unordered_map<T, U>;
 
 constexpr Int_t   MAX_INT   = std::numeric_limits<Int_t>::max()       / 3;
 constexpr Index_t MAX_INDEX = std::numeric_limits<Index_t>::max()     / 3;

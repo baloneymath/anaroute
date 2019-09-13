@@ -59,7 +59,7 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
   //void lef_density_cbk(lefiDensity const &v) override;
   //void lef_timing_cbk(lefiTiming const &v) override;
   //void lef_array_cbk(lefiArray const &v) override;
-  //void lef_prop_cbk(lefiProp const &v) override;
+  void lef_prop_cbk(lefiProp const &v) override;
   //void lef_noisemargin_cbk(lefiNoiseMargin const &v) override;
   //void lef_edgeratethreshold1_cbk(double v) override;
   //void lef_edgeratethreshold2_cbk(double v) override;
@@ -76,6 +76,24 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
 
  private:
   LefDB& _lef;
+
+  /////////////////////////////////////////
+  //    Private functions                //
+  /////////////////////////////////////////
+  void parseRoutingLayer(const lefiLayer& v);
+  /////////////////////////////////////////
+  //    Helper functions                 //
+  /////////////////////////////////////////
+  Int_t to_lef_unit_1d(const Real_t n) const {
+    assert(_lef.units().hasDatabase());
+    Int_t unitLEF = _lef.units().databaseNumber();
+    return std::round(n * unitLEF);
+  }
+  Int_t to_lef_unit_2d(const Real_t n) const {
+    assert(_lef.units().hasDatabase());
+    Int_t unitLEF = _lef.units().databaseNumber();
+    return std::round(n * unitLEF * unitLEF);
+  }
 };
 
 

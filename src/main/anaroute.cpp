@@ -7,13 +7,15 @@
  **/
 
 #include "anaroute.hpp"
-#include "include/cmdline.h"
 #include "src/parser/parser.hpp"
 
 PROJECT_NAMESPACE_START
 
 Anaroute::Anaroute(int argc, char** argv) {
   parseArgs(argc, argv);
+  CirDB cir;
+  Parser parser(_args, cir);
+  parser.parse();
 }
 
 void Anaroute::parseArgs(int argc, char** argv) {
