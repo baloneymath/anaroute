@@ -10,7 +10,7 @@
 #ifndef _DB_LEF_LAYER_CUT_HPP_
 #define _DB_LEF_LAYER_CUT_HPP_
 
-#include "lefLayerType.hpp"
+#include "lefLayerBase.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -18,10 +18,15 @@ class LefCutLayer {
   friend class LefReader;
  
  public:
-  LefCutLayer() {}
+  LefCutLayer()
+    : _name(""), _typeStr("CUT"), _type(LayerType_t::CUT) {}
   ~LefCutLayer() {}
 
  private:
+  String_t _name;
+  String_t _typeStr;
+  LayerType_t _type;
+
 };
 
 PROJECT_NAMESPACE_END

@@ -1,13 +1,13 @@
 /**
- * @file   lefLayers.hpp
- * @brief  Technology configuration - Lef layer types
+ * @file   lefLayerBase.hpp
+ * @brief  Technology configuration - Lef layer basics
  * @author Hao Chen
  * @date   09/12/2019
  *
  **/
 
-#ifndef _DB_LEF_LAYERTYPE_HPP_
-#define _DB_LEF_LAYERTYPE_HPP_
+#ifndef _DB_LEF_LAYER_BASE_HPP_
+#define _DB_LEF_LAYER_BASE_HPP_
 
 #include "src/global/global.hpp"
 
@@ -24,4 +24,7 @@ enum class LayerType_t : Byte_t {
 
 PROJECT_NAMESPACE_END
 
-#endif /// _DB_LEF_LAYERTYPE_HPP_
+
+
+#endif /// _DB_LEF_LAYER_BASE_HPP_
+

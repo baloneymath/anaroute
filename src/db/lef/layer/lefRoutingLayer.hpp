@@ -10,7 +10,7 @@
 #ifndef _DB_LEF_LAYER_ROUTING_HPP_
 #define _DB_LEF_LAYER_ROUTING_HPP_
 
-#include "lefLayerType.hpp"
+#include "lefLayerBase.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -51,7 +51,7 @@ class LefRoutingLayer {
   };
 
   LefRoutingLayer()
-    : _name(""), _typeStr(""), _type(LayerType_t::UNKNOWN), _routeDirStr(""), _routeDir(RouteDir_t::FORBID),
+    : _name(""), _typeStr("ROUTING"), _type(LayerType_t::ROUTING), _routeDirStr(""), _routeDir(RouteDir_t::FORBID),
       _minArea(0), _minWidth(0), _maxWidth(0), _defaultWidth(0),
       _pitch(0), _pitchX(0), _pitchY(0),
       _offset(0), _offsetX(0), _offsetY(0) {}

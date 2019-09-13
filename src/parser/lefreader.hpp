@@ -28,9 +28,7 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
   LefReader(LefDB& t) : _lef(t) {}
   ~LefReader() {}
 
-  void parse(const String_t& filename) {
-    LefParser::read(*this, filename.c_str()); // Limbo defined function
-  }
+  void parse(const String_t& filename);
   // Override functions
   void lef_version_cbk(String_t const& v) override;
   void lef_version_cbk(double v) override;
@@ -80,20 +78,14 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
+  void parseMastersliceLayer(const lefiLayer& v);
+  void parseCutLayer(const lefiLayer& v);
   void parseRoutingLayer(const lefiLayer& v);
   /////////////////////////////////////////
   //    Helper functions                 //
   /////////////////////////////////////////
-  Int_t to_lef_unit_1d(const Real_t n) const {
-    assert(_lef.units().hasDatabase());
-    Int_t unitLEF = _lef.units().databaseNumber();
-    return std::round(n * unitLEF);
-  }
-  Int_t to_lef_unit_2d(const Real_t n) const {
-    assert(_lef.units().hasDatabase());
-    Int_t unitLEF = _lef.units().databaseNumber();
-    return std::round(n * unitLEF * unitLEF);
-  }
+  Int_t to_lef_unit_1d(const Real_t n) const;
+  Int_t to_lef_unit_2d(const Real_t n) const;
 };
 
 

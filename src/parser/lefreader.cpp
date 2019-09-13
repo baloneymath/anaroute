@@ -12,6 +12,10 @@ using std::round;
 
 PROJECT_NAMESPACE_START
 
+void LefReader::parse(const String_t& filename) {
+  LefParser::read(*this, filename.c_str()); // Limbo defined function
+}
+
 void LefReader::lef_version_cbk(String_t const& v) {
   _lef.setVersionStr(v);
 }
@@ -72,10 +76,10 @@ void LefReader::lef_layer_cbk(lefiLayer const &v) {
 
     }
     else if (strcmp(v.type(), "MASTERSLICE") == 0) {
-
+      parseMastersliceLayer(v);
     }
     else if (strcmp(v.type(), "CUT") == 0) {
-
+      parseCutLayer(v);
     }
     else if (strcmp(v.type(), "ROUTING") == 0) {
       parseRoutingLayer(v);
@@ -89,6 +93,49 @@ void LefReader::lef_layer_cbk(lefiLayer const &v) {
   else
     assert(false);
 }
+
+//void LefReader::lef_maxstackvia_cbk(lefiMaxStackVia const &v) {}
+//void LefReader::lef_via_cbk(lefiVia const &v) {}
+//void LefReader::lef_viarule_cbk(lefiViaRule const &v) {}
+//void LefReader::lef_spacing_cbk(lefiSpacing const &v) {}
+//void LefReader::lef_irdrop_cbk(lefiIRDrop const &v) {}
+//void LefReader::lef_minfeature_cbk(lefiMinFeature const &v) {}
+//void LefReader::lef_dielectric_cbk(double v) {}
+//void LefReader::lef_nondefault_cbk(lefiNonDefault const &v) {}
+//void LefReader::lef_site_cbk(lefiSite const &v) {}
+//void LefReader::lef_macrobegin_cbk(String_t const &v) {}
+//void LefReader::lef_macro_cbk(lefiMacro const &v) {}
+//void LefReader::lef_pin_cbk(lefiPin const &v) {}
+//void LefReader::lef_obstruction_cbk(lefiObstruction const &v) {}
+//void LefReader::lef_density_cbk(lefiDensity const &v) {}
+//void LefReader::lef_timing_cbk(lefiTiming const &v) {}
+//void LefReader::lef_array_cbk(lefiArray const &v) {}
+void LefReader::lef_prop_cbk(lefiProp const &v) {
+
+}
+//void LefReader::lef_noisemargin_cbk(lefiNoiseMargin const &v) {}
+//void LefReader::lef_edgeratethreshold1_cbk(double v) {}
+//void LefReader::lef_edgeratethreshold2_cbk(double v) {}
+//void LefReader::lef_edgeratescalefactor_cbk(double v) {}
+//void LefReader::lef_noisetable_cbk(lefiNoiseTable const &v) {}
+//void LefReader::lef_correctiontable_cbk(lefiCorrectionTable const &v) {}
+//void LefReader::lef_inputantenna_cbk(double v) {}
+//void LefReader::lef_outputantenna_cbk(double v) {}
+//void LefReader::lef_inoutantenna_cbk(double v) {}
+//void LefReader::lef_antennainput_cbk(double v) {}
+//void LefReader::lef_antennaoutput_cbk(double v) {}
+//void LefReader::lef_antennainout_cbk(double v) {}
+//void LefReader::lef_extension_cbk(const String_t &v) {}
+
+/////////////////// Private Functions ////////////////////////
+void LefReader::parseMastersliceLayer(const lefiLayer& v) {
+  
+}
+
+void LefReader::parseCutLayer(const lefiLayer& v) {
+
+}
+
 void LefReader::parseRoutingLayer(const lefiLayer& v) {
   LefRoutingLayer layer;
   // name, type
@@ -161,39 +208,17 @@ void LefReader::parseRoutingLayer(const lefiLayer& v) {
   _lef.addRoutingLayer(layer);
 }
 
-//void LefReader::lef_maxstackvia_cbk(lefiMaxStackVia const &v) {}
-//void LefReader::lef_via_cbk(lefiVia const &v) {}
-//void LefReader::lef_viarule_cbk(lefiViaRule const &v) {}
-//void LefReader::lef_spacing_cbk(lefiSpacing const &v) {}
-//void LefReader::lef_irdrop_cbk(lefiIRDrop const &v) {}
-//void LefReader::lef_minfeature_cbk(lefiMinFeature const &v) {}
-//void LefReader::lef_dielectric_cbk(double v) {}
-//void LefReader::lef_nondefault_cbk(lefiNonDefault const &v) {}
-//void LefReader::lef_site_cbk(lefiSite const &v) {}
-//void LefReader::lef_macrobegin_cbk(String_t const &v) {}
-//void LefReader::lef_macro_cbk(lefiMacro const &v) {}
-//void LefReader::lef_pin_cbk(lefiPin const &v) {}
-//void LefReader::lef_obstruction_cbk(lefiObstruction const &v) {}
-//void LefReader::lef_density_cbk(lefiDensity const &v) {}
-//void LefReader::lef_timing_cbk(lefiTiming const &v) {}
-//void LefReader::lef_array_cbk(lefiArray const &v) {}
-void LefReader::lef_prop_cbk(lefiProp const &v) {
-
+////////////// Helper Functions //////////////////////////////
+Int_t LefReader::to_lef_unit_1d(const Real_t n) const {
+  assert(_lef.units().hasDatabase());
+  Int_t unitLEF = _lef.units().databaseNumber();
+  return std::round(n * unitLEF);
 }
-//void LefReader::lef_noisemargin_cbk(lefiNoiseMargin const &v) {}
-//void LefReader::lef_edgeratethreshold1_cbk(double v) {}
-//void LefReader::lef_edgeratethreshold2_cbk(double v) {}
-//void LefReader::lef_edgeratescalefactor_cbk(double v) {}
-//void LefReader::lef_noisetable_cbk(lefiNoiseTable const &v) {}
-//void LefReader::lef_correctiontable_cbk(lefiCorrectionTable const &v) {}
-//void LefReader::lef_inputantenna_cbk(double v) {}
-//void LefReader::lef_outputantenna_cbk(double v) {}
-//void LefReader::lef_inoutantenna_cbk(double v) {}
-//void LefReader::lef_antennainput_cbk(double v) {}
-//void LefReader::lef_antennaoutput_cbk(double v) {}
-//void LefReader::lef_antennainout_cbk(double v) {}
-//void LefReader::lef_extension_cbk(const String_t &v) {}
-
+Int_t LefReader::to_lef_unit_2d(const Real_t n) const {
+  assert(_lef.units().hasDatabase());
+  Int_t unitLEF = _lef.units().databaseNumber();
+  return std::round(n * unitLEF * unitLEF);
+}
 
 PROJECT_NAMESPACE_END
 
