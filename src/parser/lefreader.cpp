@@ -108,7 +108,32 @@ void LefReader::lef_irdrop_cbk(lefiIRDrop const &v) {}
 void LefReader::lef_minfeature_cbk(lefiMinFeature const &v) {}
 void LefReader::lef_dielectric_cbk(double v) {}
 void LefReader::lef_nondefault_cbk(lefiNonDefault const &v) {}
-void LefReader::lef_site_cbk(lefiSite const &v) {}
+
+void LefReader::lef_site_cbk(lefiSite const &v) {
+  LefSite site;
+  // name
+  site.setName(v.name());
+  if (v.hasClass()) {
+    site.setClassType(v.siteClass());
+  }
+  if (v.hasXSymmetry()) {
+    site.setXSymmetry();
+  }
+  if (v.hasYSymmetry()) {
+    site.setYSymmetry();
+  }
+  if (v.has90Symmetry()) {
+    site.setR90Symmetry();
+  }
+  if (v.hasRowPattern()) {
+    for (Index_t i = 0; i < (Index_t)v.numSites(); ++i) {
+      site.addRowPattern(v.siteName(i), v.siteOrientStr(i));
+    }
+  }
+  site.setSizeX(v.sizeX());
+  site.setSizeY(v.sizeY());
+}
+
 void LefReader::lef_macrobegin_cbk(String_t const &v) {}
 void LefReader::lef_macro_cbk(lefiMacro const &v) {}
 void LefReader::lef_pin_cbk(lefiPin const &v) {}

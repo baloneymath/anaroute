@@ -14,6 +14,7 @@
 #include "src/global/global.hpp"
 #include "lef/lefUnits.hpp"
 #include "lef/lefLayers.hpp"
+#include "lef/lefSite.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -91,7 +92,7 @@ class LefDB {
   LefUnits                        _units;
   
   // Layers
-  Vector_t<Pair_t<LayerType_t, Index_t>>  _vAllLayers; // first: type, second: idx in corresponding vector. ex. {ROUTING, 2} -> vRoutingLayers[2];
+  Vector_t<Pair_t<LayerType, Index_t>>    _vAllLayers; // first: type, second: idx in corresponding vector. ex. {ROUTING, 2} -> vRoutingLayers[2];
   Vector_t<LefImplantLayer>               _vImplantLayers;
   Vector_t<LefMastersliceLayer>           _vMastersliceLayers;
   Vector_t<LefCutLayer>                   _vCutLayers;

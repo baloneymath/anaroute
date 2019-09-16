@@ -53,6 +53,7 @@ add_executable(${PROJECT_NAME}
   src/main/anaroute.cpp
   src/db/lef/layer/lefCutLayer.cpp
   src/db/lef/layer/lefRoutingLayer.cpp
+  src/db/lef/lefSite.cpp
   src/db/dbLef.cpp
   src/parser/lefreader.cpp
 )
