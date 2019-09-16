@@ -51,7 +51,7 @@ class LefRoutingLayer {
   };
 
   LefRoutingLayer()
-    : _name(""), _typeStr("ROUTING"), _type(LayerType_t::ROUTING), _routeDirStr(""), _routeDir(RouteDir_t::FORBID),
+    : _name(""), _routeDirStr(""), _routeDir(RouteDir_t::FORBID),
       _minArea(0), _minWidth(0), _maxWidth(0), _defaultWidth(0),
       _pitch(0), _pitchX(0), _pitchY(0),
       _offset(0), _offsetX(0), _offsetY(0) {}
@@ -61,8 +61,6 @@ class LefRoutingLayer {
   //   Getter                           //
   ////////////////////////////////////////
   const String_t&         name()                      const { return _name; }
-  const String_t&         typeStr()                   const { return _typeStr; }
-  LayerType_t             type()                      const { return _type; }
   const String_t&         routeDirStr()               const { return _routeDirStr; }
   RouteDir_t              routeDir()                  const { return _routeDir; }
   Int_t                   minArea()                   const { return _minArea; }
@@ -87,8 +85,6 @@ class LefRoutingLayer {
   //    Members                       //
   //////////////////////////////////////
   String_t              _name;
-  String_t              _typeStr;
-  LayerType_t           _type;
   String_t              _routeDirStr;
   RouteDir_t            _routeDir;
   Int_t                 _minArea;
@@ -109,7 +105,6 @@ class LefRoutingLayer {
   //    Setter                        //
   //////////////////////////////////////
   void setName(const String_t& n);
-  void setType(const String_t& t);
   void setRouteDir(const String_t& d);
   void setMinArea(const Int_t a);
   void setMinWidth(const Int_t w);

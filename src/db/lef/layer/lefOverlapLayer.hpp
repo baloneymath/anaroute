@@ -1,25 +1,25 @@
 /**
- * @file   lefMastersliceLayer.hpp
- * @brief  Technology configuration - Lef Masterslice layer
+ * @file   lefOverlapLayer.hpp
+ * @brief  Technology configuration - Lef Overlap layer
  * @author Hao Chen
  * @date   09/12/2019
  *
  **/
 
-#ifndef _DB_LEF_LAYER_MASTERSLICE_HPP_
-#define _DB_LEF_LAYER_MASTERSLICE_HPP_
+#ifndef _DB_LEF_LAYER_OVERLAP_HPP_
+#define _DB_LEF_LAYER_OVERLAP_HPP_
 
 #include "lefLayerBase.hpp"
 
 PROJECT_NAMESPACE_START
 
-class LefMastersliceLayer {
+class LefOverlapLayer {
   friend class LefReader;
  
  public:
-  LefMastersliceLayer()
+  LefOverlapLayer()
     : _name("") {}
-  ~LefMastersliceLayer() {}
+  ~LefOverlapLayer() {}
   
   ////////////////////////////////////////
   //   Getter                           //
@@ -39,4 +39,4 @@ class LefMastersliceLayer {
 
 PROJECT_NAMESPACE_END
 
-#endif /// _DB_LEF_LAYER_MASTERSLICE_HPP_
+#endif /// _DB_LEF_LAYER_OVERLAP_HPP_

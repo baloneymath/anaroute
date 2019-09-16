@@ -1,42 +1,40 @@
 /**
- * @file   lefMastersliceLayer.hpp
- * @brief  Technology configuration - Lef Masterslice layer
+ * @file   lefImplantLayer.hpp
+ * @brief  Technology configuration - Lef Implant layer
  * @author Hao Chen
- * @date   09/12/2019
+ * @date   09/15/2019
  *
  **/
 
-#ifndef _DB_LEF_LAYER_MASTERSLICE_HPP_
-#define _DB_LEF_LAYER_MASTERSLICE_HPP_
+#ifndef _DB_LEF_LAYER_IMPLANT_HPP_
+#define _DB_LEF_LAYER_IMPLANT_HPP_
 
 #include "lefLayerBase.hpp"
 
 PROJECT_NAMESPACE_START
 
-class LefMastersliceLayer {
+class LefImplantLayer {
   friend class LefReader;
- 
  public:
-  LefMastersliceLayer()
+  LefImplantLayer()
     : _name("") {}
-  ~LefMastersliceLayer() {}
-  
+  ~LefImplantLayer() {}
+
   ////////////////////////////////////////
   //   Getter                           //
   ////////////////////////////////////////
-  const String_t&   name()    const { return _name; }
+  const String_t& name() const { return _name; }
+
 
  private:
-  String_t      _name;
-  
+  String_t _name;
   ////////////////////////////////////////
   //   Setter                           //
   ////////////////////////////////////////
   void setName(const String_t& n) { _name = n; }
-
 };
-
 
 PROJECT_NAMESPACE_END
 
-#endif /// _DB_LEF_LAYER_MASTERSLICE_HPP_
+#endif /// _DB_LEF_LAYER_INPLANT_HPP_
+

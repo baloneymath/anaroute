@@ -14,8 +14,9 @@ PROJECT_NAMESPACE_START
 Anaroute::Anaroute(int argc, char** argv) {
   parseArgs(argc, argv);
   CirDB cir;
-  Parser parser(_args, cir);
-  parser.parse();
+  Parser parser(cir);
+  parser.parseLef(_args.get<String_t>("tech_lef"));
+  cir.lef().logInfo();
 }
 
 void Anaroute::parseArgs(int argc, char** argv) {

@@ -9,7 +9,6 @@
 #ifndef _PARSER_HPP_
 #define _PARSER_HPP_
 
-#include "include/cmdline.h"
 #include "src/global/global.hpp"
 #include "src/db/dbCir.hpp"
 #include "lefreader.hpp"
@@ -18,15 +17,15 @@ PROJECT_NAMESPACE_START
 
 class Parser {
 public:
-  Parser(cmdline::parser& p, CirDB& c)
-    : _args(p), _cir(c), _lefr(c.lef()){}
+  Parser(CirDB& c)
+    : _cir(c), _lefr(c.lef()){}
   ~Parser() {}
   
-  void parse() {
-    _lefr.parse(_args.get<String_t>("tech_lef"));
+  void parseLef(const String_t& lefFilename) {
+    _lefr.parse(lefFilename);
   }
+
 private:
-  cmdline::parser& _args;
   CirDB&           _cir;
   LefReader        _lefr;
 };

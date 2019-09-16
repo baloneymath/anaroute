@@ -14,16 +14,6 @@ void LefRoutingLayer::setName(const String_t& n) {
   _name = n;
 }
 
-void LefRoutingLayer::setType(const String_t& t) {
-  _typeStr = t;
-  if (t == "IMPLANT") _type = LayerType_t::IMPLANT;
-  else if (t == "MASTERSLICE") _type = LayerType_t::MASTERSLICE;
-  else if (t == "CUT") _type = LayerType_t::CUT;
-  else if (t == "ROUTING") _type = LayerType_t::ROUTING;
-  else if (t == "OVERLAP") _type = LayerType_t::OVERLAP;
-  else assert(false);
-}
-
 void LefRoutingLayer::setRouteDir(const String_t& d) {
   _routeDirStr = d;
   if (d == "HORIZONTAL") _routeDir = RouteDir_t::HORIZONTAL;
@@ -92,8 +82,43 @@ void LefRoutingLayer::addSpacingTableWidthSpacing(const Index_t idx, const Int_t
 }
 
 void LefRoutingLayer::logInfo() const {
-  printf("%s\n", _name.c_str());
-  printf("%s\n", _typeStr.c_str());
+  FILE* fout = stderr;
+  fprintf(fout,"LAYER %s\n", _name.c_str());
+  fprintf(fout,"  TYPE ROUTING\n");
+  fprintf(fout,"  DIRECTION %s\n", _routeDirStr.c_str());
+  fprintf(fout,"  PITCH %d PITCH_X %d PITCH_Y %d\n", _pitch, _pitchX, _pitchY);
+  fprintf(fout,"  OFFSET %d OFFSET_X %d OFFSET_Y %d\n", _offset, _offsetX, _offsetY);
+  if (_vSpacings.size()) {
+    fprintf(fout,"  SPACING\n");
+    fprintf(fout,"    ");
+    for (Index_t i = 0; i < _vSpacings.size(); ++i)
+      fprintf(fout,"%d ", _vSpacings[i]);
+    fprintf(fout,"\n");
+  }
+  if (_vEolSpacings.size()) {
+    fprintf(fout,"  EOL\n");
+    fprintf(fout,"    ");
+    for (Index_t i = 0; i < _vEolSpacings.size(); ++i)
+      fprintf(fout,"SPACING %d WIDTH %d WITHIN %d\n", _vEolSpacings[i].eolSpacing(),
+                                                _vEolSpacings[i].eolWidth(),
+                                                _vEolSpacings[i].eolWithin());
+  }
+  if (_spacingTable.vParallelRunLength.size()) {
+    fprintf(fout,"SPACINGTABLE\n");
+      fprintf(fout,"PARALLELRUNLENGTH");
+    for (Index_t i = 0; i < _spacingTable.vParallelRunLength.size(); ++i) {
+      fprintf(fout,"  %d", _spacingTable.vParallelRunLength[i]);
+    }
+    fprintf(fout,"\n");
+    for (Index_t i = 0; i < _spacingTable.table.size(); ++i) {
+      fprintf(fout,"WIDTH %d", _spacingTable.table[i].first);
+      for (Index_t j = 0; j < _spacingTable.table[i].second.size(); ++j) {
+        fprintf(fout,"  %d", _spacingTable.table[i].second[j]);
+      }
+      fprintf(fout,"\n");
+    }
+  }
+  fprintf(fout,"END %s\n", _name.c_str());
 }
 
 PROJECT_NAMESPACE_END
