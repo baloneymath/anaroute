@@ -13,7 +13,7 @@
 
 PROJECT_NAMESPACE_START
 
-enum class LayerType : Byte_t {
+enum class LefLayerType : Byte_t {
   IMPLANT     = 0,
   MASTERSLICE = 1,
   CUT         = 2,

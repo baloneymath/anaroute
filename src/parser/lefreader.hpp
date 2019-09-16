@@ -83,11 +83,12 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
   void parseCutLayer(const lefiLayer& v);
   void parseRoutingLayer(const lefiLayer& v);
   void parseOverlapLayer(const lefiLayer& v);
+  void parseDefaultVia(const lefiVia& v);
   /////////////////////////////////////////
   //    Helper functions                 //
   /////////////////////////////////////////
-  Int_t to_lef_unit_1d(const Real_t n) const;
-  Int_t to_lef_unit_2d(const Real_t n) const;
+  Int_t to_lef_unit_1d(const Real_t n) const; // to unit length
+  Int_t to_lef_unit_2d(const Real_t n) const; // to unit area
 };
 
 

@@ -101,7 +101,16 @@ void LefReader::lef_layer_cbk(lefiLayer const &v) {
 }
 
 void LefReader::lef_maxstackvia_cbk(lefiMaxStackVia const &v) {}
-void LefReader::lef_via_cbk(lefiVia const &v) {}
+
+void LefReader::lef_via_cbk(lefiVia const &v) {
+  if (v.hasDefault()) {
+    parseDefaultVia(v);
+  }
+  else {
+    // TODO: Generated Vias by Viarule
+  }
+}
+
 void LefReader::lef_viarule_cbk(lefiViaRule const &v) {}
 void LefReader::lef_spacing_cbk(lefiSpacing const &v) {}
 void LefReader::lef_irdrop_cbk(lefiIRDrop const &v) {}
@@ -130,8 +139,9 @@ void LefReader::lef_site_cbk(lefiSite const &v) {
       site.addRowPattern(v.siteName(i), v.siteOrientStr(i));
     }
   }
-  site.setSizeX(v.sizeX());
-  site.setSizeY(v.sizeY());
+  site.setSizeX(to_lef_unit_1d(v.sizeX()));
+  site.setSizeY(to_lef_unit_1d(v.sizeY()));
+  _lef.addSite(site);
 }
 
 void LefReader::lef_macrobegin_cbk(String_t const &v) {}
@@ -274,6 +284,24 @@ void LefReader::parseOverlapLayer(const lefiLayer& v) {
   // name
   layer.setName(v.name());
   _lef.addOverlapLayer(layer);
+}
+
+void LefReader::parseDefaultVia(const lefiVia& v) {
+  LefVia via;
+  via.setName(v.name());
+  Int_t xl = 0, yl = 0, xh = 0, yh = 0;
+  // botLayer
+  via.setBotLayerName(v.layerName(0));
+  const Pair_t<LefLayerType, Index_t>& bot = _lef.str2Layer(v.name());
+  if (bot.first == LefLayerType::MASTERSLICE) {
+
+  }
+  else if (bot.first == LefLayerType::ROUTING) {
+
+  }
+  else assert(false);
+  // cutLayer
+  // topLayer
 }
 
 ////////////// Helper Functions //////////////////////////////

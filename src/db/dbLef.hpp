@@ -15,6 +15,7 @@
 #include "lef/lefUnits.hpp"
 #include "lef/lefLayers.hpp"
 #include "lef/lefSite.hpp"
+#include "lef/lefVia.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -39,44 +40,50 @@ class LefDB {
   ////////////////////////////////////////
   //   Units                            //
   ////////////////////////////////////////
-  LefUnits&                        units()                   { return _units; }
   const LefUnits&                  units()             const { return _units; }
-  
   
   ////////////////////////////////////////
   //   Layers                           //
   ////////////////////////////////////////
-  // Implant Layers
-  LefImplantLayer&                         implantLayer(const Index_t i)       { return _vImplantLayers[i]; }
-  const LefImplantLayer&                   implantLayer(const Index_t i) const { return _vImplantLayers[i]; }
-  Vector_t<LefImplantLayer>&               vImplantLayers()                    { return _vImplantLayers; }
-  const Vector_t<LefImplantLayer>&         vImplantLayers()              const { return _vImplantLayers; }
-  Index_t                                  numImplantLayers()            const { return _vImplantLayers.size(); }
+  // All
+  const Pair_t<LefLayerType, Index_t>&     str2Layer(const String_t& n)                const { return _vAllLayers[_mStr2AllLayerIdx.at(n)]; }
+  // Implant Layers                                                                    
+  const LefImplantLayer&                   implantLayer(const Index_t i)               const { return _vImplantLayers[i]; }
+  const Vector_t<LefImplantLayer>&         vImplantLayers()                            const { return _vImplantLayers; }
+  Index_t                                  numImplantLayers()                          const { return _vImplantLayers.size(); }
+  Index_t                                  str2ImplantLayerIdx(const String_t& n)      const { return _mStr2ImplantLayerIdx.at(n); }
+  const LefImplantLayer&                   str2ImplantLayer(const String_t& n)         const { return _vImplantLayers[str2ImplantLayerIdx(n)]; }
   // Masterslice Layers
-  LefMastersliceLayer&                     mastersliceLayer(const Index_t i)       { return _vMastersliceLayers[i]; }
-  const LefMastersliceLayer&               mastersliceLayer(const Index_t i) const { return _vMastersliceLayers[i]; }
-  Vector_t<LefMastersliceLayer>&           vMastersliceLayers()                    { return _vMastersliceLayers; }
-  const Vector_t<LefMastersliceLayer>&     vMastersliceLayers()              const { return _vMastersliceLayers; }
-  Index_t                                  numMastersliceLayers()            const { return _vMastersliceLayers.size(); }
+  const LefMastersliceLayer&               mastersliceLayer(const Index_t i)           const { return _vMastersliceLayers[i]; }
+  const Vector_t<LefMastersliceLayer>&     vMastersliceLayers()                        const { return _vMastersliceLayers; }
+  Index_t                                  numMastersliceLayers()                      const { return _vMastersliceLayers.size(); }
+  Index_t                                  str2MastersliceLayerIdx(const String_t& n)  const { return _mStr2MastersliceLayerIdx.at(n); }
+  const LefMastersliceLayer&               str2MastersliceLayer(const String_t& n)     const { return _vMastersliceLayers[str2MastersliceLayerIdx(n)]; }
   // Cut Layers
-  LefCutLayer&                             cutLayer(const Index_t i)       { return _vCutLayers[i]; }
-  const LefCutLayer&                       cutLayer(const Index_t i) const { return _vCutLayers[i]; }
-  Vector_t<LefCutLayer>&                   vCutLayers()                    { return _vCutLayers; }
-  const Vector_t<LefCutLayer>&             vCutLayers()              const { return _vCutLayers; }
-  Index_t                                  numCutLayers()            const { return _vCutLayers.size(); }
-  // Routing layers                        
-  LefRoutingLayer&                         routingLayer(const Index_t i)       { return _vRoutingLayers[i]; }
-  const LefRoutingLayer&                   routingLayer(const Index_t i) const { return _vRoutingLayers[i]; }
-  Vector_t<LefRoutingLayer>&               vRoutingLayers()                    { return _vRoutingLayers; }
-  const Vector_t<LefRoutingLayer>&         vRoutingLayers()              const { return _vRoutingLayers; }
-  Index_t                                  numRoutingLayers()            const { return _vRoutingLayers.size(); }
-  // Overlap layers                        
-  LefOverlapLayer&                         overlapLayer(const Index_t i)       { return _vOverlapLayers[i]; }
-  const LefOverlapLayer&                   overlapLayer(const Index_t i) const { return _vOverlapLayers[i]; }
-  Vector_t<LefOverlapLayer>&               vOverlapLayers()                    { return _vOverlapLayers; }
-  const Vector_t<LefOverlapLayer>&         vOverlapLayers()              const { return _vOverlapLayers; }
-  Index_t                                  numOverlapLayers()            const { return _vOverlapLayers.size(); }
-  
+  const LefCutLayer&                       cutLayer(const Index_t i)                   const { return _vCutLayers[i]; }
+  const Vector_t<LefCutLayer>&             vCutLayers()                                const { return _vCutLayers; }
+  Index_t                                  numCutLayers()                              const { return _vCutLayers.size(); }
+  Index_t                                  str2CutLayerIdx(const String_t& n)          const { return _mStr2CutLayerIdx.at(n); }
+  const LefCutLayer&                       str2CutLayer(const String_t& n)             const { return _vCutLayers[str2CutLayerIdx(n)]; }
+  // Routing layers                                                          
+  const LefRoutingLayer&                   routingLayer(const Index_t i)               const { return _vRoutingLayers[i]; }
+  const Vector_t<LefRoutingLayer>&         vRoutingLayers()                            const { return _vRoutingLayers; }
+  Index_t                                  numRoutingLayers()                          const { return _vRoutingLayers.size(); }
+  Index_t                                  str2RoutinglayerIdx(const String_t& n)      const { return _mStr2RoutingLayerIdx.at(n); }
+  const LefRoutingLayer&                   str2Routinglayer(const String_t& n)         const { return _vRoutingLayers[str2RoutinglayerIdx(n)]; }
+  // Overlap layers                                                          
+  const LefOverlapLayer&                   overlapLayer(const Index_t i)               const { return _vOverlapLayers[i]; }
+  const Vector_t<LefOverlapLayer>&         vOverlapLayers()                            const { return _vOverlapLayers; }
+  Index_t                                  numOverlapLayers()                          const { return _vOverlapLayers.size(); }
+  Index_t                                  str2OverlaplayerIdx(const String_t& n)      const { return _mStr2OverlapLayerIdx.at(n); }
+  const LefOverlapLayer&                   str2Overlaplayer(const String_t& n)         const { return _vOverlapLayers[str2OverlaplayerIdx(n)]; }
+  ////////////////////////////////////////
+  //   Vias                             //
+  ////////////////////////////////////////
+  const LefVia&                   via(const Index_t i) const { return _vVias[i]; }
+  const Vector_t<LefVia>&         vVias()              const { return _vVias; }
+  Index_t                         numVias()            const { return _vVias.size(); }
+
   // for debug
   void logInfo() const;
 
@@ -89,21 +96,31 @@ class LefDB {
   String_t                        _clearanceMeasure;
   String_t                        _busbitChars;
   
+  // unit
   LefUnits                        _units;
   
-  // Layers
-  Vector_t<Pair_t<LayerType, Index_t>>    _vAllLayers; // first: type, second: idx in corresponding vector. ex. {ROUTING, 2} -> vRoutingLayers[2];
+  // site
+  Vector_t<LefSite>              _vSites;
+  UMap_t<String_t, Index_t>      _mStr2SiteIdx;
+
+  // Layer
+  Vector_t<Pair_t<LefLayerType, Index_t>> _vAllLayers; // first: type, second: idx in corresponding vector. ex. {ROUTING, 2} -> vRoutingLayers[2];
   Vector_t<LefImplantLayer>               _vImplantLayers;
   Vector_t<LefMastersliceLayer>           _vMastersliceLayers;
   Vector_t<LefCutLayer>                   _vCutLayers;
   Vector_t<LefRoutingLayer>               _vRoutingLayers;
   Vector_t<LefOverlapLayer>               _vOverlapLayers;
+  UMap_t<String_t, Index_t>       _mStr2AllLayerIdx;
   UMap_t<String_t, Index_t>       _mStr2ImplantLayerIdx;
   UMap_t<String_t, Index_t>       _mStr2MastersliceLayerIdx;
   UMap_t<String_t, Index_t>       _mStr2CutLayerIdx;
   UMap_t<String_t, Index_t>       _mStr2RoutingLayerIdx;
   UMap_t<String_t, Index_t>       _mStr2OverlapLayerIdx;
   
+  // Via
+  Vector_t<LefVia>              _vVias;
+  UMap_t<String_t, Index_t>     _mStr2ViaIdx;
+
   ////////////////////////////////////////
   //   Setter                           //
   ////////////////////////////////////////
@@ -113,11 +130,16 @@ class LefDB {
   void setManufacturingGrid(const Real_t v);
   void setClearanceMeasure(const String_t& v);
   void setBusbitChars(const String_t& v);
+  
+  void addSite(const LefSite& s);
+
   void addImplantLayer(const LefImplantLayer& l);
   void addMastersliceLayer(const LefMastersliceLayer& l);
   void addCutLayer(const LefCutLayer& l);
   void addRoutingLayer(const LefRoutingLayer& l);
   void addOverlapLayer(const LefOverlapLayer& l);
+
+  void addVia(const LefVia& v);
 };
 
 PROJECT_NAMESPACE_END

@@ -54,6 +54,7 @@ add_executable(${PROJECT_NAME}
   src/db/lef/layer/lefCutLayer.cpp
   src/db/lef/layer/lefRoutingLayer.cpp
   src/db/lef/lefSite.cpp
+  src/db/lef/lefVia.cpp
   src/db/dbLef.cpp
   src/parser/lefreader.cpp
 )
