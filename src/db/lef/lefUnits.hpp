@@ -18,8 +18,15 @@ class LefUnits {
 
  public:
   LefUnits()
-    : _databaseName(""), _databaseNumber(100), _capacitance(1), _resistance(1),
-      _time(1), _power(1), _current(1), _voltage(1), _frequency(1) {}
+    : _databaseName(""),
+      _databaseNumber(1e2),
+      _capacitance(1e6),
+      _resistance(1e4),
+      _time(1e3),
+      _power(1e4),
+      _current(1e4),
+      _voltage(1e3),
+      _frequency(1) {}
   ~LefUnits() {}
   
   /////////////////////////////////
