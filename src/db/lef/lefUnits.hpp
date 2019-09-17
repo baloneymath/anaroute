@@ -18,24 +18,13 @@ class LefUnits {
 
  public:
   LefUnits()
-    : _hasDatabase(false), _hasCapacitance(false), _hasResistance(false), _hasTime(false),
-      _hasPower(false), _hasCurrent(false), _hasVoltage(false), _hasFrequency(false),
-      _databaseName(""), _databaseNumber(0), _capacitance(0), _resistance(0),
-      _time(0), _power(0), _current(0), _voltage(0), _frequency(0) {}
+    : _databaseName(""), _databaseNumber(100), _capacitance(1), _resistance(1),
+      _time(1), _power(1), _current(1), _voltage(1), _frequency(1) {}
   ~LefUnits() {}
   
   /////////////////////////////////
   //    Getter                   //
   /////////////////////////////////
-  bool hasDatabase()    const { return _hasDatabase; }
-  bool hasCapacitance() const { return _hasCapacitance; }
-  bool hasResistance()  const { return _hasResistance; }
-  bool hasTime()        const { return _hasTime; }
-  bool hasPower()       const { return _hasPower; }
-  bool hasCurrent()     const { return _hasCurrent; }
-  bool hasVoltage()     const { return _hasVoltage; }
-  bool hasFrequency()   const { return _hasFrequency; }
-
   const String_t&    databaseName()    const { return _databaseName; }
   Real_t             databaseNumber()  const { return _databaseNumber; }
   Real_t             capacitance()     const { return _capacitance; }
@@ -47,15 +36,6 @@ class LefUnits {
   Real_t             frequency()       const { return _frequency; }
 
  private:
-  bool _hasDatabase;
-  bool _hasCapacitance;
-  bool _hasResistance;
-  bool _hasTime;
-  bool _hasPower;
-  bool _hasCurrent;
-  bool _hasVoltage;
-  bool _hasFrequency;
-
   String_t    _databaseName;
   Real_t      _databaseNumber;
   Real_t      _capacitance;
@@ -69,16 +49,15 @@ class LefUnits {
   /////////////////////////////////
   //    Setter                   //
   /////////////////////////////////
-  
-  void setDatabaseName(const String_t& s)     { _databaseName = s; _hasDatabase = true; }
-  void setDatabaseNumber(const Real_t n)      { _databaseNumber= n; _hasDatabase = true; }
-  void setCapacitance(const Real_t c)         { _capacitance = c; _hasCapacitance = true; }
-  void setResistance(const Real_t r)          { _resistance = r; _hasResistance = true; }
-  void setTime(const Real_t t)                { _time = t; _hasTime = true; }
-  void setPower(const Real_t p)               { _power = p; _hasPower = true; }
-  void setCurrent(const Real_t c)             { _current = c; _hasCurrent = true; }
-  void setVoltage(const Real_t v)             { _voltage = v; _hasVoltage = true; }
-  void setFrequency(const Real_t f)           { _frequency = f; _hasFrequency = true; }
+  void setDatabaseName(const String_t& s)     { _databaseName = s; }
+  void setDatabaseNumber(const Real_t n)      { _databaseNumber= n; }
+  void setCapacitance(const Real_t c)         { _capacitance = c; }
+  void setResistance(const Real_t r)          { _resistance = r; }
+  void setTime(const Real_t t)                { _time = t; }
+  void setPower(const Real_t p)               { _power = p; }
+  void setCurrent(const Real_t c)             { _current = c; }
+  void setVoltage(const Real_t v)             { _voltage = v; }
+  void setFrequency(const Real_t f)           { _frequency = f; }
 };
 
 

@@ -18,9 +18,8 @@ class LefVia {
   friend class LefReader;
  public:
   LefVia()
-    :_name(""), _bDefault(false),
-     _botLayerIdx(0), _cutLayerIdx(0), _topLayerIdx(0),
-     _botLayerName(""), _cutLayerName(""), _topLayerName("") {}
+    : _name(""), _bDefault(false), _resistance(0),
+      _layerIndices{0, 0 , 0}, _layerNames{"", "", ""} {}
   ~LefVia() {}
 
   /////////////////////////////////
@@ -28,50 +27,43 @@ class LefVia {
   /////////////////////////////////
   const String_t&               name()                  const { return _name; }
   bool                          bDefault()              const { return _bDefault; }
-  Index_t                       botLayerIdx()           const { return _botLayerIdx; }
-  Index_t                       cutLayerIdx()           const { return _cutLayerIdx; }
-  Index_t                       topLayerIdx()           const { return _topLayerIdx; }
-  const String_t&               botLayerName()          const { return _botLayerName; } 
-  const String_t&               cutLayerName()          const { return _cutLayerName; } 
-  const String_t&               topLayerName()          const { return _topLayerName; }
+  Int_t                         resistance()            const { return _resistance; }
+  Index_t                       botLayerIdx()           const { return _layerIndices[0]; }
+  Index_t                       cutLayerIdx()           const { return _layerIndices[1]; }
+  Index_t                       topLayerIdx()           const { return _layerIndices[2]; }
+  const String_t&               botLayerName()          const { return _layerNames[0]; } 
+  const String_t&               cutLayerName()          const { return _layerNames[1]; } 
+  const String_t&               topLayerName()          const { return _layerNames[2]; }
   
   // Boxes
-  Index_t                       numBotBoxes()           const { return _vBotBoxes.size(); }
-  Index_t                       numCutBoxes()           const { return _vCutBoxes.size(); }
-  Index_t                       numTopBoxes()           const { return _vTopBoxes.size(); }
-  const Box<Int_t>&             botBox(const Index_t i) const { return _vBotBoxes[i]; }
-  const Box<Int_t>&             cutBox(const Index_t i) const { return _vCutBoxes[i]; }
-  const Box<Int_t>&             topBox(const Index_t i) const { return _vTopBoxes[i]; }
-  const Vector_t<Box<Int_t>>&   vBotBoxes()             const { return _vBotBoxes; }
-  const Vector_t<Box<Int_t>>&   vCutBoxes()             const { return _vCutBoxes; }
-  const Vector_t<Box<Int_t>>&   vTopBoxes()             const { return _vTopBoxes; }
-                                                                 
+  Index_t                       numBotBoxes()           const { return _vBoxes[0].size(); }
+  Index_t                       numCutBoxes()           const { return _vBoxes[1].size(); }
+  Index_t                       numTopBoxes()           const { return _vBoxes[2].size(); }
+  const Box<Int_t>&             botBox(const Index_t i) const { return _vBoxes[0][i]; }
+  const Box<Int_t>&             cutBox(const Index_t i) const { return _vBoxes[1][i]; }
+  const Box<Int_t>&             topBox(const Index_t i) const { return _vBoxes[2][i]; }
+  const Vector_t<Box<Int_t>>&   vBotBoxes()             const { return _vBoxes[0]; }
+  const Vector_t<Box<Int_t>>&   vCutBoxes()             const { return _vBoxes[1]; }
+  const Vector_t<Box<Int_t>>&   vTopBoxes()             const { return _vBoxes[2]; }
+                                         
+  // for debug
+  void logInfo() const;
  private:                                                        
-  String_t              _name;
-  bool                  _bDefault; // true: fixed via, false: generated via
-  Index_t               _botLayerIdx;
-  Index_t               _cutLayerIdx;
-  Index_t               _topLayerIdx;
-  String_t              _botLayerName;
-  String_t              _cutLayerName;
-  String_t              _topLayerName;
-  Vector_t<Box<Int_t>>  _vBotBoxes;
-  Vector_t<Box<Int_t>>  _vCutBoxes;
-  Vector_t<Box<Int_t>>  _vTopBoxes;
+  String_t             _name;
+  bool                 _bDefault; // true: fixed via, false: generated via
+  Int_t                _resistance;
+  Index_t              _layerIndices[3]; // 0 -> botLayer 1 -> cutLayer 2 -> topLayer
+  String_t             _layerNames[3];   // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
+  Vector_t<Box<Int_t>> _vBoxes[3];       // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
   /////////////////////////////////
   //    Setter                   //
   /////////////////////////////////
   void setName(const String_t& n);
   void setDefault();
-  void setBotLayerIdx(const Index_t i);
-  void setCutLayerIdx(const Index_t i);
-  void setTopLayerIdx(const Index_t i);
-  void setBotLayerName(const String_t& n);
-  void setCutLayerName(const String_t& n);
-  void setTopLayerName(const String_t& n);
-  void addBotBox(const Box<Int_t>& b);
-  void addCutBox(const Box<Int_t>& b);
-  void addTopBox(const Box<Int_t>& b);
+  void setResistance(const Int_t r);
+  void setLayerIdx(const Index_t i, const Index_t v);
+  void setLayerName(const Index_t i, const String_t& n);
+  void addBox(const Index_t i, const Box<Int_t>& b);
 };
 
 PROJECT_NAMESPACE_END

@@ -90,7 +90,9 @@ void LefDB::logInfo() const {
   //for (Index_t i = 0; i < _vRoutingLayers.size(); ++i) {
     //_vRoutingLayers[i].logInfo();
   //}
-
+  for (Index_t i = 0; i < _vVias.size(); ++i) {
+    _vVias[i].logInfo();
+  }
 }
 
 PROJECT_NAMESPACE_END

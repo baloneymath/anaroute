@@ -46,7 +46,8 @@ class LefDB {
   //   Layers                           //
   ////////////////////////////////////////
   // All
-  const Pair_t<LefLayerType, Index_t>&     str2Layer(const String_t& n)                const { return _vAllLayers[_mStr2AllLayerIdx.at(n)]; }
+  Index_t                                  str2LayerIdx(const String_t& n)             const { return _mStr2AllLayerIdx.at(n); }
+  const Pair_t<LefLayerType, Index_t>&     str2Layer(const String_t& n)                const { return _vAllLayers[str2LayerIdx(n)]; }
   // Implant Layers                                                                    
   const LefImplantLayer&                   implantLayer(const Index_t i)               const { return _vImplantLayers[i]; }
   const Vector_t<LefImplantLayer>&         vImplantLayers()                            const { return _vImplantLayers; }
@@ -104,18 +105,18 @@ class LefDB {
   UMap_t<String_t, Index_t>      _mStr2SiteIdx;
 
   // Layer
-  Vector_t<Pair_t<LefLayerType, Index_t>> _vAllLayers; // first: type, second: idx in corresponding vector. ex. {ROUTING, 2} -> vRoutingLayers[2];
-  Vector_t<LefImplantLayer>               _vImplantLayers;
-  Vector_t<LefMastersliceLayer>           _vMastersliceLayers;
-  Vector_t<LefCutLayer>                   _vCutLayers;
-  Vector_t<LefRoutingLayer>               _vRoutingLayers;
-  Vector_t<LefOverlapLayer>               _vOverlapLayers;
-  UMap_t<String_t, Index_t>       _mStr2AllLayerIdx;
-  UMap_t<String_t, Index_t>       _mStr2ImplantLayerIdx;
-  UMap_t<String_t, Index_t>       _mStr2MastersliceLayerIdx;
-  UMap_t<String_t, Index_t>       _mStr2CutLayerIdx;
-  UMap_t<String_t, Index_t>       _mStr2RoutingLayerIdx;
-  UMap_t<String_t, Index_t>       _mStr2OverlapLayerIdx;
+  Vector_t<Pair_t<LefLayerType, Index_t>>  _vAllLayers; // first: type, second: idx in corresponding vector. ex. {ROUTING, 2} -> vRoutingLayers[2];
+  Vector_t<LefImplantLayer>                _vImplantLayers;
+  Vector_t<LefMastersliceLayer>            _vMastersliceLayers;
+  Vector_t<LefCutLayer>                    _vCutLayers;
+  Vector_t<LefRoutingLayer>                _vRoutingLayers;
+  Vector_t<LefOverlapLayer>                _vOverlapLayers;
+  UMap_t<String_t, Index_t>                _mStr2AllLayerIdx;
+  UMap_t<String_t, Index_t>                _mStr2ImplantLayerIdx;
+  UMap_t<String_t, Index_t>                _mStr2MastersliceLayerIdx;
+  UMap_t<String_t, Index_t>                _mStr2CutLayerIdx;
+  UMap_t<String_t, Index_t>                _mStr2RoutingLayerIdx;
+  UMap_t<String_t, Index_t>                _mStr2OverlapLayerIdx;
   
   // Via
   Vector_t<LefVia>              _vVias;

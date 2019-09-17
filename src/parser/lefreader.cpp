@@ -43,7 +43,7 @@ void LefReader::lef_clearancemeasure_cbk(const String_t &v) {
 }
 
 void LefReader::lef_units_cbk(lefiUnits const &v) {
-  LefUnits& units = _lef.units();
+  LefUnits& units = _lef._units;
   if (v.hasDatabase()) {
     units.setDatabaseName(v.databaseName());
     units.setDatabaseNumber(round(v.databaseNumber()));
@@ -288,32 +288,47 @@ void LefReader::parseOverlapLayer(const lefiLayer& v) {
 
 void LefReader::parseDefaultVia(const lefiVia& v) {
   LefVia via;
+  via.setDefault();
   via.setName(v.name());
-  Int_t xl = 0, yl = 0, xh = 0, yh = 0;
-  // botLayer
-  via.setBotLayerName(v.layerName(0));
-  const Pair_t<LefLayerType, Index_t>& bot = _lef.str2Layer(v.name());
-  if (bot.first == LefLayerType::MASTERSLICE) {
-
+  if (v.hasResistance()) {
+    via.setResistance(to_lef_unit_resistance(v.resistance()));
   }
-  else if (bot.first == LefLayerType::ROUTING) {
-
+  assert(v.numLayers() == 3);
+  for (Index_t i = 0; i < (Index_t)v.numLayers(); ++i) {
+#ifndef _NDEBUG
+    const Pair_t<LefLayerType, Index_t>& cur = _lef.str2Layer(v.layerName(i));
+    switch (i) {
+      case 0: assert(cur.first == LefLayerType::MASTERSLICE or cur.first == LefLayerType::ROUTING); break;
+      case 1: assert(cur.first == LefLayerType::CUT); break;
+      case 2: assert(cur.first == LefLayerType::ROUTING); break;
+      default: assert(false);
+    }
+#endif
+    via.setLayerIdx(i, _lef.str2LayerIdx(v.layerName(i)));
+    via.setLayerName(i, v.layerName(i));
+    for (Index_t j = 0; j < (Index_t)v.numRects(i); ++j) {
+      Int_t xl = to_lef_unit_1d(v.xl(i, j)); 
+      Int_t yl = to_lef_unit_1d(v.yl(i, j));
+      Int_t xh = to_lef_unit_1d(v.xh(i, j)); 
+      Int_t yh = to_lef_unit_1d(v.yh(i, j));
+      via.addBox(i, Box<Int_t>(xl, yl, xh, yh));
+    }
   }
-  else assert(false);
-  // cutLayer
-  // topLayer
+  _lef.addVia(via);
 }
 
 ////////////// Helper Functions //////////////////////////////
 Int_t LefReader::to_lef_unit_1d(const Real_t n) const {
-  assert(_lef.units().hasDatabase());
-  Int_t unitLEF = _lef.units().databaseNumber();
-  return std::round(n * unitLEF);
+  Int_t lefDB_distance_unit = _lef.units().databaseNumber();
+  return std::round(n * lefDB_distance_unit);
 }
 Int_t LefReader::to_lef_unit_2d(const Real_t n) const {
-  assert(_lef.units().hasDatabase());
-  Int_t unitLEF = _lef.units().databaseNumber();
-  return std::round(n * unitLEF * unitLEF);
+  Int_t lefDB_distance_unit = _lef.units().databaseNumber();
+  return std::round(n * pow(lefDB_distance_unit, 2));
+}
+Int_t LefReader::to_lef_unit_resistance(const Real_t n) const {
+  Int_t lefDB_resistance_unit = _lef.units().resistance();
+  return std::round(n * lefDB_resistance_unit);
 }
 
 PROJECT_NAMESPACE_END
