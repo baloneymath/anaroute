@@ -11,6 +11,8 @@
 
 #include "src/global/global.hpp"
 #include "dbLef.hpp"
+#include "dbBlock.hpp"
+#include "dbPin.hpp"
 
 PROJECT_NAMESPACE_START
 
