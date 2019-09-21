@@ -13,13 +13,13 @@
 
 PROJECT_NAMESPACE_START
 
-enum class LefSiteClassType {
+enum class LefSiteClassType : Byte_t{
   PAD     = 0,
   CORE    = 1,
   UNKNOWN = 2
 };
 
-enum class LefSiteOrient {
+enum class LefSiteOrient : Byte_t {
   N       = 0,
   S       = 1,
   E       = 2,
@@ -28,7 +28,6 @@ enum class LefSiteOrient {
   FS      = 5,
   FE      = 6,
   FW      = 7,
-  UNKNOWN = 8
 };
 
 class LefSiteRowPattern {

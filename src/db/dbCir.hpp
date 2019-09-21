@@ -13,6 +13,7 @@
 #include "dbLef.hpp"
 #include "dbBlock.hpp"
 #include "dbPin.hpp"
+#include "dbNets.hpp"
 
 PROJECT_NAMESPACE_START
 
