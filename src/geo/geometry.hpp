@@ -18,5 +18,6 @@
 #include "intervaltree.hpp"
 #include "spatial.hpp"
 #include "spatial3d.hpp"
+#include "polygon2box.hpp"
 
 #endif /// _GEO_HPP_

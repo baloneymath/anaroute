@@ -50,7 +50,7 @@ class LefSiteRowPattern {
   void addPattern(const String_t& siteName, const String_t& orientStr) {
     _vSiteNames.emplace_back(siteName);
     _vOrientStrs.emplace_back(orientStr);
-    LefSiteOrient orient;
+    LefSiteOrient orient = LefSiteOrient::N;
     if (orientStr == "N")
       orient = LefSiteOrient::N;
     else if (orientStr == "S")

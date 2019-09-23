@@ -81,15 +81,15 @@ void LefDB::addVia(const LefVia& v) {
 }
 
 void LefDB::logInfo() const {
-  //for (Index_t i = 0; i < _vSites.size(); ++i) {
-    //_vSites[i].logInfo();
-  //}
-  //for (Index_t i = 0; i < _vCutLayers.size(); ++i) {
-    //_vCutLayers[i].logInfo();
-  //}
-  //for (Index_t i = 0; i < _vRoutingLayers.size(); ++i) {
-    //_vRoutingLayers[i].logInfo();
-  //}
+  for (Index_t i = 0; i < _vSites.size(); ++i) {
+    _vSites[i].logInfo();
+  }
+  for (Index_t i = 0; i < _vCutLayers.size(); ++i) {
+    _vCutLayers[i].logInfo();
+  }
+  for (Index_t i = 0; i < _vRoutingLayers.size(); ++i) {
+    _vRoutingLayers[i].logInfo();
+  }
   for (Index_t i = 0; i < _vVias.size(); ++i) {
     _vVias[i].logInfo();
   }

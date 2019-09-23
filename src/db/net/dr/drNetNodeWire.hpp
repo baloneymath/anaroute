@@ -28,20 +28,8 @@ class DrNetNodeWire {
   void setHalfWidth(const Int_t w) { _halfWidth = w; }
 
  private:
-  Int_t _extension;
-  Int_t _halfWidth;
-};
-
-class DrNetNodeVia {
- public:
-  DrNetNodeVia() {}
-  ~DrNetNodeVia() {}
-
-  // getter
-  
-  // setter
- private:
-  
+  Int_t   _extension;
+  Int_t   _halfWidth;
 };
 
 PROJECT_NAMESPACE_END

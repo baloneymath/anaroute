@@ -20,15 +20,18 @@ PROJECT_NAMESPACE_START
 class CirDB {
   friend class Parser;
 public:
-  CirDB() {}
+  CirDB()
+    : _name("") {}
   ~CirDB() {}
   //////////////////////////////////
   //  Getter                      //
   //////////////////////////////////
-  LefDB&       lef()       { return _lef; }
-  const LefDB& lef() const { return _lef; }
+  const String_t&   name()  const { return _name; }
+  LefDB&            lef()         { return _lef; }
+  const LefDB&      lef()   const { return _lef; }
 private:
-  LefDB _lef;
+  String_t  _name;
+  LefDB     _lef;
 };
 
 PROJECT_NAMESPACE_END

@@ -8,6 +8,7 @@
 
 #include "anaroute.hpp"
 #include "src/parser/parser.hpp"
+#include "src/geo/polygon2box.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -16,7 +17,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   CirDB cir;
   Parser parser(cir);
   parser.parseLef(_args.get<String_t>("tech_lef"));
-  cir.lef().logInfo();
+  parser.parseIspd08(_args.get<String_t>("design_file"));
 }
 
 void Anaroute::parseArgs(int argc, char** argv) {
