@@ -51,6 +51,7 @@ set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
 add_executable(${PROJECT_NAME}
   src/main/main.cpp
   src/main/anaroute.cpp
+  src/util/util.cpp
   src/db/lef/layer/lefCutLayer.cpp
   src/db/lef/layer/lefRoutingLayer.cpp
   src/db/lef/lefSite.cpp
