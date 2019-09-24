@@ -19,13 +19,13 @@ class LefUnits {
  public:
   LefUnits()
     : _databaseName(""),
-      _databaseNumber(1e2),
-      _capacitance(1e6),
-      _resistance(1e4),
-      _time(1e3),
-      _power(1e4),
-      _current(1e4),
-      _voltage(1e3),
+      _databaseNumber(100),
+      _capacitance(1000000),
+      _resistance(10000),
+      _time(1000),
+      _power(10000),
+      _current(10000),
+      _voltage(1000),
       _frequency(1) {}
   ~LefUnits() {}
   
@@ -33,38 +33,38 @@ class LefUnits {
   //    Getter                   //
   /////////////////////////////////
   const String_t&    databaseName()    const { return _databaseName; }
-  Real_t             databaseNumber()  const { return _databaseNumber; }
-  Real_t             capacitance()     const { return _capacitance; }
-  Real_t             resistance()      const { return _resistance; }
-  Real_t             time()            const { return _time; }
-  Real_t             power()           const { return _power; }
-  Real_t             current()         const { return _current; }
-  Real_t             voltage()         const { return _voltage; }
-  Real_t             frequency()       const { return _frequency; }
+  Int_t             databaseNumber()  const { return _databaseNumber; }
+  Int_t             capacitance()     const { return _capacitance; }
+  Int_t             resistance()      const { return _resistance; }
+  Int_t             time()            const { return _time; }
+  Int_t             power()           const { return _power; }
+  Int_t             current()         const { return _current; }
+  Int_t             voltage()         const { return _voltage; }
+  Int_t             frequency()       const { return _frequency; }
 
  private:
   String_t    _databaseName;
-  Real_t      _databaseNumber;
-  Real_t      _capacitance;
-  Real_t      _resistance;
-  Real_t      _time;
-  Real_t      _power;
-  Real_t      _current;
-  Real_t      _voltage;
-  Real_t      _frequency;
+  Int_t      _databaseNumber;
+  Int_t      _capacitance;
+  Int_t      _resistance;
+  Int_t      _time;
+  Int_t      _power;
+  Int_t      _current;
+  Int_t      _voltage;
+  Int_t      _frequency;
   
   /////////////////////////////////
   //    Setter                   //
   /////////////////////////////////
-  void setDatabaseName(const String_t& s)     { _databaseName = s; }
-  void setDatabaseNumber(const Real_t n)      { _databaseNumber= n; }
-  void setCapacitance(const Real_t c)         { _capacitance = c; }
-  void setResistance(const Real_t r)          { _resistance = r; }
-  void setTime(const Real_t t)                { _time = t; }
-  void setPower(const Real_t p)               { _power = p; }
-  void setCurrent(const Real_t c)             { _current = c; }
-  void setVoltage(const Real_t v)             { _voltage = v; }
-  void setFrequency(const Real_t f)           { _frequency = f; }
+  void setDatabaseName(const String_t& s)    { _databaseName = s; }
+  void setDatabaseNumber(const Int_t n)      { _databaseNumber = n; }
+  void setCapacitance(const Int_t c)         { _capacitance = c; }
+  void setResistance(const Int_t r)          { _resistance = r; }
+  void setTime(const Int_t t)                { _time = t; }
+  void setPower(const Int_t p)               { _power = p; }
+  void setCurrent(const Int_t c)             { _current = c; }
+  void setVoltage(const Int_t v)             { _voltage = v; }
+  void setFrequency(const Int_t f)           { _frequency = f; }
 };
 
 

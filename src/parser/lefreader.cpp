@@ -18,10 +18,10 @@ void LefReader::parse(const String_t& filename) {
 
 void LefReader::lef_version_cbk(String_t const& v) {
   _lef.setVersionStr(v);
+  _lef.setVersion(std::stod(v));
 }
 
 void LefReader::lef_version_cbk(double v) {
-  _lef.setVersion(v);
 }
 
 void LefReader::lef_dividerchar_cbk(const String_t &v) {

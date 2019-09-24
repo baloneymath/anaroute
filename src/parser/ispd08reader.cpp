@@ -8,10 +8,15 @@
 
 #include "ispd08reader.hpp"
 #include "src/util/util.hpp"
+#include "src/geo/point.hpp"
+#include "src/geo/box.hpp"
+#include "src/geo/polygon2box.hpp"
 
 PROJECT_NAMESPACE_START
 
 void Ispd08Reader::parse(const String_t& filename) {
+  assert(_cir.lef().version() > 0);
+  setScale();
   FILE* fin = fopen(filename.c_str(), "r");
   if (!fin) {
     fprintf(stderr, "%s: Error opening file `%s`\n", __func__, filename.c_str());
@@ -28,22 +33,43 @@ void Ispd08Reader::parse(const String_t& filename) {
     Index_t netIdx = 0, numPolygon = 0;
     Int_t minWidth = 0;
     fscanf(fin, "%s %d %d %d\n", netName, &netIdx, &numPolygon, &minWidth);
-    printf("%s %d %d %d\n", netName, netIdx, numPolygon, minWidth);
+    DrNet net(netName, netIdx);
     for (Index_t j = 0; j < numPolygon; ++j) {
       Vector_t<String_t> vTokens;
       fgets(buf, bufSize, fin);
       util::splitString(buf, " ", vTokens);
+      Pin pin;
       Int_t layerIdx = std::stoi(vTokens[0]);
-      printf("%d ", layerIdx);
+      pin.setLayerIdxOffset(layerIdx);
+      Vector_t<Point<Int_t>> vPts;
       for (Index_t k = 1; k < vTokens.size(); k += 2) {
-        Int_t x = std::stoi(vTokens[k]);
-        Int_t y = std::stoi(vTokens[k + 1]);
-        printf("%d %d ", x, y);
+        Int_t x = to_db_unit(std::stoi(vTokens[k]));
+        Int_t y = to_db_unit(std::stoi(vTokens[k + 1]));
+        vPts.emplace_back(x, y);
       }
-      printf("\n");
+      Vector_t<Box<Int_t>> vBoxes;
+      if (!geo::polygon2Box<Int_t>(vPts, vBoxes)) {
+        fprintf(stderr, "%s: Error polygon format!!!\n", __func__);
+        exit(0);
+      }
+      pin.setLayerBoxes(layerIdx, vBoxes);
+      net.addPinIdx(_cir.numPins());
+      _cir.addPin(pin);
     }
+    _cir.addDrNet(net);
   }
   fclose(fin);
+}
+
+// private functions
+void Ispd08Reader::setScale() {
+  assert(_cir.lef().units().databaseNumber() >= 1000 and _cir.lef().units().databaseNumber() % 1000 == 0);
+  _scale = _cir.lef().units().databaseNumber() / 1000;
+}
+
+// helper functions
+Int_t Ispd08Reader::to_db_unit(const Int_t n) const {
+  return n * _scale;
 }
 
 PROJECT_NAMESPACE_END

@@ -19,6 +19,7 @@ PROJECT_NAMESPACE_START
 
 class CirDB {
   friend class Parser;
+  friend class Ispd08Reader;
 public:
   CirDB()
     : _name("") {}
@@ -27,11 +28,30 @@ public:
   //  Getter                      //
   //////////////////////////////////
   const String_t&   name()  const { return _name; }
+  
+  // Lef
   LefDB&            lef()         { return _lef; }
   const LefDB&      lef()   const { return _lef; }
+  
+  // Pin
+  Index_t           numPins()             const { return _vPins.size(); }
+  Pin&              pin(const Index_t i)        { return _vPins[i]; }
+  const Pin&        pin(const Index_t i)  const { return _vPins[i]; }
+
+  // for debug
+  void printInfo() const;
 private:
-  String_t  _name;
-  LefDB     _lef;
+  String_t          _name;
+  LefDB             _lef;
+  Vector_t<Block>   _vBlocks;
+  Vector_t<Pin>     _vPins;
+  Vector_t<DrNet>   _vDrNets;
+  
+  //////////////////////////////////
+  //  Private Setter              //
+  //////////////////////////////////
+  void addPin(const Pin& p);
+  void addDrNet(const DrNet& n);
 };
 
 PROJECT_NAMESPACE_END

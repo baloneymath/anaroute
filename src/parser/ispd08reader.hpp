@@ -15,14 +15,25 @@
 PROJECT_NAMESPACE_START
 
 class Ispd08Reader {
-  public:
-   Ispd08Reader(CirDB& c)
+ public:
+  Ispd08Reader(CirDB& c)
     : _cir(c) {}
-   ~Ispd08Reader() {}
+  ~Ispd08Reader() {}
     
-   void parse(const String_t& filename);
-  private:
-   CirDB& _cir;
+  void parse(const String_t& filename);
+ private:
+  CirDB&  _cir;
+  Int_t   _scale; 
+  
+  /////////////////////////////////////////
+  //    Private functions                //
+  /////////////////////////////////////////
+  void setScale();
+  /////////////////////////////////////////
+  //    Helper functions                 //
+  /////////////////////////////////////////
+  Int_t to_db_unit(const Int_t n) const;
+
 };
 
 PROJECT_NAMESPACE_END

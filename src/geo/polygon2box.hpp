@@ -81,13 +81,13 @@ namespace limbo {
 			static coordinate_type get(const rectangle_type& rect, direction_2d dir) {
 				switch (dir) {
 					case LEFT:
-		        return rect.xLo();
+		        return rect.xl();
 					case BOTTOM:
-            return rect.yLo();
+            return rect.yl();
 					case RIGHT:
-            return rect.xHi();
+            return rect.xh();
 					case TOP:
-            return rect.yHi();
+            return rect.yh();
 					default:
             assert(false);
 				}
@@ -101,16 +101,16 @@ namespace limbo {
 			static void set(rectangle_type& rect, direction_2d dir, coordinate_type value) {
         switch (dir) {
           case LEFT:
-            rect.setXLo(value);
+            rect.setXL(value);
             break;
           case BOTTOM:
-            rect.setYLo(value);
+            rect.setYL(value);
             break;
           case RIGHT:
-            rect.setXHi(value);
+            rect.setXH(value);
             break;
           case TOP:
-            rect.YHi(value);
+            rect.YH(value);
             break;
           default:
             assert(false);
@@ -122,7 +122,7 @@ namespace limbo {
 			 * @return a rectangle object
 			 */
 			static rectangle_type construct(coordinate_type xl, coordinate_type yl, coordinate_type xh, coordinate_type yh) {
-        return rect(xl, yl, xh, yh);
+        return rectangle_type(xl, yl, xh, yh);
 			}
     };
 
@@ -131,19 +131,13 @@ namespace limbo {
 
 PROJECT_NAMESPACE_START
 
-template<typename T>
-class Polygon2Box {
- public:
-  Polygon2Box(const Vector_t<Point<T>>& vPts, Vector_t<T>& vBoxes)
-    : _vPts(vPts), _vBoxes(vBoxes) {
-      limbo::geometry::Polygon2Rectangle<std::vector<Point<T>>, std::vector<Box<T>>> p2r(_vBoxes, _vPts.begin(), _vPts.end());
-    }
-  ~Polygon2Box() {}
-
- private:
-  Vector_t<Point<T>>& _vPts; // points of target polygon
-  Vector_t<Box<T>>&   _vBoxes; // results
-};
+namespace geo {
+  template<typename T>
+  inline bool polygon2Box(const Vector_t<Point<T>>& vPts, Vector_t<Box<T>>& vBoxes) {
+      limbo::geometry::Polygon2Rectangle<std::vector<Point<T>>, std::vector<Box<T>>> p2r(vBoxes, vPts.begin(), vPts.end(), limbo::geometry::HOR_VER_SLICING);
+      return p2r();
+  }
+}
 
 PROJECT_NAMESPACE_END
 

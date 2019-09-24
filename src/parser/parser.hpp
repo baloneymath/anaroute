@@ -13,13 +13,14 @@
 #include "src/db/dbCir.hpp"
 #include "lefreader.hpp"
 #include "ispd08reader.hpp"
+#include "gdsReader.hpp"
 
 PROJECT_NAMESPACE_START
 
 class Parser {
 public:
   Parser(CirDB& c)
-    : _cir(c), _lefr(c.lef()), _ispd08r(c) {}
+    : _cir(c), _lefr(c.lef()), _ispd08r(c), _gdsr(c) {}
   ~Parser() {}
   
   void parseLef(const String_t& filename) { _lefr.parse(filename); }
@@ -29,6 +30,7 @@ private:
   CirDB&           _cir;
   LefReader        _lefr;
   Ispd08Reader     _ispd08r;
+  GdsReader        _gdsr;
 };
 
 PROJECT_NAMESPACE_END
