@@ -71,6 +71,7 @@ add_executable(${PROJECT_NAME}
   src/db/dbCir.cpp
   src/db/net/dr/drNet.cpp
   src/parser/lefreader.cpp
+  src/parser/techfileReader.cpp
   src/parser/ispd08reader.cpp
   src/parser/gdsReader.cpp
 )

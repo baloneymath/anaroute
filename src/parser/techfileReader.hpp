@@ -24,6 +24,11 @@ class TechfileReader {
 
  private:
   CirDB& _cir;
+  
+  /////////////////////////////////////////
+  //    Private functions                //
+  /////////////////////////////////////////
+  void readTechLayers();
 };
 
 PROJECT_NAMESPACE_END
