@@ -17,6 +17,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   CirDB cir;
   Parser parser(cir);
   parser.parseLef(_args.get<String_t>("tech_lef"));
+  parser.parseTechfile(_args.get<String_t>("tech_file"));
   parser.parseIspd08(_args.get<String_t>("design_file"));
   parser.parseGds(_args.get<String_t>("placement_layout"));
   cir.printInfo();

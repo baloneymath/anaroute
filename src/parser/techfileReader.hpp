@@ -28,7 +28,7 @@ class TechfileReader {
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
-  void readTechLayers();
+  void readTechLayers(FILE* fin, char* buf, const Index_t bufSize);
 };
 
 PROJECT_NAMESPACE_END

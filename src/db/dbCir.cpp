@@ -18,7 +18,9 @@ void CirDB::addDrNet(const DrNet& n) {
   _vDrNets.emplace_back(n);
 }
 
-void CirDB::setStr2LayerMaxIdx() {
+void CirDB::addStr2LayerMaxIdx(const String_t& n, const Index_t i) {
+  assert(_mStr2LayerMaskIdx.count(n) == 0);
+  _mStr2LayerMaskIdx[n] = i;
 }
 
 void CirDB::printInfo() const {
@@ -44,6 +46,10 @@ void CirDB::printInfo() const {
     for (Index_t j = 0; j < _vDrNets[i].numPins(); ++j) {
       fprintf(fout, "      PIN %u\n", _vDrNets[i].pinIdx(j));
     }
+  }
+  fprintf(fout, "\n  TSMC TECHLAYER %lu\n", _mStr2LayerMaskIdx.size());
+  for (const auto& obj : _mStr2LayerMaskIdx) {
+    fprintf(fout, "    LAYER %s %d\n", obj.first.c_str(), obj.second);
   }
 }
 

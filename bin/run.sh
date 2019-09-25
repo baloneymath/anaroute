@@ -7,7 +7,7 @@ BENCH_DIR="../bench"
 
 
 ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-           --tech_file a \
+           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
            --design_type a \
            --design_file $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.gr \
            --placement_layout $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.wellgen.gds \

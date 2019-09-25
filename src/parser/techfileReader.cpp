@@ -7,6 +7,7 @@
  **/
 
 #include "techfileReader.hpp"
+#include "src/util/util.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -16,14 +17,38 @@ void TechfileReader::parse(const String_t& filename) {
     fprintf(stderr, "%s: Error opening file %s!!!\n", __func__, filename.c_str());
     exit(0);
   }
-  constexpr Index_t bufSize = 200;
+  const Index_t bufSize = 200;
   char buf[bufSize];
+  while (fgets(buf, bufSize, fin)) {
+    if (strcmp(buf, "techLayers(\n") == 0) {
+      readTechLayers(fin, buf, bufSize);
+    }
+    else {
+
+    }
+  }
 
   fclose(fin);
 }
 
-void TechfileReader::readTechLayers() {
-
+void TechfileReader::readTechLayers(FILE* fin, char* buf, const Index_t bufSize) {
+  Vector_t<String_t> vTokens;
+  while (fgets(buf, bufSize, fin)) {
+    if (strcmp(buf, "\n") == 0) {
+      continue;
+    }
+    else if (strcmp(buf, ")\n") == 0) {
+      return;
+    }
+    util::splitString(buf, " ", vTokens);
+    if (vTokens[0][0] == ';') {
+      continue;
+    }
+    char layerName[bufSize];
+    Index_t layerIdx;
+    sscanf(buf, " ( %s %u %*s )\n", layerName, &layerIdx);
+    _cir.addStr2LayerMaxIdx(String_t(layerName), layerIdx);
+  }
 }
 
 PROJECT_NAMESPACE_END

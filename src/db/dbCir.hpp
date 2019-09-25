@@ -20,6 +20,8 @@ PROJECT_NAMESPACE_START
 class CirDB {
   friend class Parser;
   friend class Ispd08Reader;
+  friend class TechfileReader;
+  friend class GdsReader;
 public:
   CirDB()
     : _name("") {}
@@ -53,7 +55,7 @@ private:
   //////////////////////////////////
   void addPin(const Pin& p);
   void addDrNet(const DrNet& n);
-  void setStr2LayerMaxIdx();
+  void addStr2LayerMaxIdx(const String_t& n, const Index_t i);
 };
 
 PROJECT_NAMESPACE_END
