@@ -10,7 +10,7 @@ BENCH_DIR="../bench"
            --tech_file a \
            --design_type a \
            --design_file $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.gr \
-           --placement_layout a \
+           --placement_layout $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.wellgen.gds \
            --iopin a \
            --symnet a \
            --out a

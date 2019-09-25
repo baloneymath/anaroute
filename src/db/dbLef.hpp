@@ -46,8 +46,14 @@ class LefDB {
   //   Layers                           //
   ////////////////////////////////////////
   // All
+  Index_t                                  numLayers()                                 const { return _vAllLayers.size(); }
   Index_t                                  str2LayerIdx(const String_t& n)             const { return _mStr2AllLayerIdx.at(n); }
   const Pair_t<LefLayerType, Index_t>&     str2Layer(const String_t& n)                const { return _vAllLayers[str2LayerIdx(n)]; }
+  bool                                     bImplantLayer(const Index_t i)              const { return _vAllLayers[i].first == LefLayerType::IMPLANT; }
+  bool                                     bMastersliceLayer(const Index_t i)          const { return _vAllLayers[i].first == LefLayerType::MASTERSLICE; }
+  bool                                     bCutLayer(const Index_t i)                  const { return _vAllLayers[i].first == LefLayerType::CUT; }
+  bool                                     bRoutingLayer(const Index_t i)              const { return _vAllLayers[i].first == LefLayerType::ROUTING; }
+  bool                                     bOverlapLayer(const Index_t i)              const { return _vAllLayers[i].first == LefLayerType::OVERLAP; }
   // Implant Layers                                                                    
   const LefImplantLayer&                   implantLayer(const Index_t i)               const { return _vImplantLayers[i]; }
   const Vector_t<LefImplantLayer>&         vImplantLayers()                            const { return _vImplantLayers; }

@@ -17,7 +17,7 @@ PROJECT_NAMESPACE_START
 class Ispd08Reader {
  public:
   Ispd08Reader(CirDB& c)
-    : _cir(c) {}
+    : _cir(c), _scale(0) {}
   ~Ispd08Reader() {}
     
   void parse(const String_t& filename);

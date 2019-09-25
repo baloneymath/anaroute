@@ -25,6 +25,7 @@ public:
   
   void parseLef(const String_t& filename) { _lefr.parse(filename); }
   void parseIspd08(const String_t& filename) { _ispd08r.parse(filename); }
+  void parseGds(const String_t& filename) { _gdsr.parse(filename); }
 
 private:
   CirDB&           _cir;

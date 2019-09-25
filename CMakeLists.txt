@@ -36,7 +36,17 @@ endif()
 message(STATUS "Find SparseHash: ${SPARSEHASH_ROOT_DIR}")
 
 # Find Boost
-find_package(Boost 1.6 REQUIRED)
+#if (BOOST_DIR)
+  #set(BOOST_ROOT ${BOOST_DIR})
+  #set(BOOST_INCLUDEDIR ${BOOST_DIR}/boost)
+  #set(BOOST_LIBRARYDIR ${BOOST_DIR}/libs)
+#else()
+  #set(BOOST_ROOT $ENV{BOOST_DIR})
+  #set(BOOST_INCLUDEDIR $ENV{BOOST_DIR}/boost)
+  #set(BOOST_LIBRARYDIR $ENV{BOOST_DIR}/libs)
+#endif()
+
+find_package(Boost 1.6 REQUIRED COMPONENTS system graph iostreams)
 
 # Find Zlib
 find_package(ZLIB REQUIRED)
@@ -62,6 +72,7 @@ add_executable(${PROJECT_NAME}
   src/db/net/dr/drNet.cpp
   src/parser/lefreader.cpp
   src/parser/ispd08reader.cpp
+  src/parser/gdsReader.cpp
 )
 
 ##################################################

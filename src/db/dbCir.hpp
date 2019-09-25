@@ -41,12 +41,13 @@ public:
   // for debug
   void printInfo() const;
 private:
-  String_t          _name;
-  LefDB             _lef;
-  Vector_t<Block>   _vBlocks;
-  Vector_t<Pin>     _vPins;
-  Vector_t<DrNet>   _vDrNets;
-  
+  String_t                       _name;
+  LefDB                          _lef;
+  Vector_t<Block>                _vBlocks;
+  Vector_t<Pin>                  _vPins;
+  Vector_t<DrNet>                _vDrNets;
+ 
+  UMap_t<String_t, Index_t>      _mStr2LayerMaskIdx; // layer name -> layer idx specified in tsmc techfile
   //////////////////////////////////
   //  Private Setter              //
   //////////////////////////////////
