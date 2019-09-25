@@ -18,6 +18,9 @@ void CirDB::addDrNet(const DrNet& n) {
   _vDrNets.emplace_back(n);
 }
 
+void CirDB::setStr2LayerMaxIdx() {
+}
+
 void CirDB::printInfo() const {
   FILE* fout = stderr;
   fprintf(fout, "CIRCUIT %s\n", _name.c_str());

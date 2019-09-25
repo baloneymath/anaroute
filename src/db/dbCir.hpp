@@ -53,6 +53,7 @@ private:
   //////////////////////////////////
   void addPin(const Pin& p);
   void addDrNet(const DrNet& n);
+  void setStr2LayerMaxIdx();
 };
 
 PROJECT_NAMESPACE_END
