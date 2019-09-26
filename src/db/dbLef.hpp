@@ -48,6 +48,7 @@ class LefDB {
   // All
   Index_t                                  numLayers()                                 const { return _vAllLayers.size(); }
   Index_t                                  str2LayerIdx(const String_t& n)             const { return _mStr2AllLayerIdx.at(n); }
+  const Pair_t<LefLayerType, Index_t>&     layerPair(const Index_t i)                  const { return _vAllLayers[i]; }
   const Pair_t<LefLayerType, Index_t>&     str2Layer(const String_t& n)                const { return _vAllLayers[str2LayerIdx(n)]; }
   bool                                     bImplantLayer(const Index_t i)              const { return _vAllLayers[i].first == LefLayerType::IMPLANT; }
   bool                                     bMastersliceLayer(const Index_t i)          const { return _vAllLayers[i].first == LefLayerType::MASTERSLICE; }

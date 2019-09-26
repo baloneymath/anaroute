@@ -84,6 +84,7 @@ public:
   static T     Mdistance(const Box& box1, const Point<T>& pt);
   static bool  bOverlap(const Box& box1, const Box& box2);
   static bool  bConnect(const Box& box1, const Box& box2);
+  static bool  bCover(const Box& box1, const Box& box2);
   static bool  bInside(const Box& box, const Point<T>& pt);
   static bool  bConnect(const Box& box, const Point<T>& pt);
   static T     overlapArea(const Box& box1, const Box& box2);
@@ -405,6 +406,12 @@ bool Box<T>::bConnect(const Box<T>& box1, const Box<T>& box2) {
   if (box1._bl.x() > box2._tr.x()) return false;
   if (box1._tr.x() < box2._bl.x()) return false;
   return true;
+}
+
+template<typename T>
+bool Box<T>::bCover(const Box& box1, const Box& box2) {
+  return bConnect(box1, box2.min_corner()) &&
+         bConnect(box1, box2.max_corner());
 }
 
 template<typename T>

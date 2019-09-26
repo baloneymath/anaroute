@@ -9,28 +9,43 @@
 #include "gdsReader.hpp"
 #include "src/geo/polygon2box.hpp"
 
-using Limbo_GdsDB = GdsParser::GdsDB::GdsDB;
-using Limbo_GdsReader = GdsParser::GdsDB::GdsReader;
-
 PROJECT_NAMESPACE_START
 
 void GdsReader::parse(const String_t& filename) {
   // Flatten Gds by the last cell
-  Limbo_GdsDB unflatenDB;
-  Limbo_GdsReader limboReader(unflatenDB);
+  GdsParser::GdsDB::GdsDB unflatenDB;
+  GdsParser::GdsDB::GdsReader limboReader(unflatenDB);
   if (!limboReader(filename)) {
     fprintf(stderr, "%s: Cannot open file %s!!\n", __func__, filename.c_str());
     exit(0);
   }
-  // set unit scale
-  _scale = std::round(1e-6 / unflatenDB.precision());
+  
+  
   // Flatten gds
   String_t topCellName = topCell(unflatenDB);
   auto flatCell = unflatenDB.extractCell(topCellName);
   GdsParser::GdsDB::GdsDB gdsDB;
   gdsDB.addCell(flatCell);
-  //Build the mapping between the gds layer and the router layers
+  
+  // Build the mapping between the gds layer and the router layers
   buildLayerMap();
+  // Process the shapes in gds
+  for (const auto& obj : flatCell.objects()) {
+    GdsParser::GdsDB::GdsObjectHelpers()(obj.first, obj.second, ExtractShapeLayerAction(_vMaskId2Layers, _vPolygonLayers));
+  }
+	// scale the design
+  const Int_t gds_unit = std::round(1e-6 / unflatenDB.precision());
+  const Int_t db_unit = _cir.lef().units().databaseNumber();
+  const Int_t sc = db_unit / gds_unit;
+
+  for (auto& polygon : _vPolygonLayers) {
+    polygon.scale(sc, sc);
+  }
+  for (auto& poblk : _vPoblks) {
+    poblk.scale(sc, sc);
+  }
+  // save to db
+  saveShapesAsBlockages();
 }
 
 /////////////////////////////////////////
@@ -65,17 +80,36 @@ String_t GdsReader::topCell(GdsParser::GdsDB::GdsDB db) {
 void GdsReader::buildLayerMap() {
   for (Index_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx) {
     if (_cir.lef().bRoutingLayer(layerIdx)) {
+      _vMaskId2Layers.emplace_back(_cir.layerIdx2MaskIdx(layerIdx), layerIdx);
     }
   }
 }
 
-/////////////////////////////////////////
-//    Helper functions                 //
-/////////////////////////////////////////
-Int_t GdsReader::to_db_unit(const Int_t n) const {
-  assert(_scale != 0);
-  return n * _scale;
+void GdsReader::saveShapesAsBlockages() {
+  // Get poblks
+  Vector_t<Box<Int_t>> vBlks;
+  for (const auto& blk : _vPoblks) {
+    geo::polygon2Box(blk.pts, vBlks);
+  }
+  _cir.resizeVVBlocks(_cir.lef().numLayers());
+  Vector_t<Box<Int_t>> vBoxes;
+  for (const auto& poly : _vPolygonLayers) {
+    geo::polygon2Box(poly.pts, vBoxes);
+    for (const auto& box : vBoxes) {
+      if (poly.layer == MAX_INDEX) {
+        // dummy blks
+        for (const auto& blk : vBlks) {
+          if (Box<Int_t>::bCover(blk, box)) {
+            _cir.addBlock(poly.layer, Block(poly.layer, box));
+            continue;
+          }
+        }
+        continue;
+      }
+      _cir.addBlock(poly.layer, Block(poly.layer, box));
+    }
+    vBoxes.clear();
+  }
 }
-
 
 PROJECT_NAMESPACE_END

@@ -18,9 +18,24 @@ void CirDB::addDrNet(const DrNet& n) {
   _vDrNets.emplace_back(n);
 }
 
-void CirDB::addStr2LayerMaxIdx(const String_t& n, const Index_t i) {
-  assert(_mStr2LayerMaskIdx.count(n) == 0);
-  _mStr2LayerMaskIdx[n] = i;
+void CirDB::addBlock(const Index_t i, const Block& b) {
+  _vvBlocks[i].emplace_back(b);
+}
+void CirDB::resizeVVBlocks(const Index_t i) {
+  _vvBlocks.resize(i);
+}
+
+Index_t CirDB::layerIdx2MaskIdx(const Index_t i) const {
+  const Pair_t<LefLayerType, Index_t>& p = _lef.layerPair(i);
+  switch (p.first) {
+    case LefLayerType::IMPLANT:     return _tech.str2LayerMaskIdx(_lef.implantLayer(p.second).name());
+    case LefLayerType::MASTERSLICE: return _tech.str2LayerMaskIdx(_lef.mastersliceLayer(p.second).name());
+    case LefLayerType::CUT:         return _tech.str2LayerMaskIdx(_lef.cutLayer(p.second).name());
+    case LefLayerType::ROUTING:     return _tech.str2LayerMaskIdx(_lef.routingLayer(p.second).name());
+    case LefLayerType::OVERLAP:     return _tech.str2LayerMaskIdx(_lef.overlapLayer(p.second).name());
+    default: assert(false);
+  }
+  return MAX_INDEX;
 }
 
 void CirDB::printInfo() const {
@@ -47,8 +62,8 @@ void CirDB::printInfo() const {
       fprintf(fout, "      PIN %u\n", _vDrNets[i].pinIdx(j));
     }
   }
-  fprintf(fout, "\n  TSMC TECHLAYER %lu\n", _mStr2LayerMaskIdx.size());
-  for (const auto& obj : _mStr2LayerMaskIdx) {
+  fprintf(fout, "\n  TSMC TECHLAYER %lu\n", _tech.mStr2LayerMaskIdx().size());
+  for (const auto& obj : _tech.mStr2LayerMaskIdx()) {
     fprintf(fout, "    LAYER %s %d\n", obj.first.c_str(), obj.second);
   }
 }

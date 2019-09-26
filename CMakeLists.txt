@@ -67,6 +67,7 @@ add_executable(${PROJECT_NAME}
   src/db/lef/lefSite.cpp
   src/db/lef/lefVia.cpp
   src/db/dbLef.cpp
+  src/db/dbTechfile.cpp
   src/db/dbPin.cpp
   src/db/dbCir.cpp
   src/db/net/dr/drNet.cpp

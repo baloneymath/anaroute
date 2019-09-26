@@ -5,7 +5,6 @@ HAO_WORKSPACE="$HAO/workspace"
 ANAROUTE_DIR="$HAO/projects/anaroute"
 BENCH_DIR="../bench"
 
-
 ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
            --design_type a \

@@ -47,7 +47,7 @@ void TechfileReader::readTechLayers(FILE* fin, char* buf, const Index_t bufSize)
     char layerName[bufSize];
     Index_t layerIdx;
     sscanf(buf, " ( %s %u %*s )\n", layerName, &layerIdx);
-    _cir.addStr2LayerMaxIdx(String_t(layerName), layerIdx);
+    _cir.tech().addStr2LayerMaxIdx(String_t(layerName), layerIdx);
   }
 }
 

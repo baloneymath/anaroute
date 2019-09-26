@@ -19,26 +19,26 @@ class Block {
  public:
   Block()
     : _layerIdx(MAX_INDEX) {}
+  Block(const Index_t i, const Box<Int_t>& b)
+    : _layerIdx(i), _box(b) {}
   ~Block() {}
   
   ////////////////////////////////////////
   //   Getter                           //
   ////////////////////////////////////////
   Index_t                     layerIdx()                const { return _layerIdx; }
-  Index_t                     numBoxes(const Index_t i) const { return _vBoxes.size(); }
-  const Box<Int_t>&           box(const Index_t i)      const { return _vBoxes[i]; }
-  const Vector_t<Box<Int_t>>& vBoxes()                  const { return _vBoxes; }
+  const Box<Int_t>&           box()                     const { return _box; }
   
 
  private:
   Index_t               _layerIdx;
-  Vector_t<Box<Int_t>>  _vBoxes;
+  Box<Int_t>            _box;
   
   ////////////////////////////////////////
   //   Setter                           //
   ////////////////////////////////////////
   void setLayerIdx(const Index_t i) { _layerIdx = i; }
-  void addBox(const Box<Int_t>& b) { _vBoxes.emplace_back(b); }
+  void setBox(const Box<Int_t>& b) { _box = b; }
 };
 
 PROJECT_NAMESPACE_END

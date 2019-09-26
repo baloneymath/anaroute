@@ -10,7 +10,6 @@
 
 PROJECT_NAMESPACE_START
 
-
 void LefDB::setVersionStr(const String_t& v) {
   _versionStr = v;
 }

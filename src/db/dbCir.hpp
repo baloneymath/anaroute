@@ -11,6 +11,7 @@
 
 #include "src/global/global.hpp"
 #include "dbLef.hpp"
+#include "dbTechfile.hpp"
 #include "dbBlock.hpp"
 #include "dbPin.hpp"
 #include "dbNets.hpp"
@@ -34,7 +35,12 @@ public:
   // Lef
   LefDB&            lef()         { return _lef; }
   const LefDB&      lef()   const { return _lef; }
-  
+ 
+  // Techfile
+  TechfileDB&       tech()                                  { return _tech; }
+  const TechfileDB& tech()                            const { return _tech; }
+  Index_t           layerIdx2MaskIdx(const Index_t i) const;
+
   // Pin
   Index_t           numPins()             const { return _vPins.size(); }
   Pin&              pin(const Index_t i)        { return _vPins[i]; }
@@ -45,17 +51,18 @@ public:
 private:
   String_t                       _name;
   LefDB                          _lef;
-  Vector_t<Block>                _vBlocks;
+  TechfileDB                     _tech;
   Vector_t<Pin>                  _vPins;
   Vector_t<DrNet>                _vDrNets;
+  Vector_t<Vector_t<Block>>      _vvBlocks;
  
-  UMap_t<String_t, Index_t>      _mStr2LayerMaskIdx; // layer name -> layer idx specified in tsmc techfile
   //////////////////////////////////
   //  Private Setter              //
   //////////////////////////////////
   void addPin(const Pin& p);
+  void addBlock(const Index_t i, const Block& b);
   void addDrNet(const DrNet& n);
-  void addStr2LayerMaxIdx(const String_t& n, const Index_t i);
+  void resizeVVBlocks(const Index_t i);
 };
 
 PROJECT_NAMESPACE_END
