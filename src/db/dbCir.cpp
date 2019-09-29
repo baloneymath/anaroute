@@ -10,6 +10,22 @@
 
 PROJECT_NAMESPACE_START
 
+void CirDB::setXL(const Int_t x) {
+  _xl = x;
+}
+
+void CirDB::setYL(const Int_t y) {
+  _yl = y;
+}
+
+void CirDB::setXH(const Int_t x) {
+  _xh = x;
+}
+
+void CirDB::setYH(const Int_t y) {
+  _yh = y;
+}
+
 void CirDB::addPin(const Pin& p) {
   _vPins.emplace_back(p);
 }
@@ -39,8 +55,8 @@ Index_t CirDB::layerIdx2MaskIdx(const Index_t i) const {
 }
 
 void CirDB::printInfo() const {
-  FILE* fout = stderr;
-  fprintf(fout, "CIRCUIT %s\n", _name.c_str());
+  FILE* fout = stdout;
+  fprintf(fout, "CIRCUIT %s (%d %d %d %d)\n", _name.c_str(), _xl, _yl, _xh, _yh);
   fprintf(fout, "  NUM PINS %lu\n", _vPins.size());
   for (Index_t i = 0; i < _vPins.size(); ++i) {
     fprintf(fout, "    PIN %s\n", _vPins[i].name().c_str());
@@ -65,6 +81,16 @@ void CirDB::printInfo() const {
   fprintf(fout, "\n  TSMC TECHLAYER %lu\n", _tech.mStr2LayerMaskIdx().size());
   for (const auto& obj : _tech.mStr2LayerMaskIdx()) {
     fprintf(fout, "    LAYER %s %d\n", obj.first.c_str(), obj.second);
+  }
+  fprintf(fout, "\n  BLOCKS\n");
+  for (const auto& vBlocks : _vvBlocks) {
+    for (const auto& block : vBlocks) {
+      fprintf(fout, "    BLOCK %u (%d %d %d %d)\n", block.layerIdx(),
+                                                    block.xl(),
+                                                    block.yl(),
+                                                    block.xh(),
+                                                    block.yh());
+    }
   }
 }
 

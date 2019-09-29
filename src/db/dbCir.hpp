@@ -25,7 +25,7 @@ class CirDB {
   friend class GdsReader;
 public:
   CirDB()
-    : _name("") {}
+    : _name(""), _xl(0), _yl(0), _xh(0), _yh(0) {}
   ~CirDB() {}
   //////////////////////////////////
   //  Getter                      //
@@ -41,6 +41,12 @@ public:
   const TechfileDB& tech()                            const { return _tech; }
   Index_t           layerIdx2MaskIdx(const Index_t i) const;
 
+  // Boundary
+  Int_t             xl()    const { return _xl; }
+  Int_t             yl()    const { return _yl; }
+  Int_t             xh()    const { return _xh; }
+  Int_t             yh()    const { return _yh; }
+
   // Pin
   Index_t           numPins()             const { return _vPins.size(); }
   Pin&              pin(const Index_t i)        { return _vPins[i]; }
@@ -52,6 +58,12 @@ private:
   String_t                       _name;
   LefDB                          _lef;
   TechfileDB                     _tech;
+
+  Int_t                          _xl;
+  Int_t                          _yl;
+  Int_t                          _xh;
+  Int_t                          _yh;
+  
   Vector_t<Pin>                  _vPins;
   Vector_t<DrNet>                _vDrNets;
   Vector_t<Vector_t<Block>>      _vvBlocks;
@@ -59,6 +71,10 @@ private:
   //////////////////////////////////
   //  Private Setter              //
   //////////////////////////////////
+  void setXL(const Int_t x);
+  void setYL(const Int_t y);
+  void setXH(const Int_t x);
+  void setYH(const Int_t y);
   void addPin(const Pin& p);
   void addBlock(const Index_t i, const Block& b);
   void addDrNet(const DrNet& n);

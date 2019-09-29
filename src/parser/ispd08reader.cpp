@@ -16,13 +16,15 @@ PROJECT_NAMESPACE_START
 
 void Ispd08Reader::parse(const String_t& filename) {
   assert(_cir.lef().version() > 0);
-  setScale();
   FILE* fin = fopen(filename.c_str(), "r");
   if (!fin) {
     fprintf(stderr, "%s: Error opening file `%s`\n", __func__, filename.c_str());
     exit(0);
   }
   
+  setScale();
+  buildLayerMap();
+
   constexpr Index_t bufSize = 200;
   char buf[bufSize];
 
@@ -39,10 +41,10 @@ void Ispd08Reader::parse(const String_t& filename) {
       fgets(buf, bufSize, fin);
       util::splitString(buf, " ", vTokens);
       Pin pin;
-      Int_t layerIdx = std::stoi(vTokens[0]);
+      Int_t layerIdx = map2RoutingLayer(std::stoi(vTokens[0]));
       pin.setLayerIdxOffset(layerIdx);
       Vector_t<Point<Int_t>> vPts;
-      for (Index_t k = 1; k < vTokens.size(); k += 2) {
+      for (Index_t k = 1; k + 1 < vTokens.size(); k += 2) {
         Int_t x = to_db_unit(std::stoi(vTokens[k]));
         Int_t y = to_db_unit(std::stoi(vTokens[k + 1]));
         vPts.emplace_back(x, y);
@@ -61,13 +63,29 @@ void Ispd08Reader::parse(const String_t& filename) {
   fclose(fin);
 }
 
-// private functions
+/////////////////////////////////////////
+//    Private functions                //
+/////////////////////////////////////////
 void Ispd08Reader::setScale() {
   assert(_cir.lef().units().databaseNumber() >= 1000 and _cir.lef().units().databaseNumber() % 1000 == 0);
   _scale = _cir.lef().units().databaseNumber() / 1000;
 }
 
-// helper functions
+void Ispd08Reader::buildLayerMap() {
+  for (Index_t i = 0; i < _cir.lef().numLayers(); ++i) {
+    if (_cir.lef().bRoutingLayer(i)) {
+      _vIdx2RoutingLayerIdx.emplace_back(i);
+    }
+  }
+}
+
+Index_t Ispd08Reader::map2RoutingLayer(const Index_t i) {
+  assert(i > 0);
+  return _vIdx2RoutingLayerIdx[i - 1];
+}
+/////////////////////////////////////////
+//    Helper functions                 //
+/////////////////////////////////////////
 Int_t Ispd08Reader::to_db_unit(const Int_t n) const {
   return n * _scale;
 }

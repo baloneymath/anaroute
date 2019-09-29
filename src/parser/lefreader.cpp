@@ -79,7 +79,8 @@ void LefReader::lef_layer_cbk(lefiLayer const &v) {
   assert(_lef.units().databaseNumber() != 0);
   if (v.hasType()) {
     if (strcmp(v.type(), "IMPLANT") == 0) {
-      parseImplantLayer(v);
+      //parseImplantLayer(v);
+      //ignore for routing
     }
     else if (strcmp(v.type(), "MASTERSLICE") == 0) {
       parseMastersliceLayer(v);
@@ -91,7 +92,8 @@ void LefReader::lef_layer_cbk(lefiLayer const &v) {
       parseRoutingLayer(v);
     }
     else if (strcmp(v.type(), "OVERLAP") == 0) {
-      parseOverlapLayer(v);
+      //parseOverlapLayer(v);
+      //ignore for routing
     }
     else
       assert(false);

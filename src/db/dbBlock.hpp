@@ -28,7 +28,12 @@ class Block {
   ////////////////////////////////////////
   Index_t                     layerIdx()                const { return _layerIdx; }
   const Box<Int_t>&           box()                     const { return _box; }
-  
+  Int_t                       xl()                      const { return _box.xl(); } 
+  Int_t                       yl()                      const { return _box.yl(); } 
+  Int_t                       xh()                      const { return _box.xh(); } 
+  Int_t                       yh()                      const { return _box.yh(); }
+  const Point<Int_t>&             min_corner()              const { return _box.min_corner(); }
+  const Point<Int_t>&             max_corner()              const { return _box.max_corner(); }
 
  private:
   Index_t               _layerIdx;

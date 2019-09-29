@@ -96,17 +96,33 @@ void GdsReader::saveShapesAsBlockages() {
   for (const auto& poly : _vPolygonLayers) {
     geo::polygon2Box(poly.pts, vBoxes);
     for (const auto& box : vBoxes) {
+      auto __addBlk = [&] (const Index_t layerIdx, const auto& box) {
+        Block b(layerIdx, box);
+        _cir.addBlock(layerIdx, b);
+        if (b.xl() < _cir.xl()) {
+          _cir.setXL(b.xl());
+        }
+        if (b.yl() < _cir.yl()) {
+          _cir.setYL(b.yl());
+        }
+        if (b.xh() > _cir.xh()) {
+          _cir.setXH(b.xh());
+        }
+        if (b.yh() > _cir.yh()) {
+          _cir.setYH(b.yh());
+        }
+      };
       if (poly.layer == MAX_INDEX) {
         // dummy blks
         for (const auto& blk : vBlks) {
           if (Box<Int_t>::bCover(blk, box)) {
-            _cir.addBlock(poly.layer, Block(poly.layer, box));
-            continue;
+            __addBlk(poly.layer, box);
           }
         }
-        continue;
       }
-      _cir.addBlock(poly.layer, Block(poly.layer, box));
+      else {
+        __addBlk(poly.layer, box);
+      }
     }
     vBoxes.clear();
   }

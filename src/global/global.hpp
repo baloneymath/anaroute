@@ -29,6 +29,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <algorithm>
+
 #include "namespace.hpp"
 #include "type.hpp"
 #include "param.hpp"

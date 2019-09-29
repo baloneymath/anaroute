@@ -64,31 +64,41 @@ namespace util {
   void splitString(const char* str, const String_t& delims, Vector_t<String_t>& tokens) {
     tokens.clear();
     String_t s(str), token;
+    s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
     size_t cur, prev = 0;
     cur = s.find_first_of(delims);
     while (cur != String_t::npos) {
       token = s.substr(prev, cur - prev);
-      if (token != "") tokens.push_back(token);
+      if (token != "") {
+        tokens.push_back(token);
+      }
       prev = cur + 1;
       cur = s.find_first_of(delims, prev);
     }
     token = s.substr(prev, cur - prev);
-    if (token != "") tokens.push_back(token);
+    if (token != "") {
+      tokens.push_back(token);  
+    }
   }
 
-  void splitString(const String_t& s, const String_t& delims, Vector_t<String_t>& tokens) {
+  void splitString(const String_t& str, const String_t& delims, Vector_t<String_t>& tokens) {
     tokens.clear();
-    String_t token;
+    String_t s(str), token;
+    s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
     size_t cur, prev = 0;
     cur = s.find_first_of(delims);
     while (cur != String_t::npos) {
       token = s.substr(prev, cur - prev);
-      if (token != "") tokens.push_back(token);
+      if (token != "") {
+        tokens.push_back(token);
+      }
       prev = cur + 1;
       cur = s.find_first_of(delims, prev);
     }
     token = s.substr(prev, cur - prev);
-    if (token != "") tokens.push_back(token);
+    if (token != "") {
+      tokens.push_back(token);  
+    }
   }
 
   void splitString(const char* str, const char c, Vector_t<String_t>& tokens) {
@@ -97,7 +107,10 @@ namespace util {
       const char* begin = str;
       while (*str != c && *str) ++str;
       String_t s = String_t(begin, str);
-      if (s != "") tokens.push_back(s);
+      s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
+      if (s != "") {
+        tokens.push_back(s);
+      }
     } while (*str++);
   }
 }
