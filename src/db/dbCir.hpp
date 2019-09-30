@@ -23,7 +23,7 @@ class CirDB {
   friend class Ispd08Reader;
   friend class TechfileReader;
   friend class GdsReader;
-public:
+ public:
   CirDB()
     : _name(""), _xl(0), _yl(0), _xh(0), _yh(0) {}
   ~CirDB() {}
@@ -61,9 +61,14 @@ public:
   const Net&        net(const String_t& n)        const { return _vNets[str2NetIdx(n)]; }
   bool              hasNet(const String_t& n)     const { return _mStr2NetIdx.find(n) != _mStr2NetIdx.end(); }
 
+  // Block
+  Index_t           numBlocks(const Index_t i)                const { return _vvBlocks[i].size(); }
+  Block&            block(const Index_t i, const Index_t j)         { return _vvBlocks[i][j]; }
+  const Block&      block(const Index_t i, const Index_t j)   const { return _vvBlocks[i][j]; }
+
   // for debug
   void printInfo() const;
-private:
+ private:
   String_t                       _name;
   LefDB                          _lef;
   TechfileDB                     _tech;
@@ -91,6 +96,13 @@ private:
   void addNet(const Net& n);
   void resizeVVBlocks(const Index_t i);
 };
+
+#define Cir_ForEachPin(cir, pPin_, i) \
+  for (i = 0; i < cir.numPins() and (pPin_ = &cir.pin(i)); ++i)
+#define Cir_ForEachNet(cir, pNet_, i) \
+  for (i = 0; i < cir.numNets() and (pNet_ = &cir.net(i)); ++i)
+#define Cir_ForEachBlock(cir, layerIdx, pBlock_, i) \
+  for (i = 0; i < cir.numBlocks(layerIdx) and (pBlock = &cir.block(layerIdx, i)); ++i)
 
 PROJECT_NAMESPACE_END
 

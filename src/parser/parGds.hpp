@@ -1,13 +1,13 @@
 /**
- * @file   gdsReader.hpp
+ * @file   parGds.hpp
  * @brief  Parser - Gds format parser
  * @author Hao Chen
  * @date   09/23/2019
  *
  **/
 
-#ifndef _GDS_READER_HPP_
-#define _GDS_READER_HPP_
+#ifndef _PAR_GDS_HPP_
+#define _PAR_GDS_HPP_
 
 #include <limbo/parsers/gdsii/gdsdb/GdsIO.h>
 #include <limbo/parsers/gdsii/gdsdb/GdsObjectHelpers.h>
@@ -246,4 +246,4 @@ struct GetSRefNameActionParser {
 
 PROJECT_NAMESPACE_END
 
-#endif /// _GDS_READER_HPP_
+#endif /// _PAR_GDS_HPP_

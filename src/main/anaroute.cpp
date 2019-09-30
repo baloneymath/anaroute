@@ -7,8 +7,9 @@
  **/
 
 #include "anaroute.hpp"
+#include "src/db/dbCir.hpp"
 #include "src/parser/parser.hpp"
-#include "src/geo/polygon2box.hpp"
+#include "src/dr/drMgr.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -19,14 +20,18 @@ Anaroute::Anaroute(int argc, char** argv) {
   CirDB cir;
   
   // parse files
-  Parser parser(cir);
-  parser.parseLef(_args.get<String_t>("tech_lef"));
-  parser.parseTechfile(_args.get<String_t>("tech_file"));
-  parser.parseIspd08(_args.get<String_t>("design_file"));
-  parser.parseGds(_args.get<String_t>("placement_layout"));
-  parser.parseSymNet(_args.get<String_t>("symnet"));
+  Parser par(cir);
+  par.parseLef(_args.get<String_t>("tech_lef"));
+  par.parseTechfile(_args.get<String_t>("tech_file"));
+  par.parseIspd08(_args.get<String_t>("design_file"));
+  par.parseGds(_args.get<String_t>("placement_layout"));
+  par.parseSymNet(_args.get<String_t>("symnet"));
+  //cir.printInfo();
   
-  cir.printInfo();
+  // detailed routing
+  DrMgr dr(cir);
+  dr.solve();
+
 }
 
 void Anaroute::parseArgs(int argc, char** argv) {

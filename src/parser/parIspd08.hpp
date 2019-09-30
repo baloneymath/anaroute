@@ -1,13 +1,13 @@
 /**
- * @file   ispd08reader.hpp
+ * @file   parIspd08.hpp
  * @brief  ISPD08-like netlist format parser
  * @author Hao Chen
  * @date   09/22/2019
  *
  **/
 
-#ifndef _ISPD08_READER_HPP_
-#define _ISPD08_READER_HPP_
+#ifndef _PAR_ISPD09_HPP_
+#define _PAR_ISPD08_HPP_
 
 #include "src/global/global.hpp"
 #include "src/db/dbCir.hpp"
@@ -40,4 +40,4 @@ class Ispd08Reader {
 
 PROJECT_NAMESPACE_END
 
-#endif /// _ISPD08_READER_HPP_
+#endif /// _PAR_ISPD08_HPP_

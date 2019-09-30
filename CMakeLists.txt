@@ -71,11 +71,12 @@ add_executable(${PROJECT_NAME}
   src/db/dbPin.cpp
   src/db/dbCir.cpp
   src/db/dbNet.cpp
-  src/parser/lefreader.cpp
-  src/parser/techfileReader.cpp
-  src/parser/ispd08reader.cpp
-  src/parser/gdsReader.cpp
-  src/parser/symNetReader.cpp
+  src/parser/parLef.cpp
+  src/parser/parTech.cpp
+  src/parser/parIspd08.cpp
+  src/parser/parGds.cpp
+  src/parser/parSymNet.cpp
+  src/dr/drMgr.cpp
 )
 
 ##################################################

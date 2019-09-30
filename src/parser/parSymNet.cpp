@@ -1,12 +1,12 @@
 /**
- * @file   symNetReader.cpp
+ * @file   parSymNet.cpp
  * @brief  Parser - Symmetric net reader
  * @author Hao Chen
  * @date   09/29/2019
  *
  **/
 
-#include "symNetReader.hpp"
+#include "parSymNet.hpp"
 #include "src/util/util.hpp"
 
 PROJECT_NAMESPACE_START
@@ -37,8 +37,8 @@ void SymNetReader::parse(const String_t& filename) {
         assert(vTokens.size() == 2);
         Net& n0 = _cir.net(vTokens[0]);
         Net& n1 = _cir.net(vTokens[1]);
-        n0.setSymnetIdx(n1.idx());
-        n1.setSymnetIdx(n0.idx());
+        n0.setSymNetIdx(n1.idx());
+        n1.setSymNetIdx(n0.idx());
       }
       else {
         if (!_cir.hasNet(vTokens[0])) {

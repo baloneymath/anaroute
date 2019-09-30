@@ -1,12 +1,12 @@
 /**
- * @file   ispd08reader.cpp
+ * @file   parIspd08.cpp
  * @brief  ISPD08-like netlist format parser
  * @author Hao Chen
  * @date   09/22/2019
  *
  **/
 
-#include "ispd08reader.hpp"
+#include "parIspd08.hpp"
 #include "src/util/util.hpp"
 #include "src/geo/point.hpp"
 #include "src/geo/box.hpp"

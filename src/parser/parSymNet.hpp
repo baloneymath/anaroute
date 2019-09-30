@@ -1,13 +1,13 @@
 /**
- * @file   symNetReader.hpp
+ * @file   parSymNet.hpp
  * @brief  Parser - Symmetric net reader
  * @author Hao Chen
  * @date   09/29/2019
  *
  **/
 
-#ifndef _SYMNET_READER_HPP_
-#define _SYMNET_READER_HPP_
+#ifndef _PAR_SYMNET_HPP_
+#define _PAR_SYMNET_HPP_
 
 #include "src/global/global.hpp"
 #include "src/db/dbCir.hpp"
@@ -32,4 +32,4 @@ class SymNetReader {
 
 PROJECT_NAMESPACE_END
 
-#endif /// _SYMNET_READER_HPP_
+#endif /// _PAR_SYMNET_HPP_

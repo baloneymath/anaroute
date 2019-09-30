@@ -1,12 +1,12 @@
 /**
- * @file   lefreader.cpp
+ * @file   parLef.cpp
  * @brief  Lef file parser using Limbo wrapper
  * @author Hao Chen
  * @date   09/09/2019
  *
  **/
 
-#include "lefreader.hpp"
+#include "parLef.hpp"
 
 using std::round;
 

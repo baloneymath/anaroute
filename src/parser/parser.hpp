@@ -11,11 +11,11 @@
 
 #include "src/global/global.hpp"
 #include "src/db/dbCir.hpp"
-#include "lefreader.hpp"
-#include "ispd08reader.hpp"
-#include "gdsReader.hpp"
-#include "techfileReader.hpp"
-#include "symNetReader.hpp"
+#include "parLef.hpp"
+#include "parTech.hpp"
+#include "parIspd08.hpp"
+#include "parGds.hpp"
+#include "parSymNet.hpp"
 
 PROJECT_NAMESPACE_START
 

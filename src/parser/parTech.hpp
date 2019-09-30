@@ -1,13 +1,13 @@
 /**
- * @file   techfileReader.hpp
+ * @file   parTech.hpp
  * @brief  Parser - Tsmc techfile (techlayer only)
  * @author Hao Chen
  * @date   09/23/2019
  *
  **/
 
-#ifndef _TECHFILE_READER_HPP_
-#define _TECHFILE_READER_HPP_
+#ifndef _PAR_TECH_HPP_
+#define _PAR_TECH_HPP_
 
 #include "src/global/global.hpp"
 #include "src/db/dbCir.hpp"
@@ -33,4 +33,4 @@ class TechfileReader {
 
 PROJECT_NAMESPACE_END
 
-#endif /// _TECHFILE_READER_HPP_
+#endif /// _PAR_TECH_HPP_

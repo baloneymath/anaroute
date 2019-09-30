@@ -1,12 +1,12 @@
 /**
- * @file   gdsReader.cpp
+ * @file   parGds.cpp
  * @brief  Parser - Gds format parser
  * @author Hao Chen
  * @date   09/24/2019
  *
  **/
 
-#include "gdsReader.hpp"
+#include "parGds.hpp"
 #include "src/geo/polygon2box.hpp"
 
 PROJECT_NAMESPACE_START

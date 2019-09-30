@@ -1,12 +1,12 @@
 /**
- * @file   techfileReader.cpp
+ * @file   parTech.cpp
  * @brief  Parser - Tsmc techfile (techlayer only)
  * @author Hao Chen
  * @date   09/23/2019
  *
  **/
 
-#include "techfileReader.hpp"
+#include "parTech.hpp"
 #include "src/util/util.hpp"
 
 PROJECT_NAMESPACE_START

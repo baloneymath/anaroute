@@ -1,13 +1,13 @@
 /**
- * @file   lefreader.hpp
+ * @file   parLef.hpp
  * @brief  Lef file parser using Limbo wrapper
  * @author Hao Chen
  * @date   09/09/2019
  *
  **/
 
-#ifndef _LEF_READER_HPP_
-#define _LEF_READER_HPP_
+#ifndef _PAR_LEF_HPP_
+#define _PAR_LEF_HPP_
 
 #include <limbo/parsers/lef/adapt/LefDriver.h>
 
@@ -95,4 +95,4 @@ class LefReader : public LefParser::LefDataBase { // LefParser::LefDataBase (Lim
 
 PROJECT_NAMESPACE_END
 
-#endif /// _LEF_READER_HPP_
+#endif /// _PAR_LEF_HPP_
