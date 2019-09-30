@@ -51,7 +51,7 @@ find_package(Boost 1.6 REQUIRED COMPONENTS system graph iostreams)
 # Find Zlib
 find_package(ZLIB REQUIRED)
 
-#set(CMAKE_CXX_FLAGS "-g -pg -std=c++14 -Wall -fPIC")
+set(CMAKE_CXX_FLAGS "-g -pg -std=c++14 -Wall -fPIC")
 set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
 
 
@@ -70,11 +70,12 @@ add_executable(${PROJECT_NAME}
   src/db/dbTechfile.cpp
   src/db/dbPin.cpp
   src/db/dbCir.cpp
-  src/db/net/dr/drNet.cpp
+  src/db/dbNet.cpp
   src/parser/lefreader.cpp
   src/parser/techfileReader.cpp
   src/parser/ispd08reader.cpp
   src/parser/gdsReader.cpp
+  src/parser/symNetReader.cpp
 )
 
 ##################################################

@@ -35,7 +35,7 @@ void Ispd08Reader::parse(const String_t& filename) {
     Index_t netIdx = 0, numPolygon = 0;
     Int_t minWidth = 0;
     fscanf(fin, "%s %d %d %d\n", netName, &netIdx, &numPolygon, &minWidth);
-    DrNet net(netName, netIdx);
+    Net net(netName, netIdx);
     for (Index_t j = 0; j < numPolygon; ++j) {
       Vector_t<String_t> vTokens;
       fgets(buf, bufSize, fin);
@@ -58,7 +58,7 @@ void Ispd08Reader::parse(const String_t& filename) {
       net.addPinIdx(_cir.numPins());
       _cir.addPin(pin);
     }
-    _cir.addDrNet(net);
+    _cir.addNet(net);
   }
   fclose(fin);
 }

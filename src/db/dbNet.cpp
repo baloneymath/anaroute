@@ -6,23 +6,27 @@
  *
  **/
 
-#include "drNet.hpp"
+#include "dbNet.hpp"
 
 PROJECT_NAMESPACE_START
 
-void DrNet::setName(const String_t& n) {
+void Net::setName(const String_t& n) {
   _name = n;
 }
 
-void DrNet::setSymnetIdx(const Index_t i) {
+void Net::setSelfSym() {
+  _bSelfSym = true;
+}
+
+void Net::setSymnetIdx(const Index_t i) {
   _symNetIdx = i;
 }
 
-void DrNet::addPinIdx(const Index_t i) {
+void Net::addPinIdx(const Index_t i) {
   _vPinIndices.emplace_back(i);
 }
 
-void DrNet::addNode(const DrNetNode& n) {
+void Net::addNode(const NetNode& n) {
   // TODO
 }
 

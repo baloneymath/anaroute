@@ -9,15 +9,15 @@
 #ifndef _DB_DR_NET_NODE_VIA_HPP_
 #define _DB_DR_NET_NODE_VIA_HPP_
 
-#include "drNetBase.hpp"
+#include "netBase.hpp"
 
 PROJECT_NAMESPACE_START
 
-class DrNetNodeVia {
+class NetNodeVia {
  public:
-  DrNetNodeVia()
+  NetNodeVia()
     : _viaType(MAX_INDEX) {}
-  ~DrNetNodeVia() {}
+  ~NetNodeVia() {}
 
   // getter
   bool      bValid()    const { return _viaType != MAX_INDEX; }

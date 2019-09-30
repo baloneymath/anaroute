@@ -30,8 +30,9 @@ void CirDB::addPin(const Pin& p) {
   _vPins.emplace_back(p);
 }
 
-void CirDB::addDrNet(const DrNet& n) {
-  _vDrNets.emplace_back(n);
+void CirDB::addNet(const Net& n) {
+  _mStr2NetIdx[n.name()] = _vNets.size();
+  _vNets.emplace_back(n);
 }
 
 void CirDB::addBlock(const Index_t i, const Block& b) {
@@ -59,23 +60,30 @@ void CirDB::printInfo() const {
   fprintf(fout, "CIRCUIT %s (%d %d %d %d)\n", _name.c_str(), _xl, _yl, _xh, _yh);
   fprintf(fout, "  NUM PINS %lu\n", _vPins.size());
   for (Index_t i = 0; i < _vPins.size(); ++i) {
-    fprintf(fout, "    PIN %s\n", _vPins[i].name().c_str());
-    const auto& vvBoxes = _vPins[i].vvBoxes();
+    const Pin& pin = _vPins[i];
+    fprintf(fout, "    PIN %s\n", pin.name().c_str());
+    const auto& vvBoxes = pin.vvBoxes();
     for (Index_t j = 0; j < vvBoxes.size(); ++j) {
       for (Index_t k = 0; k < vvBoxes[j].size(); ++k) {
-        fprintf(fout, "      %d (%d %d %d %d)\n", _vPins[i].minLayerIdx() + j,
-                                                  _vPins[i].box(_vPins[i].minLayerIdx() + j, k).xl(),
-                                                  _vPins[i].box(_vPins[i].minLayerIdx() + j, k).yl(),
-                                                  _vPins[i].box(_vPins[i].minLayerIdx() + j, k).xh(),
-                                                  _vPins[i].box(_vPins[i].minLayerIdx() + j, k).yh());
+        fprintf(fout, "      %d (%d %d %d %d)\n", pin.minLayerIdx() + j,
+                                                  pin.box(pin.minLayerIdx() + j, k).xl(),
+                                                  pin.box(pin.minLayerIdx() + j, k).yl(),
+                                                  pin.box(pin.minLayerIdx() + j, k).xh(),
+                                                  pin.box(pin.minLayerIdx() + j, k).yh());
       }
     }
   }
-  fprintf(fout, "\n  NUM NETS %lu\n", _vDrNets.size());
-  for (Index_t i = 0; i < _vDrNets.size(); ++i) {
-    fprintf(fout, "    NET %s\n", _vDrNets[i].name().c_str());
-    for (Index_t j = 0; j < _vDrNets[i].numPins(); ++j) {
-      fprintf(fout, "      PIN %u\n", _vDrNets[i].pinIdx(j));
+  fprintf(fout, "\n  NUM NETS %lu\n", _vNets.size());
+  for (Index_t i = 0; i < _vNets.size(); ++i) {
+    const Net& net = _vNets[i];
+    fprintf(fout, "    NET %s", net.name().c_str());
+    if (net.bSelfSym())
+      fprintf(fout, " SELFSYM");
+    if (net.hasSymNet())
+      fprintf(fout, " SYMNET %s", _vNets[net.symNetIdx()].name().c_str());
+    fprintf(fout, "\n");
+    for (Index_t j = 0; j < net.numPins(); ++j) {
+      fprintf(fout, "      PIN %u\n", net.pinIdx(j));
     }
   }
   fprintf(fout, "\n  TSMC TECHLAYER %lu\n", _tech.mStr2LayerMaskIdx().size());

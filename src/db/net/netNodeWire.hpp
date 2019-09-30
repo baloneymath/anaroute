@@ -9,15 +9,15 @@
 #ifndef _DB_DR_NET_NODE_WIRE_HPP_
 #define _DB_DR_NET_NODE_WIRE_HPP_
 
-#include "drNetBase.hpp"
+#include "netBase.hpp"
 
 PROJECT_NAMESPACE_START
 
-class DrNetNodeWire {
+class NetNodeWire {
  public:
-  DrNetNodeWire()
+  NetNodeWire()
     : _extension(0), _halfWidth(0) {}
-  ~DrNetNodeWire() {}
+  ~NetNodeWire() {}
  
   // getter
   Int_t extension() const { return _extension; }

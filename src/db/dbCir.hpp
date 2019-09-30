@@ -14,7 +14,7 @@
 #include "dbTechfile.hpp"
 #include "dbBlock.hpp"
 #include "dbPin.hpp"
-#include "dbNets.hpp"
+#include "dbNet.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -52,6 +52,15 @@ public:
   Pin&              pin(const Index_t i)        { return _vPins[i]; }
   const Pin&        pin(const Index_t i)  const { return _vPins[i]; }
 
+  // Net
+  Index_t           numNets()                     const { return _vNets.size(); }
+  Index_t           str2NetIdx(const String_t& n) const { return _mStr2NetIdx.at(n); }
+  Net&              net(const Index_t i)                { return _vNets[i]; }
+  Net&              net(const String_t& n)              { return _vNets[str2NetIdx(n)]; }
+  const Net&        net(const Index_t i)          const { return _vNets[i]; }
+  const Net&        net(const String_t& n)        const { return _vNets[str2NetIdx(n)]; }
+  bool              hasNet(const String_t& n)     const { return _mStr2NetIdx.find(n) != _mStr2NetIdx.end(); }
+
   // for debug
   void printInfo() const;
 private:
@@ -65,8 +74,10 @@ private:
   Int_t                          _yh;
   
   Vector_t<Pin>                  _vPins;
-  Vector_t<DrNet>                _vDrNets;
+  Vector_t<Net>                  _vNets;
   Vector_t<Vector_t<Block>>      _vvBlocks;
+
+  UMap_t<String_t, Index_t>      _mStr2NetIdx;
  
   //////////////////////////////////
   //  Private Setter              //
@@ -77,7 +88,7 @@ private:
   void setYH(const Int_t y);
   void addPin(const Pin& p);
   void addBlock(const Index_t i, const Block& b);
-  void addDrNet(const DrNet& n);
+  void addNet(const Net& n);
   void resizeVVBlocks(const Index_t i);
 };
 

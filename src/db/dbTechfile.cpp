@@ -11,7 +11,7 @@
 PROJECT_NAMESPACE_START
 
 void TechfileDB::addStr2LayerMaxIdx(const String_t& n, const Index_t i) {
-  assert(_mStr2LayerMaskIdx.count(n) == 0);
+  assert(_mStr2LayerMaskIdx.find(n) == _mStr2LayerMaskIdx.end());
   _mStr2LayerMaskIdx[n] = i;
 }
 

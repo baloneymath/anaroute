@@ -13,7 +13,7 @@
 
 PROJECT_NAMESPACE_START
 
-enum DrNetNodeType : Byte_t {
+enum NetNodeType : Byte_t {
   TERMINAL = 0,
   MEDIUM = 1
 };
