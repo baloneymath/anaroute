@@ -18,7 +18,7 @@ void SymNetReader::parse(const String_t& filename) {
     fprintf(stderr, "%s: Error opening file %s!!!\n", __func__, filename.c_str());
     exit(0);
   }
-  const Index_t bufSize = 200;
+  const UInt_t bufSize = 200;
   char buf[bufSize];
   Vector_t<String_t> vTokens;
 

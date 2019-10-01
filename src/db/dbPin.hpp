@@ -19,7 +19,7 @@ class Pin {
   friend class Ispd08Reader;
  public:
   Pin()
-    : _name(""), _netName(""), _netIdx(MAX_INDEX), _layerIdxOffset(MAX_INDEX) {}
+    : _name(""), _netName(""), _netIdx(MAX_UINT), _layerIdxOffset(MAX_UINT) {}
   ~Pin() {}
 
   ////////////////////////////////////////
@@ -27,11 +27,11 @@ class Pin {
   ////////////////////////////////////////
   const String_t&                         name()                                        const { return _name; }
   const String_t&                         netName()                                     const { return _netName; }
-  Index_t                                 netIdx()                                      const { return _netIdx; }
-  Index_t                                 minLayerIdx()                                 const { return _layerIdxOffset; }
-  Index_t                                 maxLayerIdx()                                 const { return _layerIdxOffset + _vvBoxes.size(); }
-  const Box<Int_t>&                       box(const Index_t layerIdx, const Index_t j)  const { return _vvBoxes[layerIdx - _layerIdxOffset][j]; }
-  const Vector_t<Box<Int_t>>&             vBoxes(const Index_t layerIdx)                const { return _vvBoxes[layerIdx - _layerIdxOffset]; }
+  UInt_t                                  netIdx()                                      const { return _netIdx; }
+  UInt_t                                  minLayerIdx()                                 const { return _layerIdxOffset; }
+  UInt_t                                  maxLayerIdx()                                 const { return _layerIdxOffset + _vvBoxes.size(); }
+  const Box<Int_t>&                       box(const UInt_t layerIdx, const UInt_t j)    const { return _vvBoxes[layerIdx - _layerIdxOffset][j]; }
+  const Vector_t<Box<Int_t>>&             vBoxes(const UInt_t layerIdx)                 const { return _vvBoxes[layerIdx - _layerIdxOffset]; }
   const Vector_t<Vector_t<Box<Int_t>>>&   vvBoxes()                                     const { return _vvBoxes; }
 
   // for debug
@@ -40,8 +40,8 @@ class Pin {
  private:
   String_t                        _name;
   String_t                        _netName;
-  Index_t                         _netIdx;
-  Index_t                         _layerIdxOffset; // offset between extact layerIdx and local vvBoxes
+  UInt_t                          _netIdx;
+  UInt_t                          _layerIdxOffset; // offset between extact layerIdx and local vvBoxes
   Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
   
   ////////////////////////////////////////
@@ -49,10 +49,10 @@ class Pin {
   ////////////////////////////////////////
   void setName(const String_t& n);
   void setNetName(const String_t& n);
-  void setNetIdx(const Index_t i);
-  void setLayerIdxOffset(const Index_t i );
-  void addBox(const Index_t layerIdx, const Box<Int_t>& box);
-  void setLayerBoxes(const Index_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes);
+  void setNetIdx(const UInt_t i);
+  void setLayerIdxOffset(const UInt_t i );
+  void addBox(const UInt_t layerIdx, const Box<Int_t>& box);
+  void setLayerBoxes(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes);
 };
 
 PROJECT_NAMESPACE_END

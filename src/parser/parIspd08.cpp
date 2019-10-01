@@ -25,18 +25,18 @@ void Ispd08Reader::parse(const String_t& filename) {
   setScale();
   buildLayerMap();
 
-  constexpr Index_t bufSize = 200;
+  constexpr UInt_t bufSize = 200;
   char buf[bufSize];
 
-  Index_t numNet = 0;
+  UInt_t numNet = 0;
   fscanf(fin, "num net %u\n", &numNet);
-  for (Index_t i = 0; i < numNet; ++i) {
+  for (UInt_t i = 0; i < numNet; ++i) {
     char netName[bufSize];
-    Index_t netIdx = 0, numPolygon = 0;
+    UInt_t netIdx = 0, numPolygon = 0;
     Int_t minWidth = 0;
     fscanf(fin, "%s %d %d %d\n", netName, &netIdx, &numPolygon, &minWidth);
     Net net(netName, netIdx);
-    for (Index_t j = 0; j < numPolygon; ++j) {
+    for (UInt_t j = 0; j < numPolygon; ++j) {
       Vector_t<String_t> vTokens;
       fgets(buf, bufSize, fin);
       util::splitString(buf, " ", vTokens);
@@ -44,7 +44,7 @@ void Ispd08Reader::parse(const String_t& filename) {
       Int_t layerIdx = map2RoutingLayer(std::stoi(vTokens[0]));
       pin.setLayerIdxOffset(layerIdx);
       Vector_t<Point<Int_t>> vPts;
-      for (Index_t k = 1; k + 1 < vTokens.size(); k += 2) {
+      for (UInt_t k = 1; k + 1 < vTokens.size(); k += 2) {
         Int_t x = to_db_unit(std::stoi(vTokens[k]));
         Int_t y = to_db_unit(std::stoi(vTokens[k + 1]));
         vPts.emplace_back(x, y);
@@ -72,14 +72,14 @@ void Ispd08Reader::setScale() {
 }
 
 void Ispd08Reader::buildLayerMap() {
-  for (Index_t i = 0; i < _cir.lef().numLayers(); ++i) {
+  for (UInt_t i = 0; i < _cir.lef().numLayers(); ++i) {
     if (_cir.lef().bRoutingLayer(i)) {
       _vIdx2RoutingLayerIdx.emplace_back(i);
     }
   }
 }
 
-Index_t Ispd08Reader::map2RoutingLayer(const Index_t i) {
+UInt_t Ispd08Reader::map2RoutingLayer(const UInt_t i) {
   assert(i > 0);
   return _vIdx2RoutingLayerIdx[i - 1];
 }

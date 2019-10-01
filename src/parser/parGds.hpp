@@ -28,10 +28,10 @@ struct PolygonLayer {
 		return oss.str();
 	}
 	/// @brief scale the polygon
-	void scale(Real_t scaleX, Real_t scaleY) {
-		for (Index_t ptIdx = 0; ptIdx < pts.size(); ++ptIdx) {
-			Real_t x = pts.at(ptIdx).x();
-			Real_t y = pts.at(ptIdx).y();
+	void scale(Float_t scaleX, Float_t scaleY) {
+		for (UInt_t ptIdx = 0; ptIdx < pts.size(); ++ptIdx) {
+			Float_t x = pts.at(ptIdx).x();
+			Float_t y = pts.at(ptIdx).y();
 			Int_t newX = std::round(x * scaleX);
 			Int_t newY = std::round(y * scaleY);
 			pts.at(ptIdx).setX(newX);
@@ -41,7 +41,7 @@ struct PolygonLayer {
 
 	///Members
 	Vector_t<Point<Int_t>> pts; ///< The points of the polygon
-	Index_t layer = MAX_INDEX; ///< The layer of the polygon
+	UInt_t layer = MAX_UINT; ///< The layer of the polygon
 };
 
 class GdsReader { // from limbo
@@ -54,7 +54,7 @@ class GdsReader { // from limbo
 
  private:
 	CirDB&                            _cir;
-	Vector_t<Pair_t<Int_t, Index_t>>  _vMaskId2Layers;
+	Vector_t<Pair_t<Int_t, UInt_t>>  _vMaskId2Layers;
 	Vector_t<PolygonLayer>            _vPolygonLayers;
 	Vector_t<PolygonLayer>            _vPoblks;
 	/////////////////////////////////////////
@@ -73,24 +73,24 @@ namespace ExtractShapeLayerActionDetails {
 
 	namespace gtl = boost::polygon;
 	/// @brief convert from gds layer to router layer
-	/// @return MAX_INDEX if not found, otherwise, the router layer
-	inline Index_t layerIdx(Int_t gdsLayer, Vector_t<Pair_t<Int_t, Index_t>> &map) {
+	/// @return MAX_UINT if not found, otherwise, the router layer
+	inline UInt_t layerIdx(Int_t gdsLayer, Vector_t<Pair_t<Int_t, UInt_t>> &map) {
 		/// Linear search in the map
 		for (auto pair : map) {
 			if (pair.first == gdsLayer) {
 				return pair.second;
 			}
 		}
-		return MAX_INDEX;
+		return MAX_UINT;
 	}
 	/// @brief default action
 	template<typename ObjectType>
-		inline void extractShape(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ObjectType *object) {}
+		inline void extractShape(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ObjectType *object) {}
 
 
 	/// @brief process gds rectangle
 	template<>
-		inline void extractShape(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsRectangle *object) {
+		inline void extractShape(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsRectangle *object) {
 			//DBG("Rect \n");
 			assert(false);
 			//AssertMsg(0, "%s: Rectangle type not support yet \n", __FUNCTION__);
@@ -99,10 +99,10 @@ namespace ExtractShapeLayerActionDetails {
 
 	/// @brief process gds polygon
 	template<>
-		inline void extractShape(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPolygon *object) {
+		inline void extractShape(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPolygon *object) {
 			/// Convert the gds layer to the router layer
-			Index_t routerLayer = layerIdx(object->layer(), map);
-			if (routerLayer != MAX_INDEX) {
+			UInt_t routerLayer = layerIdx(object->layer(), map);
+			if (routerLayer != MAX_UINT) {
 				polygons.emplace_back(PolygonLayer());
 				polygons.back().layer = routerLayer;
 				/// Add points
@@ -112,7 +112,7 @@ namespace ExtractShapeLayerActionDetails {
 			}
 			else if (object->layer() == DUMMY_BLOCKAGE_LAYER && object->datatype() == DUMMY_BLOCKAGE_DATATYPE) {
 				polygons.emplace_back(PolygonLayer());
-				polygons.back().layer = MAX_INDEX;
+				polygons.back().layer = MAX_UINT;
 				/// Add points
 				for (auto pt : *object) {
 					polygons.back().pts.emplace_back(Point<Int_t>(pt.x(), pt.y()));
@@ -122,7 +122,7 @@ namespace ExtractShapeLayerActionDetails {
 
 	/// @brief process path
 	template<>
-		inline void extractShape(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPath *object) {
+		inline void extractShape(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPath *object) {
 			auto polygon = object->toPolygon();
 			extractShape(map, polygons, type, &polygon);
 		}
@@ -136,28 +136,28 @@ namespace ExtractPoBlkActionDetails {
 
 	namespace gtl = boost::polygon;
 	/// @brief convert from gds layer to router layer
-	/// @return MAX_INDEX if not found, otherwise, the router layer
-	inline Index_t layerIdx(Int_t gdsLayer, Vector_t<Pair_t<Int_t, Index_t>> &map) {
+	/// @return MAX_UINT if not found, otherwise, the router layer
+	inline UInt_t layerIdx(Int_t gdsLayer, Vector_t<Pair_t<Int_t, UInt_t>> &map) {
 		/// Linear search in the map
 		for (auto pair : map) {
 			if (pair.first == gdsLayer) {
 				return pair.second;
 			}
 		}
-		return MAX_INDEX;
+		return MAX_UINT;
 	}
 	/// @brief default action
 	template<typename ObjectType>
-		inline void extractPoblk(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ObjectType *object) {}
+		inline void extractPoblk(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ObjectType *object) {}
 
 
 
 	/// @brief process gds polygon
 	template<>
-		inline void extractPoblk(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPolygon *object) {
+		inline void extractPoblk(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPolygon *object) {
 			if (object->layer() == POBLK_LAYER && object->datatype() == POBLK_DATATYPE) {
 				polygons.emplace_back(PolygonLayer());
-				polygons.back().layer = MAX_INDEX;
+				polygons.back().layer = MAX_UINT;
 				/// Add points
 				for (auto pt : *object) {
 					polygons.back().pts.emplace_back(Point<Int_t>(pt.x(), pt.y()));
@@ -167,7 +167,7 @@ namespace ExtractPoBlkActionDetails {
 
 	/// @brief process path
 	template<>
-		inline void extractPoblk(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPath *object) {
+		inline void extractPoblk(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPath *object) {
 			auto polygon = object->toPolygon();
 			extractPoblk(map, polygons, type, &polygon);
 		}
@@ -178,7 +178,7 @@ namespace ExtractPoBlkActionDetails {
 struct ExtractPoBlkAction {
 	/// @param first: the map between the gds layer indices to the router layers. Only care about the mapping within this map
 	/// @param second: a reference to a vector of polygons, saved the read polygons in this vector
-	ExtractPoBlkAction(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons) : _vMaskId2Layers(map), _polygons(polygons) {}
+	ExtractPoBlkAction(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons) : _vMaskId2Layers(map), _polygons(polygons) {}
 	template<typename ObjectType>
 		void operator()(::GdsParser::GdsRecords::EnumType type, ObjectType* object) {
 			ExtractPoBlkActionDetails::extractPoblk(_vMaskId2Layers, _polygons, type, object);
@@ -189,7 +189,7 @@ struct ExtractPoBlkAction {
 		return "ExtractShapeLayerAction";
 	}
 
-	Vector_t<Pair_t<Int_t, Index_t>> &_vMaskId2Layers; ///< Map gds layer id to all layers in router (masterslice + routing + cut)
+	Vector_t<Pair_t<Int_t, UInt_t>> &_vMaskId2Layers; ///< Map gds layer id to all layers in router (masterslice + routing + cut)
 	Vector_t<PolygonLayer> &_polygons; ///< The polygons read from the gds
 };
 
@@ -198,7 +198,7 @@ struct ExtractPoBlkAction {
 struct ExtractShapeLayerAction {
 	/// @param first: the map between the gds layer indices to the router layers. Only care about the mapping within this map
 	/// @param second: a reference to a vector of polygons, saved the read polygons in this vector
-	ExtractShapeLayerAction(Vector_t<Pair_t<Int_t, Index_t>> &map, Vector_t<PolygonLayer> &polygons) : _vMaskId2Layers(map), _polygons(polygons) {}
+	ExtractShapeLayerAction(Vector_t<Pair_t<Int_t, UInt_t>> &map, Vector_t<PolygonLayer> &polygons) : _vMaskId2Layers(map), _polygons(polygons) {}
 	template<typename ObjectType>
 		void operator()(::GdsParser::GdsRecords::EnumType type, ObjectType* object) {
 			ExtractShapeLayerActionDetails::extractShape(_vMaskId2Layers, _polygons, type, object);
@@ -209,7 +209,7 @@ struct ExtractShapeLayerAction {
 		return "ExtractShapeLayerAction";
 	}
 
-	Vector_t<Pair_t<Int_t, Index_t>> &_vMaskId2Layers; ///< Map gds layer id to all layers in router (masterslice + routing + cut)
+	Vector_t<Pair_t<Int_t, UInt_t>> &_vMaskId2Layers; ///< Map gds layer id to all layers in router (masterslice + routing + cut)
 	Vector_t<PolygonLayer> &_polygons; ///< The polygons read from the gds
 };
 

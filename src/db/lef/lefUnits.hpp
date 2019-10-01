@@ -33,14 +33,14 @@ class LefUnits {
   //    Getter                   //
   /////////////////////////////////
   const String_t&    databaseName()    const { return _databaseName; }
-  Int_t             databaseNumber()  const { return _databaseNumber; }
-  Int_t             capacitance()     const { return _capacitance; }
-  Int_t             resistance()      const { return _resistance; }
-  Int_t             time()            const { return _time; }
-  Int_t             power()           const { return _power; }
-  Int_t             current()         const { return _current; }
-  Int_t             voltage()         const { return _voltage; }
-  Int_t             frequency()       const { return _frequency; }
+  Int_t              databaseNumber()  const { return _databaseNumber; }
+  Int_t              capacitance()     const { return _capacitance; }
+  Int_t              resistance()      const { return _resistance; }
+  Int_t              time()            const { return _time; }
+  Int_t              power()           const { return _power; }
+  Int_t              current()         const { return _current; }
+  Int_t              voltage()         const { return _voltage; }
+  Int_t              frequency()       const { return _frequency; }
 
  private:
   String_t    _databaseName;

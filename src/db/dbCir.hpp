@@ -37,9 +37,9 @@ class CirDB {
   const LefDB&      lef()   const { return _lef; }
  
   // Techfile
-  TechfileDB&       tech()                                  { return _tech; }
-  const TechfileDB& tech()                            const { return _tech; }
-  Index_t           layerIdx2MaskIdx(const Index_t i) const;
+  TechfileDB&       tech()                                 { return _tech; }
+  const TechfileDB& tech()                           const { return _tech; }
+  UInt_t            layerIdx2MaskIdx(const UInt_t i) const;
 
   // Boundary
   Int_t             xl()    const { return _xl; }
@@ -48,23 +48,23 @@ class CirDB {
   Int_t             yh()    const { return _yh; }
 
   // Pin
-  Index_t           numPins()             const { return _vPins.size(); }
-  Pin&              pin(const Index_t i)        { return _vPins[i]; }
-  const Pin&        pin(const Index_t i)  const { return _vPins[i]; }
+  UInt_t            numPins()             const { return _vPins.size(); }
+  Pin&              pin(const UInt_t i)         { return _vPins[i]; }
+  const Pin&        pin(const UInt_t i)  const  { return _vPins[i]; }
 
   // Net
-  Index_t           numNets()                     const { return _vNets.size(); }
-  Index_t           str2NetIdx(const String_t& n) const { return _mStr2NetIdx.at(n); }
-  Net&              net(const Index_t i)                { return _vNets[i]; }
+  UInt_t            numNets()                     const { return _vNets.size(); }
+  UInt_t            str2NetIdx(const String_t& n) const { return _mStr2NetIdx.at(n); }
+  Net&              net(const UInt_t i)                 { return _vNets[i]; }
   Net&              net(const String_t& n)              { return _vNets[str2NetIdx(n)]; }
-  const Net&        net(const Index_t i)          const { return _vNets[i]; }
+  const Net&        net(const UInt_t i)           const { return _vNets[i]; }
   const Net&        net(const String_t& n)        const { return _vNets[str2NetIdx(n)]; }
   bool              hasNet(const String_t& n)     const { return _mStr2NetIdx.find(n) != _mStr2NetIdx.end(); }
 
   // Block
-  Index_t           numBlocks(const Index_t i)                const { return _vvBlocks[i].size(); }
-  Block&            block(const Index_t i, const Index_t j)         { return _vvBlocks[i][j]; }
-  const Block&      block(const Index_t i, const Index_t j)   const { return _vvBlocks[i][j]; }
+  UInt_t            numBlocks(const UInt_t i)               const { return _vvBlocks[i].size(); }
+  Block&            block(const UInt_t i, const UInt_t j)         { return _vvBlocks[i][j]; }
+  const Block&      block(const UInt_t i, const UInt_t j)   const { return _vvBlocks[i][j]; }
 
   // for debug
   void printInfo() const;
@@ -82,7 +82,7 @@ class CirDB {
   Vector_t<Net>                  _vNets;
   Vector_t<Vector_t<Block>>      _vvBlocks;
 
-  UMap_t<String_t, Index_t>      _mStr2NetIdx;
+  UMap_t<String_t, UInt_t>      _mStr2NetIdx;
  
   //////////////////////////////////
   //  Private Setter              //
@@ -92,9 +92,9 @@ class CirDB {
   void setXH(const Int_t x);
   void setYH(const Int_t y);
   void addPin(const Pin& p);
-  void addBlock(const Index_t i, const Block& b);
+  void addBlock(const UInt_t i, const Block& b);
   void addNet(const Net& n);
-  void resizeVVBlocks(const Index_t i);
+  void resizeVVBlocks(const UInt_t i);
 };
 
 #define Cir_ForEachPin(cir, pPin_, i) \

@@ -22,16 +22,16 @@ class TechfileDB {
   //////////////////////////////////
   //  Getter                      //
   //////////////////////////////////
-  const UMap_t<String_t, Index_t>&  mStr2LayerMaskIdx()                 const { return _mStr2LayerMaskIdx; }
-  Index_t                           str2LayerMaskIdx(const String_t& n) const { return _mStr2LayerMaskIdx.at(n); }
+  const UMap_t<String_t, UInt_t>&  mStr2LayerMaskIdx()                 const { return _mStr2LayerMaskIdx; }
+  UInt_t                           str2LayerMaskIdx(const String_t& n) const { return _mStr2LayerMaskIdx.at(n); }
 
  private:
-  UMap_t<String_t, Index_t>  _mStr2LayerMaskIdx; // layer name -> layer idx specified in tsmc techfile
+  UMap_t<String_t, UInt_t>  _mStr2LayerMaskIdx; // layer name -> layer idx specified in tsmc techfile
   
   //////////////////////////////////
   //  Private Setter              //
   //////////////////////////////////
-  void addStr2LayerMaxIdx(const String_t& n, const Index_t i);
+  void addStr2LayerMaxIdx(const String_t& n, const UInt_t i);
 };
 
 PROJECT_NAMESPACE_END

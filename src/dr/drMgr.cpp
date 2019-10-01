@@ -16,7 +16,7 @@ void DrMgr::solve() {
   PairingHeap<Net*, Net_Cmp> pqueue;
   
   Net* pNet;
-  Index_t i;
+  UInt_t i;
   Cir_ForEachNet(_cir, pNet, i) {
     // ignore dangling net
     if (pNet->numPins() > 1) {

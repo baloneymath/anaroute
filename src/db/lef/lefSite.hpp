@@ -37,10 +37,10 @@ class LefSiteRowPattern {
   LefSiteRowPattern() {}
   ~LefSiteRowPattern() {}
  
-  Index_t           numSites()                  const { return _vSiteNames.size(); }
-  const String_t&   siteName(const Index_t i)   const { return _vSiteNames[i]; }
-  const String_t&   orientStr(const Index_t i)  const { return _vOrientStrs[i]; }
-  LefSiteOrient     orient(const Index_t i)     const { return _vOrients[i]; }
+  UInt_t            numSites()                 const { return _vSiteNames.size(); }
+  const String_t&   siteName(const UInt_t i)   const { return _vSiteNames[i]; }
+  const String_t&   orientStr(const UInt_t i)  const { return _vOrientStrs[i]; }
+  LefSiteOrient     orient(const UInt_t i)     const { return _vOrients[i]; }
 
  private:
   Vector_t<String_t>       _vSiteNames;

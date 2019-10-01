@@ -14,7 +14,7 @@ void LefDB::setVersionStr(const String_t& v) {
   _versionStr = v;
 }
 
-void LefDB::setVersion(const Real_t v) {
+void LefDB::setVersion(const Float_t v) {
   _version = v;
 }
 
@@ -22,7 +22,7 @@ void LefDB::setDividerChar(const String_t& v) {
   _dividerChar = v;
 }
 
-void LefDB::setManufacturingGrid(const Real_t v) {
+void LefDB::setManufacturingGrid(const Float_t v) {
   _manufacturingGrid = v;
 }
 
@@ -80,16 +80,16 @@ void LefDB::addVia(const LefVia& v) {
 }
 
 void LefDB::logInfo() const {
-  for (Index_t i = 0; i < _vSites.size(); ++i) {
+  for (UInt_t i = 0; i < _vSites.size(); ++i) {
     _vSites[i].logInfo();
   }
-  for (Index_t i = 0; i < _vCutLayers.size(); ++i) {
+  for (UInt_t i = 0; i < _vCutLayers.size(); ++i) {
     _vCutLayers[i].logInfo();
   }
-  for (Index_t i = 0; i < _vRoutingLayers.size(); ++i) {
+  for (UInt_t i = 0; i < _vRoutingLayers.size(); ++i) {
     _vRoutingLayers[i].logInfo();
   }
-  for (Index_t i = 0; i < _vVias.size(); ++i) {
+  for (UInt_t i = 0; i < _vVias.size(); ++i) {
     _vVias[i].logInfo();
   }
 }

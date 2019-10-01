@@ -73,8 +73,8 @@ class LefRoutingLayer {
   Int_t                   offset()                    const { return _offset; }
   Int_t                   offsetX()                   const { return _offsetX; }
   Int_t                   offsetY()                   const { return _offsetY; }
-  Int_t                   spacing(const Index_t i)    const { return _vSpacings[i]; }
-  const EolSpacing&       eolSpacing(const Index_t i) const { return _vEolSpacings[i]; }
+  Int_t                   spacing(const UInt_t i)     const { return _vSpacings[i]; }
+  const EolSpacing&       eolSpacing(const UInt_t i)  const { return _vEolSpacings[i]; }
   const LefSpacingTable&  spacingTable()              const { return _spacingTable; }
 
   // for debug
@@ -121,7 +121,7 @@ class LefRoutingLayer {
   void addEolSpacing(const Int_t s, const Int_t d, const Int_t w);
   void addParallelRunLength(const Int_t p);
   void addSpacingTableWidth(const Int_t w);
-  void addSpacingTableWidthSpacing(const Index_t idx, const Int_t s);
+  void addSpacingTableWidthSpacing(const UInt_t idx, const Int_t s);
 };
 
 PROJECT_NAMESPACE_END

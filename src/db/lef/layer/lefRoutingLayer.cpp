@@ -77,7 +77,7 @@ void LefRoutingLayer::addSpacingTableWidth(const Int_t w) {
   _spacingTable.table.emplace_back(w, Vector_t<Int_t>());
 }
 
-void LefRoutingLayer::addSpacingTableWidthSpacing(const Index_t idx, const Int_t s) {
+void LefRoutingLayer::addSpacingTableWidthSpacing(const UInt_t idx, const Int_t s) {
   _spacingTable.table[idx].second.emplace_back(s);
 }
 
@@ -91,14 +91,14 @@ void LefRoutingLayer::logInfo() const {
   if (_vSpacings.size()) {
     fprintf(fout,"  SPACING\n");
     fprintf(fout,"    ");
-    for (Index_t i = 0; i < _vSpacings.size(); ++i)
+    for (UInt_t i = 0; i < _vSpacings.size(); ++i)
       fprintf(fout,"%d ", _vSpacings[i]);
     fprintf(fout,"\n");
   }
   if (_vEolSpacings.size()) {
     fprintf(fout,"  EOL\n");
     fprintf(fout,"    ");
-    for (Index_t i = 0; i < _vEolSpacings.size(); ++i)
+    for (UInt_t i = 0; i < _vEolSpacings.size(); ++i)
       fprintf(fout,"SPACING %d WIDTH %d WITHIN %d\n", _vEolSpacings[i].eolSpacing(),
                                                 _vEolSpacings[i].eolWidth(),
                                                 _vEolSpacings[i].eolWithin());
@@ -106,13 +106,13 @@ void LefRoutingLayer::logInfo() const {
   if (_spacingTable.vParallelRunLength.size()) {
     fprintf(fout,"SPACINGTABLE\n");
       fprintf(fout,"PARALLELRUNLENGTH");
-    for (Index_t i = 0; i < _spacingTable.vParallelRunLength.size(); ++i) {
+    for (UInt_t i = 0; i < _spacingTable.vParallelRunLength.size(); ++i) {
       fprintf(fout,"  %d", _spacingTable.vParallelRunLength[i]);
     }
     fprintf(fout,"\n");
-    for (Index_t i = 0; i < _spacingTable.table.size(); ++i) {
+    for (UInt_t i = 0; i < _spacingTable.table.size(); ++i) {
       fprintf(fout,"WIDTH %d", _spacingTable.table[i].first);
-      for (Index_t j = 0; j < _spacingTable.table[i].second.size(); ++j) {
+      for (UInt_t j = 0; j < _spacingTable.table[i].second.size(); ++j) {
         fprintf(fout,"  %d", _spacingTable.table[i].second[j]);
       }
       fprintf(fout,"\n");

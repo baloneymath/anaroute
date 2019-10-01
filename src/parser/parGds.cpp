@@ -78,7 +78,7 @@ String_t GdsReader::topCell(GdsParser::GdsDB::GdsDB db) {
 }
 
 void GdsReader::buildLayerMap() {
-  for (Index_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx) {
+  for (UInt_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx) {
     if (_cir.lef().bRoutingLayer(layerIdx)) {
       _vMaskId2Layers.emplace_back(_cir.layerIdx2MaskIdx(layerIdx), layerIdx);
     }
@@ -96,7 +96,7 @@ void GdsReader::saveShapesAsBlockages() {
   for (const auto& poly : _vPolygonLayers) {
     geo::polygon2Box(poly.pts, vBoxes);
     for (const auto& box : vBoxes) {
-      auto __addBlk = [&] (const Index_t layerIdx, const auto& box) {
+      auto __addBlk = [&] (const UInt_t layerIdx, const auto& box) {
         Block b(layerIdx, box);
         _cir.addBlock(layerIdx, b);
         if (b.xl() < _cir.xl()) {
@@ -112,7 +112,7 @@ void GdsReader::saveShapesAsBlockages() {
           _cir.setYH(b.yh());
         }
       };
-      if (poly.layer == MAX_INDEX) {
+      if (poly.layer == MAX_UINT) {
         // dummy blks
         for (const auto& blk : vBlks) {
           if (Box<Int_t>::bCover(blk, box)) {

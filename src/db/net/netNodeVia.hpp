@@ -16,17 +16,17 @@ PROJECT_NAMESPACE_START
 class NetNodeVia {
  public:
   NetNodeVia()
-    : _viaType(MAX_INDEX) {}
+    : _viaType(MAX_UINT) {}
   ~NetNodeVia() {}
 
   // getter
-  bool      bValid()    const { return _viaType != MAX_INDEX; }
-  Index_t   viaType()   const { return _viaType; }
+  bool      bValid()    const { return _viaType != MAX_UINT; }
+  UInt_t    viaType()   const { return _viaType; }
 
   // setter
-  void setViaType(const Index_t i) { _viaType = i; }
+  void setViaType(const UInt_t i) { _viaType = i; }
  private:
-  Index_t   _viaType; // The index of via in LefDB
+  UInt_t   _viaType; // The index of via in LefDB
 
 };
 

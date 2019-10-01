@@ -18,24 +18,24 @@ void Pin::setNetName(const String_t& n) {
   _netName = n;
 }
 
-void Pin::setNetIdx(const Index_t i) {
+void Pin::setNetIdx(const UInt_t i) {
   _netIdx = i;
 }
 
-void Pin::setLayerIdxOffset(const Index_t i ) {
+void Pin::setLayerIdxOffset(const UInt_t i ) {
   _layerIdxOffset = i;
 }
 
-void Pin::addBox(const Index_t layerIdx, const Box<Int_t>& box) {
-  Index_t idx = layerIdx - _layerIdxOffset;
+void Pin::addBox(const UInt_t layerIdx, const Box<Int_t>& box) {
+  UInt_t idx = layerIdx - _layerIdxOffset;
   if (idx >= _vvBoxes.size()) {
     _vvBoxes.resize(idx + 1);
   }
   _vvBoxes[idx].emplace_back(box);
 }
 
-void Pin::setLayerBoxes(const Index_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes) {
-  Index_t idx = layerIdx - _layerIdxOffset;
+void Pin::setLayerBoxes(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes) {
+  UInt_t idx = layerIdx - _layerIdxOffset;
   if (idx >= _vvBoxes.size()) {
     _vvBoxes.resize(idx + 1);
   }

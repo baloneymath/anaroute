@@ -35,15 +35,15 @@ void CirDB::addNet(const Net& n) {
   _vNets.emplace_back(n);
 }
 
-void CirDB::addBlock(const Index_t i, const Block& b) {
+void CirDB::addBlock(const UInt_t i, const Block& b) {
   _vvBlocks[i].emplace_back(b);
 }
-void CirDB::resizeVVBlocks(const Index_t i) {
+void CirDB::resizeVVBlocks(const UInt_t i) {
   _vvBlocks.resize(i);
 }
 
-Index_t CirDB::layerIdx2MaskIdx(const Index_t i) const {
-  const Pair_t<LefLayerType, Index_t>& p = _lef.layerPair(i);
+UInt_t CirDB::layerIdx2MaskIdx(const UInt_t i) const {
+  const Pair_t<LefLayerType, UInt_t>& p = _lef.layerPair(i);
   switch (p.first) {
     case LefLayerType::IMPLANT:     return _tech.str2LayerMaskIdx(_lef.implantLayer(p.second).name());
     case LefLayerType::MASTERSLICE: return _tech.str2LayerMaskIdx(_lef.mastersliceLayer(p.second).name());
@@ -52,19 +52,19 @@ Index_t CirDB::layerIdx2MaskIdx(const Index_t i) const {
     case LefLayerType::OVERLAP:     return _tech.str2LayerMaskIdx(_lef.overlapLayer(p.second).name());
     default: assert(false);
   }
-  return MAX_INDEX;
+  return MAX_UINT;
 }
 
 void CirDB::printInfo() const {
   FILE* fout = stdout;
   fprintf(fout, "CIRCUIT %s (%d %d %d %d)\n", _name.c_str(), _xl, _yl, _xh, _yh);
   fprintf(fout, "  NUM PINS %lu\n", _vPins.size());
-  for (Index_t i = 0; i < _vPins.size(); ++i) {
+  for (UInt_t i = 0; i < _vPins.size(); ++i) {
     const Pin& pin = _vPins[i];
     fprintf(fout, "    PIN %s\n", pin.name().c_str());
     const auto& vvBoxes = pin.vvBoxes();
-    for (Index_t j = 0; j < vvBoxes.size(); ++j) {
-      for (Index_t k = 0; k < vvBoxes[j].size(); ++k) {
+    for (UInt_t j = 0; j < vvBoxes.size(); ++j) {
+      for (UInt_t k = 0; k < vvBoxes[j].size(); ++k) {
         fprintf(fout, "      %d (%d %d %d %d)\n", pin.minLayerIdx() + j,
                                                   pin.box(pin.minLayerIdx() + j, k).xl(),
                                                   pin.box(pin.minLayerIdx() + j, k).yl(),
@@ -74,7 +74,7 @@ void CirDB::printInfo() const {
     }
   }
   fprintf(fout, "\n  NUM NETS %lu\n", _vNets.size());
-  for (Index_t i = 0; i < _vNets.size(); ++i) {
+  for (UInt_t i = 0; i < _vNets.size(); ++i) {
     const Net& net = _vNets[i];
     fprintf(fout, "    NET %s", net.name().c_str());
     if (net.bSelfSym())
@@ -82,7 +82,7 @@ void CirDB::printInfo() const {
     if (net.hasSymNet())
       fprintf(fout, " SYMNET %s", _vNets[net.symNetIdx()].name().c_str());
     fprintf(fout, "\n");
-    for (Index_t j = 0; j < net.numPins(); ++j) {
+    for (UInt_t j = 0; j < net.numPins(); ++j) {
       fprintf(fout, "      PIN %u\n", net.pinIdx(j));
     }
   }

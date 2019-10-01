@@ -76,7 +76,7 @@ public:
   void difference(const Box& r, Vector_t<Box>& result);
   void multi_diff(const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
   void multi_diff(const std::list<const Box*>& vBox, Vector_t<Box>& result) const;
-  void multi_diff(const std::list<Index_t>& ord, const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
+  void multi_diff(const std::list<UInt_t>& ord, const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
 
   //static functions
   static T     Mdistance(const Box& box1, const Box& box2);
@@ -295,7 +295,7 @@ template<typename T>
 void Box<T>::multi_diff(const Vector_t<Box<T>>& vBox, Vector_t<Box<T>>& result) const {
   Vector_t<T> hor = { _bl.y(), _tr.y() };
   Vector_t<T> ver = { _bl.x(), _tr.x() };
-  for (Index_t i = 0; i < vBox.size(); ++i) {
+  for (UInt_t i = 0; i < vBox.size(); ++i) {
     Box<T>& box= vBox[i];
     if (box.xl() > _bl.x() && box.xl() < _tr.x())
       ver.push_back(box.xl());
@@ -310,16 +310,16 @@ void Box<T>::multi_diff(const Vector_t<Box<T>>& vBox, Vector_t<Box<T>>& result) 
   std::sort(ver.begin(), ver.end());
   hor.resize(std::unique(hor.begin(), hor.end()) - hor.begin());
   ver.resize(std::unique(ver.begin(), ver.end()) - ver.begin());
-  for (Index_t i = 1; i < ver.size(); ++i)
-    for (Index_t j = 1; j < hor.size(); ++j)
+  for (UInt_t i = 1; i < ver.size(); ++i)
+    for (UInt_t j = 1; j < hor.size(); ++j)
       result.push_back(Box(ver[i - 1], hor[j - 1], ver[i], hor[j]));
 }
 
 template<typename T>
-void Box<T>::multi_diff(const std::list<Index_t>& ord, const Vector_t<Box<T>>& vBox, Vector_t<Box<T>>& result) const {
+void Box<T>::multi_diff(const std::list<UInt_t>& ord, const Vector_t<Box<T>>& vBox, Vector_t<Box<T>>& result) const {
   Vector_t<T> hor = { _bl.y(), _tr.y() };
   Vector_t<T> ver = { _bl.x(), _tr.x() };
-  for (Index_t i : ord) {
+  for (UInt_t i : ord) {
     const Box<T>& box = vBox[i];
     if (box.xl() > _bl.x() && box.xl() < _tr.x())
       ver.push_back(box.xl());
@@ -334,8 +334,8 @@ void Box<T>::multi_diff(const std::list<Index_t>& ord, const Vector_t<Box<T>>& v
   std::sort(ver.begin(), ver.end());
   hor.resize(std::unique(hor.begin(), hor.end()) - hor.begin());
   ver.resize(std::unique(ver.begin(), ver.end()) - ver.begin());
-  for (Index_t i = 1; i < ver.size(); ++i)
-    for (Index_t j = 1; j < hor.size(); ++j)
+  for (UInt_t i = 1; i < ver.size(); ++i)
+    for (UInt_t j = 1; j < hor.size(); ++j)
       result.push_back(Box(ver[i - 1], hor[j - 1], ver[i], hor[j]));
 }
 
@@ -357,8 +357,8 @@ void Box<T>::multi_diff(const std::list<const Box<T>*>& vBox, Vector_t<Box<T>>& 
   std::sort(ver.begin(), ver.end());
   hor.resize(std::unique(hor.begin(), hor.end()) - hor.begin());
   ver.resize(std::unique(ver.begin(), ver.end()) - ver.begin());
-  for (Index_t i = 1; i < ver.size(); ++i)
-    for (Index_t j = 1; j < hor.size(); ++j)
+  for (UInt_t i = 1; i < ver.size(); ++i)
+    for (UInt_t j = 1; j < hor.size(); ++j)
       result.push_back(Box<T>(ver[i - 1], hor[j - 1], ver[i], hor[j]));
 }
 

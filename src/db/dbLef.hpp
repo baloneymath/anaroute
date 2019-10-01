@@ -6,8 +6,8 @@
  *
  **/
 
-#ifndef _DB_TECH_HPP_
-#define _DB_TECH_HPP_
+#ifndef _DB_LEF_HPP_
+#define _DB_LEF_HPP_
 
 #include <limbo/parsers/lef/adapt/LefDataBase.h> // for class lefiXXX
 
@@ -30,12 +30,12 @@ class LefDB {
   ////////////////////////////////////////
   //   Basics                           //
   ////////////////////////////////////////
-  Real_t                           version()           const { return _version; }
-  const String_t&                  versionStr()        const { return _versionStr; }
-  const String_t&                  dividerChar()       const { return _dividerChar; }
-  Real_t                           manufacturingGrid() const { return _manufacturingGrid; }
-  const String_t&                  clearanceMeasure()  const { return _clearanceMeasure; }
-  const String_t&                  busbitChars()       const { return _busbitChars; }
+  Float_t                           version()           const { return _version; }
+  const String_t&                   versionStr()        const { return _versionStr; }
+  const String_t&                   dividerChar()       const { return _dividerChar; }
+  Float_t                           manufacturingGrid() const { return _manufacturingGrid; }
+  const String_t&                   clearanceMeasure()  const { return _clearanceMeasure; }
+  const String_t&                   busbitChars()       const { return _busbitChars; }
 
   ////////////////////////////////////////
   //   Units                            //
@@ -46,61 +46,61 @@ class LefDB {
   //   Layers                           //
   ////////////////////////////////////////
   // All
-  Index_t                                  numLayers()                                 const { return _vAllLayers.size(); }
-  Index_t                                  str2LayerIdx(const String_t& n)             const { return _mStr2AllLayerIdx.at(n); }
-  const Pair_t<LefLayerType, Index_t>&     layerPair(const Index_t i)                  const { return _vAllLayers[i]; }
-  const Pair_t<LefLayerType, Index_t>&     str2Layer(const String_t& n)                const { return _vAllLayers[str2LayerIdx(n)]; }
-  bool                                     bImplantLayer(const Index_t i)              const { return _vAllLayers[i].first == LefLayerType::IMPLANT; }
-  bool                                     bMastersliceLayer(const Index_t i)          const { return _vAllLayers[i].first == LefLayerType::MASTERSLICE; }
-  bool                                     bCutLayer(const Index_t i)                  const { return _vAllLayers[i].first == LefLayerType::CUT; }
-  bool                                     bRoutingLayer(const Index_t i)              const { return _vAllLayers[i].first == LefLayerType::ROUTING; }
-  bool                                     bOverlapLayer(const Index_t i)              const { return _vAllLayers[i].first == LefLayerType::OVERLAP; }
+  UInt_t                                   numLayers()                                const { return _vAllLayers.size(); }
+  UInt_t                                   str2LayerIdx(const String_t& n)            const { return _mStr2AllLayerIdx.at(n); }
+  const Pair_t<LefLayerType, UInt_t>&      layerPair(const UInt_t i)                  const { return _vAllLayers[i]; }
+  const Pair_t<LefLayerType, UInt_t>&      str2Layer(const String_t& n)               const { return _vAllLayers[str2LayerIdx(n)]; }
+  bool                                     bImplantLayer(const UInt_t i)              const { return _vAllLayers[i].first == LefLayerType::IMPLANT; }
+  bool                                     bMastersliceLayer(const UInt_t i)          const { return _vAllLayers[i].first == LefLayerType::MASTERSLICE; }
+  bool                                     bCutLayer(const UInt_t i)                  const { return _vAllLayers[i].first == LefLayerType::CUT; }
+  bool                                     bRoutingLayer(const UInt_t i)              const { return _vAllLayers[i].first == LefLayerType::ROUTING; }
+  bool                                     bOverlapLayer(const UInt_t i)              const { return _vAllLayers[i].first == LefLayerType::OVERLAP; }
   // Implant Layers                                                                    
-  const LefImplantLayer&                   implantLayer(const Index_t i)               const { return _vImplantLayers[i]; }
-  const Vector_t<LefImplantLayer>&         vImplantLayers()                            const { return _vImplantLayers; }
-  Index_t                                  numImplantLayers()                          const { return _vImplantLayers.size(); }
-  Index_t                                  str2ImplantLayerIdx(const String_t& n)      const { return _mStr2ImplantLayerIdx.at(n); }
-  const LefImplantLayer&                   str2ImplantLayer(const String_t& n)         const { return _vImplantLayers[str2ImplantLayerIdx(n)]; }
+  const LefImplantLayer&                   implantLayer(const UInt_t i)               const { return _vImplantLayers[i]; }
+  const Vector_t<LefImplantLayer>&         vImplantLayers()                           const { return _vImplantLayers; }
+  UInt_t                                   numImplantLayers()                         const { return _vImplantLayers.size(); }
+  UInt_t                                   str2ImplantLayerIdx(const String_t& n)     const { return _mStr2ImplantLayerIdx.at(n); }
+  const LefImplantLayer&                   str2ImplantLayer(const String_t& n)        const { return _vImplantLayers[str2ImplantLayerIdx(n)]; }
   // Masterslice Layers
-  const LefMastersliceLayer&               mastersliceLayer(const Index_t i)           const { return _vMastersliceLayers[i]; }
-  const Vector_t<LefMastersliceLayer>&     vMastersliceLayers()                        const { return _vMastersliceLayers; }
-  Index_t                                  numMastersliceLayers()                      const { return _vMastersliceLayers.size(); }
-  Index_t                                  str2MastersliceLayerIdx(const String_t& n)  const { return _mStr2MastersliceLayerIdx.at(n); }
-  const LefMastersliceLayer&               str2MastersliceLayer(const String_t& n)     const { return _vMastersliceLayers[str2MastersliceLayerIdx(n)]; }
+  const LefMastersliceLayer&               mastersliceLayer(const UInt_t i)           const { return _vMastersliceLayers[i]; }
+  const Vector_t<LefMastersliceLayer>&     vMastersliceLayers()                       const { return _vMastersliceLayers; }
+  UInt_t                                   numMastersliceLayers()                     const { return _vMastersliceLayers.size(); }
+  UInt_t                                   str2MastersliceLayerIdx(const String_t& n) const { return _mStr2MastersliceLayerIdx.at(n); }
+  const LefMastersliceLayer&               str2MastersliceLayer(const String_t& n)    const { return _vMastersliceLayers[str2MastersliceLayerIdx(n)]; }
   // Cut Layers
-  const LefCutLayer&                       cutLayer(const Index_t i)                   const { return _vCutLayers[i]; }
-  const Vector_t<LefCutLayer>&             vCutLayers()                                const { return _vCutLayers; }
-  Index_t                                  numCutLayers()                              const { return _vCutLayers.size(); }
-  Index_t                                  str2CutLayerIdx(const String_t& n)          const { return _mStr2CutLayerIdx.at(n); }
-  const LefCutLayer&                       str2CutLayer(const String_t& n)             const { return _vCutLayers[str2CutLayerIdx(n)]; }
+  const LefCutLayer&                       cutLayer(const UInt_t i)                   const { return _vCutLayers[i]; }
+  const Vector_t<LefCutLayer>&             vCutLayers()                               const { return _vCutLayers; }
+  UInt_t                                   numCutLayers()                             const { return _vCutLayers.size(); }
+  UInt_t                                   str2CutLayerIdx(const String_t& n)         const { return _mStr2CutLayerIdx.at(n); }
+  const LefCutLayer&                       str2CutLayer(const String_t& n)            const { return _vCutLayers[str2CutLayerIdx(n)]; }
   // Routing layers                                                          
-  const LefRoutingLayer&                   routingLayer(const Index_t i)               const { return _vRoutingLayers[i]; }
-  const Vector_t<LefRoutingLayer>&         vRoutingLayers()                            const { return _vRoutingLayers; }
-  Index_t                                  numRoutingLayers()                          const { return _vRoutingLayers.size(); }
-  Index_t                                  str2RoutinglayerIdx(const String_t& n)      const { return _mStr2RoutingLayerIdx.at(n); }
-  const LefRoutingLayer&                   str2Routinglayer(const String_t& n)         const { return _vRoutingLayers[str2RoutinglayerIdx(n)]; }
+  const LefRoutingLayer&                   routingLayer(const UInt_t i)               const { return _vRoutingLayers[i]; }
+  const Vector_t<LefRoutingLayer>&         vRoutingLayers()                           const { return _vRoutingLayers; }
+  UInt_t                                   numRoutingLayers()                         const { return _vRoutingLayers.size(); }
+  UInt_t                                   str2RoutinglayerIdx(const String_t& n)     const { return _mStr2RoutingLayerIdx.at(n); }
+  const LefRoutingLayer&                   str2Routinglayer(const String_t& n)        const { return _vRoutingLayers[str2RoutinglayerIdx(n)]; }
   // Overlap layers                                                          
-  const LefOverlapLayer&                   overlapLayer(const Index_t i)               const { return _vOverlapLayers[i]; }
-  const Vector_t<LefOverlapLayer>&         vOverlapLayers()                            const { return _vOverlapLayers; }
-  Index_t                                  numOverlapLayers()                          const { return _vOverlapLayers.size(); }
-  Index_t                                  str2OverlaplayerIdx(const String_t& n)      const { return _mStr2OverlapLayerIdx.at(n); }
-  const LefOverlapLayer&                   str2Overlaplayer(const String_t& n)         const { return _vOverlapLayers[str2OverlaplayerIdx(n)]; }
+  const LefOverlapLayer&                   overlapLayer(const UInt_t i)               const { return _vOverlapLayers[i]; }
+  const Vector_t<LefOverlapLayer>&         vOverlapLayers()                           const { return _vOverlapLayers; }
+  UInt_t                                   numOverlapLayers()                         const { return _vOverlapLayers.size(); }
+  UInt_t                                   str2OverlaplayerIdx(const String_t& n)     const { return _mStr2OverlapLayerIdx.at(n); }
+  const LefOverlapLayer&                   str2Overlaplayer(const String_t& n)        const { return _vOverlapLayers[str2OverlaplayerIdx(n)]; }
   ////////////////////////////////////////
   //   Vias                             //
   ////////////////////////////////////////
-  const LefVia&                   via(const Index_t i) const { return _vVias[i]; }
-  const Vector_t<LefVia>&         vVias()              const { return _vVias; }
-  Index_t                         numVias()            const { return _vVias.size(); }
+  const LefVia&                   via(const UInt_t i) const { return _vVias[i]; }
+  const Vector_t<LefVia>&         vVias()             const { return _vVias; }
+  UInt_t                          numVias()           const { return _vVias.size(); }
 
   // for debug
   void logInfo() const;
 
  private:
   // According to the Cadence Lef API
-  Real_t                          _version;
+  Float_t                         _version;
   String_t                        _versionStr;
   String_t                        _dividerChar;
-  Real_t                          _manufacturingGrid;
+  Float_t                         _manufacturingGrid;
   String_t                        _clearanceMeasure;
   String_t                        _busbitChars;
   
@@ -109,33 +109,33 @@ class LefDB {
   
   // site
   Vector_t<LefSite>              _vSites;
-  UMap_t<String_t, Index_t>      _mStr2SiteIdx;
+  UMap_t<String_t, UInt_t>       _mStr2SiteIdx;
 
   // Layer
-  Vector_t<Pair_t<LefLayerType, Index_t>>  _vAllLayers; // first: type, second: idx in corresponding vector. ex. {ROUTING, 2} -> vRoutingLayers[2];
-  Vector_t<LefImplantLayer>                _vImplantLayers;
-  Vector_t<LefMastersliceLayer>            _vMastersliceLayers;
-  Vector_t<LefCutLayer>                    _vCutLayers;
-  Vector_t<LefRoutingLayer>                _vRoutingLayers;
-  Vector_t<LefOverlapLayer>                _vOverlapLayers;
-  UMap_t<String_t, Index_t>                _mStr2AllLayerIdx;
-  UMap_t<String_t, Index_t>                _mStr2ImplantLayerIdx;
-  UMap_t<String_t, Index_t>                _mStr2MastersliceLayerIdx;
-  UMap_t<String_t, Index_t>                _mStr2CutLayerIdx;
-  UMap_t<String_t, Index_t>                _mStr2RoutingLayerIdx;
-  UMap_t<String_t, Index_t>                _mStr2OverlapLayerIdx;
+  Vector_t<Pair_t<LefLayerType, UInt_t>>  _vAllLayers; // first: type, second: idx in corresponding vector. ex. {ROUTING, 2} -> vRoutingLayers[2];
+  Vector_t<LefImplantLayer>               _vImplantLayers;
+  Vector_t<LefMastersliceLayer>           _vMastersliceLayers;
+  Vector_t<LefCutLayer>                   _vCutLayers;
+  Vector_t<LefRoutingLayer>               _vRoutingLayers;
+  Vector_t<LefOverlapLayer>               _vOverlapLayers;
+  UMap_t<String_t, UInt_t>                _mStr2AllLayerIdx;
+  UMap_t<String_t, UInt_t>                _mStr2ImplantLayerIdx;
+  UMap_t<String_t, UInt_t>                _mStr2MastersliceLayerIdx;
+  UMap_t<String_t, UInt_t>                _mStr2CutLayerIdx;
+  UMap_t<String_t, UInt_t>                _mStr2RoutingLayerIdx;
+  UMap_t<String_t, UInt_t>                _mStr2OverlapLayerIdx;
   
   // Via
   Vector_t<LefVia>              _vVias;
-  UMap_t<String_t, Index_t>     _mStr2ViaIdx;
+  UMap_t<String_t, UInt_t>     _mStr2ViaIdx;
 
   ////////////////////////////////////////
   //   Setter                           //
   ////////////////////////////////////////
   void setVersionStr(const String_t& v);
-  void setVersion(const Real_t v);
+  void setVersion(const Float_t v);
   void setDividerChar(const String_t& v);
-  void setManufacturingGrid(const Real_t v);
+  void setManufacturingGrid(const Float_t v);
   void setClearanceMeasure(const String_t& v);
   void setBusbitChars(const String_t& v);
   
@@ -152,4 +152,4 @@ class LefDB {
 
 PROJECT_NAMESPACE_END
 
-#endif /// _DB_TECH_HPP_
+#endif /// _DB_LEF_HPP_

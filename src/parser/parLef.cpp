@@ -137,7 +137,7 @@ void LefReader::lef_site_cbk(lefiSite const &v) {
     site.setR90Symmetry();
   }
   if (v.hasRowPattern()) {
-    for (Index_t i = 0; i < (Index_t)v.numSites(); ++i) {
+    for (UInt_t i = 0; i < (UInt_t)v.numSites(); ++i) {
       site.addRowPattern(v.siteName(i), v.siteOrientStr(i));
     }
   }
@@ -193,7 +193,7 @@ void LefReader::parseCutLayer(const lefiLayer& v) {
     layer.setMinWidth(to_lef_unit_1d(v.width()));
   }
   layer.setMinWidth(v.width());
-  for (Index_t i = 0; i < (Index_t)v.numSpacing(); ++i) {
+  for (UInt_t i = 0; i < (UInt_t)v.numSpacing(); ++i) {
     if (v.hasSpacingAdjacent(i)) {
       /// TODO
     }
@@ -235,7 +235,7 @@ void LefReader::parseRoutingLayer(const lefiLayer& v) {
     layer.setMaxWidth(to_lef_unit_1d(v.maxwidth()));
   }
   // spacing
-  for (Index_t i = 0; i < (Index_t)v.numSpacing(); ++i) {
+  for (UInt_t i = 0; i < (UInt_t)v.numSpacing(); ++i) {
     if (v.hasSpacingEndOfLine(i)) {
       layer.addEolSpacing(to_lef_unit_1d(v.spacing(i)),
                           to_lef_unit_1d(v.spacingEolWidth(i)),
@@ -246,16 +246,16 @@ void LefReader::parseRoutingLayer(const lefiLayer& v) {
     }
   }
   // spacing table
-  for (Index_t i = 0; i < (Index_t)const_cast<lefiLayer&>(v).numSpacingTable(); ++i) {
+  for (UInt_t i = 0; i < (UInt_t)const_cast<lefiLayer&>(v).numSpacingTable(); ++i) {
     const lefiSpacingTable* spTable = const_cast<lefiLayer&>(v).spacingTable(i);
     if (spTable->isParallel()) {
       const lefiParallel* parallel = spTable->parallel();
-      for (Index_t j = 0; j < (Index_t)parallel->numLength(); ++j) {
+      for (UInt_t j = 0; j < (UInt_t)parallel->numLength(); ++j) {
         layer.addParallelRunLength(to_lef_unit_1d(parallel->length(j)));
       }
-      for (Index_t j = 0; j < (Index_t)parallel->numWidth(); ++j) {
+      for (UInt_t j = 0; j < (UInt_t)parallel->numWidth(); ++j) {
         layer.addSpacingTableWidth(to_lef_unit_1d(parallel->width(j)));
-        for (Index_t k = 0; k < (Index_t)parallel->numLength(); ++k) {
+        for (UInt_t k = 0; k < (UInt_t)parallel->numLength(); ++k) {
           layer.addSpacingTableWidthSpacing(j, to_lef_unit_1d(parallel->widthSpacing(j, k)));
         }
       }
@@ -296,9 +296,9 @@ void LefReader::parseDefaultVia(const lefiVia& v) {
     via.setResistance(to_lef_unit_resistance(v.resistance()));
   }
   assert(v.numLayers() == 3);
-  for (Index_t i = 0; i < (Index_t)v.numLayers(); ++i) {
+  for (UInt_t i = 0; i < (UInt_t)v.numLayers(); ++i) {
 #ifndef _NDEBUG
-    const Pair_t<LefLayerType, Index_t>& cur = _lef.str2Layer(v.layerName(i));
+    const Pair_t<LefLayerType, UInt_t>& cur = _lef.str2Layer(v.layerName(i));
     switch (i) {
       case 0: assert(cur.first == LefLayerType::MASTERSLICE or cur.first == LefLayerType::ROUTING); break;
       case 1: assert(cur.first == LefLayerType::CUT); break;
@@ -308,7 +308,7 @@ void LefReader::parseDefaultVia(const lefiVia& v) {
 #endif
     via.setLayerIdx(i, _lef.str2LayerIdx(v.layerName(i)));
     via.setLayerName(i, v.layerName(i));
-    for (Index_t j = 0; j < (Index_t)v.numRects(i); ++j) {
+    for (UInt_t j = 0; j < (UInt_t)v.numRects(i); ++j) {
       Int_t xl = to_lef_unit_1d(v.xl(i, j)); 
       Int_t yl = to_lef_unit_1d(v.yl(i, j));
       Int_t xh = to_lef_unit_1d(v.xh(i, j)); 
@@ -320,15 +320,15 @@ void LefReader::parseDefaultVia(const lefiVia& v) {
 }
 
 ////////////// Helper Functions //////////////////////////////
-Int_t LefReader::to_lef_unit_1d(const Real_t n) const {
+Int_t LefReader::to_lef_unit_1d(const Float_t n) const {
   Int_t lefDB_distance_unit = _lef.units().databaseNumber();
   return std::round(n * lefDB_distance_unit);
 }
-Int_t LefReader::to_lef_unit_2d(const Real_t n) const {
+Int_t LefReader::to_lef_unit_2d(const Float_t n) const {
   Int_t lefDB_distance_unit = _lef.units().databaseNumber();
   return std::round(n * pow(lefDB_distance_unit, 2));
 }
-Int_t LefReader::to_lef_unit_resistance(const Real_t n) const {
+Int_t LefReader::to_lef_unit_resistance(const Float_t n) const {
   Int_t lefDB_resistance_unit = _lef.units().resistance();
   return std::round(n * lefDB_resistance_unit);
 }

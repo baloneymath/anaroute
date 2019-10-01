@@ -18,8 +18,8 @@
 PROJECT_NAMESPACE_START
 
 using Int_t     = std::int32_t;
-using Index_t   = std::uint32_t;
-using Real_t    = double;
+using UInt_t    = std::uint32_t;
+using Float_t   = double;
 using Byte_t    = std::uint8_t;
 using String_t  = std::string;
 template<typename T, typename U>
@@ -38,16 +38,16 @@ template<typename T, typename U>
 using UMap_t    = std::unordered_map<T, U>;
 
 constexpr Int_t   MAX_INT   = std::numeric_limits<Int_t>::max()       / 3;
-constexpr Index_t MAX_INDEX = std::numeric_limits<Index_t>::max()     / 3;
-constexpr Real_t  MAX_REAL  = std::numeric_limits<Real_t>::max()      / 3;
+constexpr UInt_t  MAX_UINT  = std::numeric_limits<UInt_t>::max()      / 3;
+constexpr Float_t MAX_FLOAT = std::numeric_limits<Float_t>::max()     / 3;
 constexpr Int_t   MIN_INT   = std::numeric_limits<Int_t>::lowest()    / 3;
-constexpr Index_t MIN_INDEX = std::numeric_limits<Index_t>::lowest()  / 3;
-constexpr Real_t  MIN_REAL  = std::numeric_limits<Real_t>::lowest()   / 3;
+constexpr UInt_t  MIN_UINT  = std::numeric_limits<UInt_t>::lowest()   / 3;
+constexpr Float_t MIN_FLOAT = std::numeric_limits<Float_t>::lowest()  / 3;
 
-constexpr Real_t EPSILON   = 1e-8;
+constexpr Float_t EPSILON   = 1e-8;
 
-constexpr Real_t TIME_SCALE = 1000000.00;
-constexpr Real_t MEM_SCALE  = 1024.0;
+constexpr Float_t TIME_SCALE = 1000000.00;
+constexpr Float_t MEM_SCALE  = 1024.0;
 
 
 PROJECT_NAMESPACE_END

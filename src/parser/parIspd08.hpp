@@ -24,13 +24,13 @@ class Ispd08Reader {
  private:
   CirDB&  _cir;
   Int_t   _scale; 
-  Vector_t<Index_t> _vIdx2RoutingLayerIdx;
+  Vector_t<UInt_t> _vIdx2RoutingLayerIdx;
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
   void      setScale();
   void      buildLayerMap();
-  Index_t   map2RoutingLayer(const Index_t i);
+  UInt_t    map2RoutingLayer(const UInt_t i);
   /////////////////////////////////////////
   //    Helper functions                 //
   /////////////////////////////////////////

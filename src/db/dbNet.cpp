@@ -18,7 +18,7 @@ void Net::setSelfSym() {
   _bSelfSym = true;
 }
 
-void Net::setSymNetIdx(const Index_t i) {
+void Net::setSymNetIdx(const UInt_t i) {
   _symNetIdx = i;
 }
 
@@ -26,7 +26,7 @@ void Net::setRouted(const bool b) {
   _bRouted = b;
 }
 
-void Net::addPinIdx(const Index_t i) {
+void Net::addPinIdx(const UInt_t i) {
   _vPinIndices.emplace_back(i);
 }
 

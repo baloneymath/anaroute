@@ -68,7 +68,7 @@ void LefSite::logInfo() const {
   fprintf(fout, "\n");
   if (_rowPattern.numSites()) {
     fprintf(fout, "  ROWPATTERN");
-    for (Index_t i = 0; i < _rowPattern.numSites(); ++i) {
+    for (UInt_t i = 0; i < _rowPattern.numSites(); ++i) {
       fprintf(fout, " %s %s", _rowPattern.siteName(i).c_str(), _rowPattern.orientStr(i).c_str());
     }
     fprintf(fout, "\n");

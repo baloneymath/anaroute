@@ -17,28 +17,28 @@ class DisjointSet {
  public:
   DisjointSet()
     : parent(0), rnk(0), n(0) {}
-  DisjointSet(int n) { init(n); }
+  DisjointSet(Int_t n) { init(n); }
   ~DisjointSet() {
     delete [] parent;
     delete [] rnk;
   }
 
-  void init(int n) {
+  void init(Int_t n) {
     this->n = n;
-    parent = new int[n];
-    rnk = new int[n];
-    for (int i = 0; i < n; ++i) {
+    parent = new Int_t[n];
+    rnk = new Int_t[n];
+    for (Int_t i = 0; i < n; ++i) {
       rnk[i] = 0;
       parent[i] = i;
     }
   }
   // Find set
-  int find(int u) {
+  Int_t find(Int_t u) {
     return (u == parent[u] ? u : parent[u] = find(parent[u]));
   }
 
   // Union by rank
-  void merge(int x, int y) {
+  void merge(Int_t x, Int_t y) {
     x = find(x), y = find(y);
     if (x == y)
       return;
@@ -50,17 +50,17 @@ class DisjointSet {
       rnk[y]++;
   }
 
-  // Number of disjoint sets
-  int nSets() {
-    int nSets = 0;
-    for (int i = 0; i < n; ++i)
+  // Number of disjoInt_t sets
+  Int_t nSets() {
+    Int_t nSets = 0;
+    for (Int_t i = 0; i < n; ++i)
       if (parent[i] == i) ++nSets;
     return nSets;
   }
 
  private:
-  int *parent, *rnk;
-  int n;
+  Int_t *parent, *rnk;
+  Int_t n;
 };
 
 PROJECT_NAMESPACE_END
