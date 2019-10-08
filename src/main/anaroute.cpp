@@ -9,6 +9,7 @@
 #include "anaroute.hpp"
 #include "src/db/dbCir.hpp"
 #include "src/parser/parser.hpp"
+#include "src/gr/grMgr.hpp"
 #include "src/dr/drMgr.hpp"
 
 PROJECT_NAMESPACE_START
@@ -26,8 +27,14 @@ Anaroute::Anaroute(int argc, char** argv) {
   par.parseIspd08(_args.get<String_t>("design_file"));
   par.parseGds(_args.get<String_t>("placement_layout"));
   par.parseSymNet(_args.get<String_t>("symnet"));
-  //cir.printInfo();
+  cir.printInfo();
   
+  // global routing
+  GrMgr gr(cir);
+  gr.solve();
+
+  // track assignment
+
   // detailed routing
   DrMgr dr(cir);
   dr.solve();

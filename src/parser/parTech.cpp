@@ -14,7 +14,7 @@ PROJECT_NAMESPACE_START
 void TechfileReader::parse(const String_t& filename) {
   FILE* fin = fopen(filename.c_str(), "r");
   if (!fin) {
-    fprintf(stderr, "%s: Error opening file %s!!!\n", __func__, filename.c_str());
+    fprintf(stderr, "TechfileReader::%s ERROR: Cannot open file %s!!!\n",__func__, filename.c_str());
     exit(0);
   }
   const UInt_t bufSize = 200;

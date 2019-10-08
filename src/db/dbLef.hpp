@@ -40,8 +40,15 @@ class LefDB {
   ////////////////////////////////////////
   //   Units                            //
   ////////////////////////////////////////
-  const LefUnits&                  units()             const { return _units; }
+  const LefUnits&                  units()              const { return _units; }
   
+  ////////////////////////////////////////
+  //   Sites                            //
+  ////////////////////////////////////////
+  UInt_t                           numSites()           const { return _vSites.size(); }
+  const LefSite&                   site(const UInt_t i) const { return _vSites[i]; }
+  const Vector_t<LefSite>&         vSites()             const { return _vSites; }    
+
   ////////////////////////////////////////
   //   Layers                           //
   ////////////////////////////////////////
@@ -149,6 +156,36 @@ class LefDB {
 
   void addVia(const LefVia& v);
 };
+
+////////////////////////////////////////
+//   Iterators                        //
+////////////////////////////////////////
+// sites
+#define Lef_ForEachSite(lef, cpSite_, i) \
+  for (i = 0; i < lef.numSites() and (cpSite_ = &lef.site(i)); ++i)
+
+// layers
+#define Lef_ForEachLayer(lef, cpPair_, i) \
+  for (i = 0; i < lef.numLayers() and (cpPair_ = &lef.layerPair(i)); ++i)
+
+#define Lef_ForEachImplantLayer(lef, cpImpLayer_, i) \
+  for (i = 0; i < lef.numImplantLayers() and (cpImpLayer_ = &lef.implantLayer(i)); ++i)
+
+#define Lef_ForEachMastersliceLayer(lef, cpMasLayer_, i) \
+  for (i = 0; i < lef.numMastersliceLayers() and (cpMasLayer_ = & lef.mastersliceLayer(i)); ++i)
+
+#define Lef_ForEachCutLayer(lef, cpCutLayer_, i) \
+  for (i = 0; i < lef.numCutLayers() and (cpCutLayer_ = &lef.cutLayer(i)); ++i)
+
+#define Lef_ForEachRoutingLayer(lef, cpRoutingLayer_, i) \
+  for (i = 0; i < lef.numRoutingLayers() and (cpRoutingLayer_ = &lef.routingLayer(i)); ++i)
+
+#define Lef_ForEachOverlapLayer(lef, cpOverlapLayer_, i) \
+  for (i = 0; i < lef.numOverlapLayers() and (cpOverlapLayer_ = &lef.overlapLayer(i)); ++i)
+
+// vias
+#define Lef_ForEachVia(lef, cpVia_, i) \
+  for (i = 0; i < lef.numVias() and (cpVia_ = &lef.via(i)); ++i)
 
 PROJECT_NAMESPACE_END
 

@@ -18,7 +18,7 @@ void Ispd08Reader::parse(const String_t& filename) {
   assert(_cir.lef().version() > 0);
   FILE* fin = fopen(filename.c_str(), "r");
   if (!fin) {
-    fprintf(stderr, "%s: Error opening file `%s`\n", __func__, filename.c_str());
+    fprintf(stderr, "Ispd08Reader::%s ERROR: Cannot open file `%s`\n", __func__, filename.c_str());
     exit(0);
   }
   
@@ -51,7 +51,7 @@ void Ispd08Reader::parse(const String_t& filename) {
       }
       Vector_t<Box<Int_t>> vBoxes;
       if (!geo::polygon2Box<Int_t>(vPts, vBoxes)) {
-        fprintf(stderr, "%s: Error polygon format!!!\n", __func__);
+        fprintf(stderr, "Ispd08Reader::%s ERROR: Wrong polygon format!!!\n", __func__);
         exit(0);
       }
       pin.setLayerBoxes(layerIdx, vBoxes);

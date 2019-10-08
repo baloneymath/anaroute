@@ -76,7 +76,10 @@ add_executable(${PROJECT_NAME}
   src/parser/parIspd08.cpp
   src/parser/parGds.cpp
   src/parser/parSymNet.cpp
+  src/gr/grMgr.cpp
+  src/gr/grGridRoute.cpp
   src/dr/drMgr.cpp
+  src/dr/drGridlessRoute.cpp
 )
 
 ##################################################

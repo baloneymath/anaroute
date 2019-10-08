@@ -7,23 +7,23 @@
  **/
 
 #include "drMgr.hpp"
-#include "src/ds/pqueue.hpp"
+#include "drGridlessRoute.hpp"
 
 PROJECT_NAMESPACE_START
 
 void DrMgr::solve() {
   
-  PairingHeap<Net*, Net_Cmp> pqueue;
-  
-  Net* pNet;
-  UInt_t i;
-  Cir_ForEachNet(_cir, pNet, i) {
-    // ignore dangling net
-    if (pNet->numPins() > 1) {
-      pqueue.push(pNet);
-    }
-  }
-
+  runGridlessRoute();
 }
+
+
+void DrMgr::runGridlessRoute() {
+  DrGridlessRoute kernel(*this, _cir);
+  kernel.solve();
+}
+
+/////////////////////////////////////////
+//    Private functions                //
+/////////////////////////////////////////
 
 PROJECT_NAMESPACE_END

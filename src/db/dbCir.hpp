@@ -42,10 +42,12 @@ class CirDB {
   UInt_t            layerIdx2MaskIdx(const UInt_t i) const;
 
   // Boundary
-  Int_t             xl()    const { return _xl; }
-  Int_t             yl()    const { return _yl; }
-  Int_t             xh()    const { return _xh; }
-  Int_t             yh()    const { return _yh; }
+  Int_t             xl()     const { return _xl; }
+  Int_t             yl()     const { return _yl; }
+  Int_t             xh()     const { return _xh; }
+  Int_t             yh()     const { return _yh; }
+  Int_t             width()  const { return _xh - _xl; }
+  Int_t             height() const { return _yh - _yl; }
 
   // Pin
   UInt_t            numPins()             const { return _vPins.size(); }
@@ -97,10 +99,18 @@ class CirDB {
   void resizeVVBlocks(const UInt_t i);
 };
 
+////////////////////////////////////////
+//   Iterators                        //
+////////////////////////////////////////
+// pins
 #define Cir_ForEachPin(cir, pPin_, i) \
   for (i = 0; i < cir.numPins() and (pPin_ = &cir.pin(i)); ++i)
+
+// nets
 #define Cir_ForEachNet(cir, pNet_, i) \
   for (i = 0; i < cir.numNets() and (pNet_ = &cir.net(i)); ++i)
+
+// blocks
 #define Cir_ForEachBlock(cir, layerIdx, pBlock_, i) \
   for (i = 0; i < cir.numBlocks(layerIdx) and (pBlock = &cir.block(layerIdx, i)); ++i)
 

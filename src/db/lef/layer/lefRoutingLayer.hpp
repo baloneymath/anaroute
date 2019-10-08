@@ -21,15 +21,15 @@ class LefSpacingTable {
   Vector_t<Pair_t<Int_t, Vector_t<Int_t>>> table; // table[0] = {width, {spacing 0, spacing1...}}
 };
 
-class EolSpacing {
+class LefEolSpacing {
  public:
-  EolSpacing(const Int_t s, const Int_t d, const Int_t w)
+  LefEolSpacing(const Int_t s, const Int_t d, const Int_t w)
     : _eolSpacing(s), _eolWidth(d), _eolWithin(w) {}
-  ~EolSpacing() {}
+  ~LefEolSpacing() {}
   
   Int_t eolSpacing() const { return _eolSpacing; }
-  Int_t eolWidth() const { return _eolWidth; }
-  Int_t eolWithin() const { return _eolWithin; }
+  Int_t eolWidth()   const { return _eolWidth; }
+  Int_t eolWithin()  const { return _eolWithin; }
  private:
   Int_t _eolSpacing = 0;
   Int_t _eolWidth = 0;
@@ -74,7 +74,9 @@ class LefRoutingLayer {
   Int_t                   offsetX()                   const { return _offsetX; }
   Int_t                   offsetY()                   const { return _offsetY; }
   Int_t                   spacing(const UInt_t i)     const { return _vSpacings[i]; }
-  const EolSpacing&       eolSpacing(const UInt_t i)  const { return _vEolSpacings[i]; }
+  UInt_t                  numSpacings()               const { return _vSpacings.size(); }
+  UInt_t                  numEolSpacings()            const { return _vEolSpacings.size(); }
+  const LefEolSpacing&    eolSpacing(const UInt_t i)  const { return _vEolSpacings[i]; }
   const LefSpacingTable&  spacingTable()              const { return _spacingTable; }
 
   // for debug
@@ -84,22 +86,22 @@ class LefRoutingLayer {
   //////////////////////////////////////
   //    Members                       //
   //////////////////////////////////////
-  String_t              _name;
-  String_t              _routeDirStr;
-  RouteDir_t            _routeDir;
-  Int_t                 _minArea;
-  Int_t                 _minWidth;
-  Int_t                 _maxWidth;
-  Int_t                 _defaultWidth;
-  Int_t                 _pitch;
-  Int_t                 _pitchX;
-  Int_t                 _pitchY;
-  Int_t                 _offset;
-  Int_t                 _offsetX;
-  Int_t                 _offsetY;
-  Vector_t<Int_t>       _vSpacings;
-  Vector_t<EolSpacing>  _vEolSpacings;
-  LefSpacingTable       _spacingTable;
+  String_t                  _name;
+  String_t                  _routeDirStr;
+  RouteDir_t                _routeDir;
+  Int_t                     _minArea;
+  Int_t                     _minWidth;
+  Int_t                     _maxWidth;
+  Int_t                     _defaultWidth;
+  Int_t                     _pitch;
+  Int_t                     _pitchX;
+  Int_t                     _pitchY;
+  Int_t                     _offset;
+  Int_t                     _offsetX;
+  Int_t                     _offsetY;
+  Vector_t<Int_t>           _vSpacings;
+  Vector_t<LefEolSpacing>   _vEolSpacings;
+  LefSpacingTable           _spacingTable;
 
   //////////////////////////////////////
   //    Setter                        //

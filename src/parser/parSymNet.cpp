@@ -15,7 +15,7 @@ void SymNetReader::parse(const String_t& filename) {
   FILE* fin = fopen(filename.c_str(), "r");
   
   if (!fin) {
-    fprintf(stderr, "%s: Error opening file %s!!!\n", __func__, filename.c_str());
+    fprintf(stderr, "SymNetReader::%s ERROR: Cannot open file %s!!!\n", __func__, filename.c_str());
     exit(0);
   }
   const UInt_t bufSize = 200;
@@ -29,7 +29,7 @@ void SymNetReader::parse(const String_t& filename) {
         _cir.net(vTokens[0]).setSelfSym();
       }
       else {
-        fprintf(stderr, "%s WARNING: Invalid net name %s\n", __func__, vTokens[0].c_str());
+        fprintf(stderr, "SymNetReader::%s WARNING: Invalid net name %s\n", __func__, vTokens[0].c_str());
       }
     }
     else {
@@ -42,10 +42,10 @@ void SymNetReader::parse(const String_t& filename) {
       }
       else {
         if (!_cir.hasNet(vTokens[0])) {
-          fprintf(stderr, "%s WARNING: Invalid net name %s\n", __func__, vTokens[0].c_str());
+          fprintf(stderr, "SymNetReader::%s WARNING: Invalid net name %s\n", __func__, vTokens[0].c_str());
         }
         if (!_cir.hasNet(vTokens[1])) {
-          fprintf(stderr, "%s WARNING: Invalid net name %s\n", __func__, vTokens[1].c_str());
+          fprintf(stderr, "SymNetReader::%s WARNING: Invalid net name %s\n", __func__, vTokens[1].c_str());
         }
       }
     }

@@ -16,7 +16,7 @@ void GdsReader::parse(const String_t& filename) {
   GdsParser::GdsDB::GdsDB unflatenDB;
   GdsParser::GdsDB::GdsReader limboReader(unflatenDB);
   if (!limboReader(filename)) {
-    fprintf(stderr, "%s: Cannot open file %s!!\n", __func__, filename.c_str());
+    fprintf(stderr, "GdsReader::%s ERROR: Cannot open file %s!!\n", __func__, filename.c_str());
     exit(0);
   }
   
