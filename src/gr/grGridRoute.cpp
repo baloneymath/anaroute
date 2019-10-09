@@ -64,7 +64,7 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
   // put pins into gridcells
   UInt_t layerIdx;
   Pin* pPin;
-  const Box<Int_t>* pBox;
+  const Box<Int_t>* cpBox;
   const Int_t offsetX = _cir.xl();
   const Int_t offsetY = _cir.yl();
   Cir_ForEachPin(_cir, pPin, i) {
@@ -81,11 +81,11 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
                                lefLayer.spacing(0);
       const Int_t stepX = minSpacing * scaleX;
       const Int_t stepY = minSpacing * scaleY;
-      Pin_ForEachLayerBox((*pPin), layerIdx, pBox, j) {
-        Int_t xl = pBox->xl() - offsetX;
-        Int_t xh = pBox->xh() - offsetX;
-        Int_t yl = pBox->yl() - offsetY;
-        Int_t yh = pBox->yh() - offsetY;
+      Pin_ForEachLayerBoxC((*pPin), layerIdx, cpBox, j) {
+        Int_t xl = cpBox->xl() - offsetX;
+        Int_t xh = cpBox->xh() - offsetX;
+        Int_t yl = cpBox->yl() - offsetY;
+        Int_t yh = cpBox->yh() - offsetY;
         UInt_t xlIdx = xl / stepX;
         UInt_t xhIdx = xh / stepX;
         UInt_t ylIdx = yl / stepY;
@@ -120,10 +120,19 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
       //}
     //}
   //}
+
 }
-
 void GrGridRoute::markInvalidGrids() {
-
+  UInt_t i, j, k, layerIdx;
+  const Blk* cpBlk;
+  for (i = 0; i < _gridMap.numGridCellsZ(); ++i) {
+    for (j = 0; j < _gridMap.numGridCellsX(i); ++j) {
+      for (k = 0; k < _gridMap.numGridCellsY(i); ++k) {
+        GrGridCell& gridCell = _gridMap.gridCell(i, j, k);
+        
+      }
+    }
+  }
 }
 
 PROJECT_NAMESPACE_END

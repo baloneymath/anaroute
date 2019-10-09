@@ -1,6 +1,6 @@
 /**
- * @file   dbBlock.hpp
- * @brief  Circuit Element - Blockage
+ * @file   dbBlk.hpp
+ * @brief  Circuit Element - Blkage
  * @author Hao Chen
  * @date   09/20/2019
  *
@@ -14,14 +14,14 @@
 
 PROJECT_NAMESPACE_START
 
-class Block {
+class Blk {
   friend class Parser;
  public:
-  Block()
+  Blk()
     : _layerIdx(MAX_UINT) {}
-  Block(const UInt_t i, const Box<Int_t>& b)
+  Blk(const UInt_t i, const Box<Int_t>& b)
     : _layerIdx(i), _box(b) {}
-  ~Block() {}
+  ~Blk() {}
   
   ////////////////////////////////////////
   //   Getter                           //
@@ -32,6 +32,8 @@ class Block {
   Int_t                           yl()                      const { return _box.yl(); } 
   Int_t                           xh()                      const { return _box.xh(); } 
   Int_t                           yh()                      const { return _box.yh(); }
+  const Point<Int_t>&             bl()                      const { return _box.bl(); }
+  const Point<Int_t>&             tr()                      const { return _box.tr(); }
   const Point<Int_t>&             min_corner()              const { return _box.min_corner(); }
   const Point<Int_t>&             max_corner()              const { return _box.max_corner(); }
 

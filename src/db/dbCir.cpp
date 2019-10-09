@@ -10,6 +10,50 @@
 
 PROJECT_NAMESPACE_START
 
+//////////////////////////////////
+//  Funcs                       //
+//////////////////////////////////
+void CirDB::buildSpatial() {
+  buildSpatialPins();
+  buildSpatialBlks();
+}
+
+void CirDB::buildSpatialPins() {
+  Vector_t<Vector_t<spatial::b_value<Int_t, UInt_t>>> vvShapes;
+  vvShapes.resize(_lef.numLayers());
+  UInt_t i, j, layerIdx;
+  const Pin* cpPin;
+  const Box<Int_t>* cpBox;
+  Cir_ForEachPinC((*this), cpPin, i) {
+    Pin_ForEachLayerIdx((*cpPin), layerIdx) {
+      Pin_ForEachLayerBoxC((*cpPin), layerIdx, cpBox, j) {
+        vvShapes[layerIdx].emplace_back(spatial::b_box<Int_t>(cpBox->bl(), cpBox->tr()), i);
+      }
+    }
+  }
+  _vSpatialPins.resize(_lef.numLayers());
+  Cir_ForEachLayerIdx((*this), layerIdx) {
+    _vSpatialPins[layerIdx] = SpatialMap<Int_t, UInt_t>(vvShapes[layerIdx]);
+  }
+}
+
+void CirDB::buildSpatialBlks() {
+  Vector_t<Vector_t<spatial::b_value<Int_t, UInt_t>>> vvShapes;
+  vvShapes.resize(_lef.numLayers());
+  _vSpatialBlks.resize(_lef.numLayers());
+  UInt_t i, layerIdx;
+  const Blk* cpBlk;
+  Cir_ForEachLayerIdx((*this), layerIdx) {
+    Cir_ForEachLayerBlkC((*this), layerIdx, cpBlk, i) {
+      vvShapes[layerIdx].emplace_back(spatial::b_box<Int_t>(cpBlk->bl(), cpBlk->tr()), i);
+    }
+    _vSpatialBlks[layerIdx] = SpatialMap<Int_t, UInt_t>(vvShapes[layerIdx]);
+  }
+}
+
+//////////////////////////////////
+//  Private Setter              //
+//////////////////////////////////
 void CirDB::setXL(const Int_t x) {
   _xl = x;
 }
@@ -27,6 +71,11 @@ void CirDB::setYH(const Int_t y) {
 }
 
 void CirDB::addPin(const Pin& p) {
+  assert(_vvPinIndices.size() > 0);
+  UInt_t layerIdx;
+  Pin_ForEachLayerIdx(p, layerIdx) {
+    _vvPinIndices[layerIdx].emplace_back(_vPins.size());
+  }
   _vPins.emplace_back(p);
 }
 
@@ -35,11 +84,18 @@ void CirDB::addNet(const Net& n) {
   _vNets.emplace_back(n);
 }
 
-void CirDB::addBlock(const UInt_t i, const Block& b) {
-  _vvBlocks[i].emplace_back(b);
+void CirDB::addBlk(const UInt_t i, const Blk& b) {
+  assert(_vvBlkIndices.size() > 0);
+  _vvBlkIndices[i].emplace_back(_vBlks.size());
+  _vBlks.emplace_back(b);
 }
-void CirDB::resizeVVBlocks(const UInt_t i) {
-  _vvBlocks.resize(i);
+
+void CirDB::resizeVVPinIndices(const UInt_t i) {
+  _vvPinIndices.resize(i);
+}
+
+void CirDB::resizeVVBlkIndices(const UInt_t i) {
+  _vvBlkIndices.resize(i);
 }
 
 UInt_t CirDB::layerIdx2MaskIdx(const UInt_t i) const {
@@ -55,6 +111,7 @@ UInt_t CirDB::layerIdx2MaskIdx(const UInt_t i) const {
   return MAX_UINT;
 }
 
+// for debug
 void CirDB::printInfo() const {
   FILE* fout = stdout;
   fprintf(fout, "CIRCUIT %s (%d %d %d %d)\n", _name.c_str(), _xl, _yl, _xh, _yh);
@@ -91,14 +148,12 @@ void CirDB::printInfo() const {
     fprintf(fout, "    LAYER %s %d\n", obj.first.c_str(), obj.second);
   }
   fprintf(fout, "\n  BLOCKS\n");
-  for (const auto& vBlocks : _vvBlocks) {
-    for (const auto& block : vBlocks) {
-      fprintf(fout, "    BLOCK %u (%d %d %d %d)\n", block.layerIdx(),
-                                                    block.xl(),
-                                                    block.yl(),
-                                                    block.xh(),
-                                                    block.yh());
-    }
+  for (const auto& blk : _vBlks) {
+    fprintf(fout, "    BLOCK %u (%d %d %d %d)\n", blk.layerIdx(),
+                                                  blk.xl(),
+                                                  blk.yl(),
+                                                  blk.xh(),
+                                                  blk.yh());
   }
 }
 

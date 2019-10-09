@@ -28,6 +28,8 @@ void Ispd08Reader::parse(const String_t& filename) {
   constexpr UInt_t bufSize = 200;
   char buf[bufSize];
 
+  _cir.resizeVVPinIndices(_cir.lef().numLayers());
+
   UInt_t numNet = 0;
   fscanf(fin, "num net %u\n", &numNet);
   for (UInt_t i = 0; i < numNet; ++i) {
@@ -41,6 +43,8 @@ void Ispd08Reader::parse(const String_t& filename) {
       fgets(buf, bufSize, fin);
       util::splitString(buf, " ", vTokens);
       Pin pin;
+      pin.setNetName(netName);
+      pin.setNetIdx(netIdx);
       pin.resizeLayerBoxes(_cir.lef().numLayers());
       const UInt_t layerIdx = map2RoutingLayer(std::stoi(vTokens[0]));
       pin.setMinLayerIdx(std::min(pin.minLayerIdx(), layerIdx));

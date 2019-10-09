@@ -66,8 +66,8 @@ class Pin {
 // shapes never located on cut layers
 #define Pin_ForEachLayerIdx(pin, i) \
   for (i = pin.minLayerIdx(); i <= pin.maxLayerIdx(); i += 2)
-
-#define Pin_ForEachLayerBox(pin, layerIdx, cpBox_, i) \
+// const box
+#define Pin_ForEachLayerBoxC(pin, layerIdx, cpBox_, i) \
   for (i = 0; i < pin.numBoxes(layerIdx) and (cpBox_ = &pin.box(layerIdx, i)); ++i)
 
 PROJECT_NAMESPACE_END

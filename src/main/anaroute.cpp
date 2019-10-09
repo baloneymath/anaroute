@@ -29,6 +29,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   par.parseGds(_args.get<String_t>("placement_layout"));
   par.parseSymNet(_args.get<String_t>("symnet"));
   //cir.printInfo();
+  cir.buildSpatial();
   
   // global routing
   GrMgr gr(cir);

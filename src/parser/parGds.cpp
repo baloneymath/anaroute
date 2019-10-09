@@ -91,14 +91,14 @@ void GdsReader::saveShapesAsBlockages() {
   for (const auto& blk : _vPoblks) {
     geo::polygon2Box(blk.pts, vBlks);
   }
-  _cir.resizeVVBlocks(_cir.lef().numLayers());
+  _cir.resizeVVBlkIndices(_cir.lef().numLayers());
   Vector_t<Box<Int_t>> vBoxes;
   for (const auto& poly : _vPolygonLayers) {
     geo::polygon2Box(poly.pts, vBoxes);
     for (const auto& box : vBoxes) {
       auto __addBlk = [&] (const UInt_t layerIdx, const auto& box) {
-        Block b(layerIdx, box);
-        _cir.addBlock(layerIdx, b);
+        Blk b(layerIdx, box);
+        _cir.addBlk(layerIdx, b);
         if (b.xl() < _cir.xl()) {
           _cir.setXL(b.xl());
         }
