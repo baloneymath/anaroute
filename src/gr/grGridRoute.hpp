@@ -51,7 +51,8 @@ class GrGridRoute {
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
-  void initGrids();
+  void initGrids(const Int_t scaleX, const Int_t scaleY); // dim = (scaleX * stepX), (scaleY * stepY)
+  void markInvalidGrids();
 };
 
 PROJECT_NAMESPACE_END

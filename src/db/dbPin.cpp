@@ -22,24 +22,26 @@ void Pin::setNetIdx(const UInt_t i) {
   _netIdx = i;
 }
 
-void Pin::setLayerIdxOffset(const UInt_t i ) {
-  _layerIdxOffset = i;
+void Pin::setMinLayerIdx(const UInt_t i) {
+  _minLayerIdx = i;
+}
+
+void Pin::setMaxLayerIdx(const UInt_t i) {
+  _maxLayerIdx = i;
 }
 
 void Pin::addBox(const UInt_t layerIdx, const Box<Int_t>& box) {
-  UInt_t idx = layerIdx - _layerIdxOffset;
-  if (idx >= _vvBoxes.size()) {
-    _vvBoxes.resize(idx + 1);
-  }
-  _vvBoxes[idx].emplace_back(box);
+  assert(layerIdx >= 0 and layerIdx < _vvBoxes.size());
+  _vvBoxes[layerIdx].emplace_back(box);
 }
 
 void Pin::setLayerBoxes(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes) {
-  UInt_t idx = layerIdx - _layerIdxOffset;
-  if (idx >= _vvBoxes.size()) {
-    _vvBoxes.resize(idx + 1);
-  }
-  _vvBoxes[idx] = vBoxes;
+  assert(layerIdx >= 0 and layerIdx < _vvBoxes.size());
+  _vvBoxes[layerIdx] = vBoxes;
+}
+
+void Pin::resizeLayerBoxes(const UInt_t i) {
+  _vvBoxes.resize(i);
 }
 
 void Pin::printInfo() const {

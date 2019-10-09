@@ -65,11 +65,11 @@ void CirDB::printInfo() const {
     const auto& vvBoxes = pin.vvBoxes();
     for (UInt_t j = 0; j < vvBoxes.size(); ++j) {
       for (UInt_t k = 0; k < vvBoxes[j].size(); ++k) {
-        fprintf(fout, "      %d (%d %d %d %d)\n", pin.minLayerIdx() + j,
-                                                  pin.box(pin.minLayerIdx() + j, k).xl(),
-                                                  pin.box(pin.minLayerIdx() + j, k).yl(),
-                                                  pin.box(pin.minLayerIdx() + j, k).xh(),
-                                                  pin.box(pin.minLayerIdx() + j, k).yh());
+        fprintf(fout, "      %d (%d %d %d %d)\n", j,
+                                                  pin.box(j, k).xl(),
+                                                  pin.box(j, k).yl(),
+                                                  pin.box(j, k).xh(),
+                                                  pin.box(j, k).yh());
       }
     }
   }

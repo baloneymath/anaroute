@@ -18,7 +18,7 @@ PROJECT_NAMESPACE_START
 class GrGridCell {
  public:
   GrGridCell()
-    : _width(0), _height(0) {}
+    : _width(0), _height(0), _bValid(true) {}
   ~GrGridCell() {}
 
   /////////////////////////////////////////
@@ -33,7 +33,8 @@ class GrGridCell {
   UInt_t                    pinIdx(const UInt_t i)  const { return _vPinIndices[i]; }
   UInt_t                    numPins()               const { return _vPinIndices.size(); }
   const Vector_t<UInt_t>&   vPinIndices()           const { return _vPinIndices; }
-  
+  bool                      bValid()                const { return _bValid; }
+
   /////////////////////////////////////////
   //    Setters                          //
   /////////////////////////////////////////
@@ -42,12 +43,15 @@ class GrGridCell {
   void setWidth(const Int_t w)                              { _width = w; }
   void setHeight(const Int_t h)                             { _height = h; }
   void addPinIdx(const UInt_t i)                            { _vPinIndices.emplace_back(i); }
+  void setValid()                                           { _bValid = true; }
+  void setInvalid()                                         { _bValid = false; }
 
  private:
-  Point3d<Int_t>    _loc; // bottom left corner of the grid
+  Point3d<Int_t>    _loc; // center of the grid
   Int_t             _width;
   Int_t             _height;
   Vector_t<UInt_t>  _vPinIndices; // pins located in this grid
+  bool              _bValid;
 };
 
 PROJECT_NAMESPACE_END

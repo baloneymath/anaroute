@@ -15,6 +15,7 @@
 #include "dbBlock.hpp"
 #include "dbPin.hpp"
 #include "dbNet.hpp"
+#include "src/geo/spatial.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -84,8 +85,11 @@ class CirDB {
   Vector_t<Net>                  _vNets;
   Vector_t<Vector_t<Block>>      _vvBlocks;
 
-  UMap_t<String_t, UInt_t>      _mStr2NetIdx;
+  UMap_t<String_t, UInt_t>       _mStr2NetIdx;
  
+  Vector_t<SpatialMap<Int_t, UInt_t>>    _vSpatialBoxes;
+  Vector_t<SpatialMap<Int_t, UInt_t>>    _vSpatialPins;
+
   //////////////////////////////////
   //  Private Setter              //
   //////////////////////////////////
