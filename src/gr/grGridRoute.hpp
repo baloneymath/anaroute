@@ -48,11 +48,20 @@ class GrGridRoute {
     Int_t w_selfSym = 1;
     Int_t w_fail_cnt = 1;
   };
+  // for rip up and reroute
+  struct RR_Param {
+    UInt_t numFrozen = 1;
+    UInt_t numMaxFails = 3;
+  } _params;
+
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
   void initGrids(const Int_t scaleX, const Int_t scaleY); // dim = (scaleX * stepX), (scaleY * stepY)
   void markInvalidGrids();
+  void routeSingleNet();
+  void routeSingleSymNet();
+  void routeSingleSelfSymNet();
 };
 
 PROJECT_NAMESPACE_END

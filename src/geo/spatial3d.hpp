@@ -77,6 +77,16 @@ namespace spatial3d {
     Vector_t<Value>& _ret;
   };
 
+  // Query options
+  enum class QueryType {
+    contains,
+    covered_by,
+    covers,
+    disjoint,
+    intersects,
+    overlaps,
+    within
+  };
 }
 
 template<typename T>
@@ -94,16 +104,6 @@ public:
   template<typename Container_Iterator>
   Spatial3d(Container_Iterator begin, Container_Iterator end) : _rtree(begin, end) {} // use packing algorithm
   ~Spatial3d() {}
-
-  enum class Query_Type {
-    contains,
-    covered_by,
-    covers,
-    disjoint,
-    intersects,
-    overlaps,
-    within
-  };
 
   // iterator
   inline const_iterator begin() const { return _rtree.begin(); }
@@ -134,7 +134,7 @@ public:
   bool    erase(const Point3d<T>& min_corner, const Point3d<T>& max_corner)   { return _rtree.remove({min_corner, max_corner}); }
   
   // query
-  void    query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
+  void    query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
 
 };
 
@@ -154,16 +154,6 @@ public:
   template<typename Container_Iterator>
   SpatialMap3d(Container_Iterator begin, Container_Iterator end) : _rtreeMap(begin, end) {} // use packing algorithm
   ~SpatialMap3d() {}
-
-  enum class Query_Type {
-    contains,
-    covered_by,
-    covers,
-    disjoint,
-    intersects,
-    overlaps,
-    within,
-  };
 
   // iterator
   inline const_iterator begin() const { return _rtreeMap.begin(); }
@@ -194,30 +184,30 @@ public:
   bool    erase(const Point3d<T>& min_corner, const Point3d<T>& max_corner, const Value& val)   { return _rtreeMap.remove({{min_corner, max_corner}, val}); }
   
   // query
-  void    query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<Value>& ret, Query_Type qt = Query_Type::intersects) const;
-  void    queryBox(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
-  void    queryBoth(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_value<T, Value> >& ret, Query_Type qt = Query_Type::intersects) const;
+  void    query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<Value>& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBox(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBoth(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_value<T, Value> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
 };
 
 ////////// Spatial3d Implementation /////////////
 template<typename T>
-void Spatial3d<T>::query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, Query_Type qt) const {
+void Spatial3d<T>::query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, spatial::QueryType qt) const {
   spatial3d::SearchCallback<spatial3d::b_box<T> > callback(ret);
   spatial3d::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtree.query(spatial3d::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtree.query(spatial3d::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtree.query(spatial3d::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtree.query(spatial3d::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtree.query(spatial3d::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtree.query(spatial3d::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtree.query(spatial3d::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -226,23 +216,23 @@ void Spatial3d<T>::query(const Point3d<T>& min_corner, const Point3d<T>& max_cor
 
 ////////// SpatialMap3d Implementation /////////////
 template<typename T, typename Value>
-void SpatialMap3d<T, Value>::query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<Value>& ret, Query_Type qt) const {
+void SpatialMap3d<T, Value>::query(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<Value>& ret, spatial::QueryType qt) const {
   spatial3d::SearchCallback_second<Value> callback(ret);
   spatial3d::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial3d::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial3d::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial3d::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial3d::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial3d::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial3d::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial3d::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -250,23 +240,23 @@ void SpatialMap3d<T, Value>::query(const Point3d<T>& min_corner, const Point3d<T
 }
 
 template<typename T, typename Value>
-void SpatialMap3d<T, Value>::queryBox(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, Query_Type qt) const {
+void SpatialMap3d<T, Value>::queryBox(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_box<T> >& ret, spatial::QueryType qt) const {
   spatial3d::SearchCallback_first<spatial3d::b_box<T> > callback(ret);
   spatial3d::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial3d::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial3d::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial3d::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial3d::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial3d::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial3d::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial3d::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -274,23 +264,23 @@ void SpatialMap3d<T, Value>::queryBox(const Point3d<T>& min_corner, const Point3
 }
 
 template<typename T, typename Value>
-void SpatialMap3d<T, Value>::queryBoth(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_value<T, Value> >& ret, Query_Type qt) const {
+void SpatialMap3d<T, Value>::queryBoth(const Point3d<T>& min_corner, const Point3d<T>& max_corner, Vector_t<spatial3d::b_value<T, Value> >& ret, spatial::QueryType qt) const {
   spatial3d::SearchCallback<spatial3d::b_value<T, Value> > callback(ret);
   spatial3d::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial3d::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial3d::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial3d::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial3d::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial3d::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial3d::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial3d::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);

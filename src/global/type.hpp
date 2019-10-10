@@ -25,6 +25,8 @@ using String_t  = std::string;
 template<typename T, typename U>
 using Pair_t    = std::pair<T, U>;
 template<typename T>
+using Queue_t   = std::queue<T>;
+template<typename T>
 using Vector_t  = std::vector<T>;
 template<typename T>
 using List_t    = std::list<T>;

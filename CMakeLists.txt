@@ -62,6 +62,7 @@ add_executable(${PROJECT_NAME}
   src/main/main.cpp
   src/main/anaroute.cpp
   src/util/util.cpp
+  src/util/timeUsage.cpp
   src/db/lef/layer/lefCutLayer.cpp
   src/db/lef/layer/lefRoutingLayer.cpp
   src/db/lef/lefSite.cpp
@@ -78,6 +79,7 @@ add_executable(${PROJECT_NAME}
   src/parser/parSymNet.cpp
   src/gr/grMgr.cpp
   src/gr/grGridRoute.cpp
+  src/gr/grAstar.cpp
   src/ta/taMgr.cpp
   src/dr/drMgr.cpp
   src/dr/drGridlessRoute.cpp

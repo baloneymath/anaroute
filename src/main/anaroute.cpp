@@ -7,6 +7,8 @@
  **/
 
 #include "anaroute.hpp"
+#include "src/util/util.hpp"
+#include "src/util/timeUsage.hpp"
 #include "src/db/dbCir.hpp"
 #include "src/parser/parser.hpp"
 #include "src/gr/grMgr.hpp"
@@ -16,12 +18,18 @@
 PROJECT_NAMESPACE_START
 
 Anaroute::Anaroute(int argc, char** argv) {
-  
+ 
+  util::showSysInfo();
+
+  TimeUsage timer;
+  timer.start(TimeUsage::FULL);
+
   parseArgs(argc, argv);
   
   CirDB cir;
   
   // parse files
+  timer.start(TimeUsage::PARTIAL);
   Parser par(cir);
   par.parseLef(_args.get<String_t>("tech_lef"));
   par.parseTechfile(_args.get<String_t>("tech_file"));
@@ -30,10 +38,13 @@ Anaroute::Anaroute(int argc, char** argv) {
   par.parseSymNet(_args.get<String_t>("symnet"));
   //cir.printInfo();
   cir.buildSpatial();
+  timer.showUsage("Circuit database construction", TimeUsage::PARTIAL);
   
   // global routing
+  timer.start(TimeUsage::PARTIAL);
   GrMgr gr(cir);
   gr.solve();
+  timer.showUsage("Global Routing", TimeUsage::PARTIAL);
 
   // track assignment
   TaMgr ta(cir);
@@ -43,6 +54,8 @@ Anaroute::Anaroute(int argc, char** argv) {
   DrMgr dr(cir);
   dr.solve();
 
+  timer.showUsage("Anaroute", TimeUsage::FULL);
+  printf("Peak Memory Usage: %.2f MB\n", util::getPeakMemoryUsage() / MEM_SCALE);
 }
 
 void Anaroute::parseArgs(int argc, char** argv) {

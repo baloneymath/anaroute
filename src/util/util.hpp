@@ -23,6 +23,11 @@ namespace util {
   extern String_t   getFileDirName(const String_t& filePathName);
   extern String_t   getFileName(const String_t& filePathName);
 
+	// memory
+	extern double     getPeakMemoryUsage();
+  extern double     getCurrMemoryUsage();
+  extern void       showMemoryUsage(bool flag);
+
   // string
   extern void       splitString(const char* str, const String_t& delims, Vector_t<String_t>& tokens);
   extern void       splitString(const String_t& s, const String_t& delims, Vector_t<String_t>& tokens);

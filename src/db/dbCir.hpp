@@ -83,9 +83,10 @@ class CirDB {
   void buildSpatial();
   void buildSpatialPins();
   void buildSpatialBlks();
-  //void queryPin(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<Int_t>& vPinIndices);
-  //void queryBlk(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<Int_t>& vBlkIndices);
-  //bool hasPin() 
+  bool queryPin(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vPinIndices);
+  bool queryPin(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vPinIndices);
+  bool queryBlk(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vBlkIndices);
+  bool queryBlk(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vBlkIndices);
 
   // for debug
   void printInfo() const;

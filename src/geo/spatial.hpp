@@ -79,6 +79,16 @@ namespace spatial {
     Vector_t<Value>& _ret;
   };
 
+  // Query options
+  enum class QueryType {
+    contains,
+    covered_by,
+    covers,
+    disjoint,
+    intersects,
+    overlaps,
+    within
+  };
 }
 
 template<typename T>
@@ -96,16 +106,6 @@ public:
   template<typename Container_Iterator>
   Spatial(Container_Iterator begin, Container_Iterator end) : _rtree(begin, end) {} // use packing algorithm
   ~Spatial() {}
-
-  enum class Query_Type {
-    contains,
-    covered_by,
-    covers,
-    disjoint,
-    intersects,
-    overlaps,
-    within
-  };
 
   // iterator
   inline const_iterator begin() const { return _rtree.begin(); }
@@ -138,8 +138,8 @@ public:
   bool    erase(const Point<T>& min_corner, const Point<T>& max_corner)   	{ return _rtree.remove({min_corner, max_corner}); }
   
   // query
-  void    query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
-  void    query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
+  void    query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
 
 };
 
@@ -159,16 +159,6 @@ public:
   template<typename Container_Iterator>
   SpatialMap(Container_Iterator begin, Container_Iterator end) : _rtreeMap(begin, end) {} // use packing algorithm
   ~SpatialMap() {}
-
-  enum class Query_Type {
-    contains,
-    covered_by,
-    covers,
-    disjoint,
-    intersects,
-    overlaps,
-    within
-  };
 
   // iterator
   inline const_iterator begin() const { return _rtreeMap.begin(); }
@@ -201,34 +191,34 @@ public:
   bool    erase(const Point<T>& min_corner, const Point<T>& max_corner, const Value& val)   	{ return _rtreeMap.remove({{min_corner, max_corner}, val}); }
   
   // query
-  void    query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Value>& ret, Query_Type qt = Query_Type::intersects) const;
-  void    query(const Box<T>& rect, Vector_t<Value>& ret, Query_Type qt = Query_Type::intersects) const;
-  void    queryBox(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
-  void    queryBox(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, Query_Type qt = Query_Type::intersects) const;
-  void    queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_value<T, Value> >& ret, Query_Type qt = Query_Type::intersects) const;
-  void    queryBoth(const Box<T>& rect, Vector_t<spatial::b_value<T, Value> >& ret, Query_Type qt = Query_Type::intersects) const;
+  void    query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Value>& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    query(const Box<T>& rect, Vector_t<Value>& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBox(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBox(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBoth(const Box<T>& rect, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
 
 };
 
 ////////// Spatial Implementation /////////////
 template<typename T>
-void Spatial<T>::query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, Query_Type qt) const {
+void Spatial<T>::query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt) const {
   spatial::SearchCallback<spatial::b_box<T> > callback(ret);
   spatial::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtree.query(spatial::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtree.query(spatial::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtree.query(spatial::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtree.query(spatial::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtree.query(spatial::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtree.query(spatial::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtree.query(spatial::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -236,23 +226,23 @@ void Spatial<T>::query(const Point<T>& min_corner, const Point<T>& max_corner, V
 }
 
 template<typename T>
-void Spatial<T>::query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, Query_Type qt) const {
+void Spatial<T>::query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt) const {
   spatial::SearchCallback<spatial::b_box<T> > callback(ret);
   spatial::b_box<T> query_box(rect.min_corner(), rect.max_corner());
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtree.query(spatial::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtree.query(spatial::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtree.query(spatial::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtree.query(spatial::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtree.query(spatial::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtree.query(spatial::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtree.query(spatial::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -262,23 +252,23 @@ void Spatial<T>::query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, Qu
 
 ////////// SpatialMap Implementation /////////////
 template<typename T, typename Value>
-void SpatialMap<T, Value>::query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Value>& ret, Query_Type qt) const {
+void SpatialMap<T, Value>::query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Value>& ret, spatial::QueryType qt) const {
   spatial::SearchCallback_second<Value> callback(ret);
   spatial::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -286,23 +276,23 @@ void SpatialMap<T, Value>::query(const Point<T>& min_corner, const Point<T>& max
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::query(const Box<T>& rect, Vector_t<Value>& ret, Query_Type qt) const {
+void SpatialMap<T, Value>::query(const Box<T>& rect, Vector_t<Value>& ret, spatial::QueryType qt) const {
   spatial::SearchCallback_second<Value> callback(ret);
   spatial::b_box<T> query_box(rect.min_corner(), rect.max_corner());
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -310,23 +300,23 @@ void SpatialMap<T, Value>::query(const Box<T>& rect, Vector_t<Value>& ret, Query
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::queryBox(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, Query_Type qt) const {
+void SpatialMap<T, Value>::queryBox(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt) const {
   spatial::SearchCallback_first<spatial::b_box<T> > callback(ret);
   spatial::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -334,23 +324,23 @@ void SpatialMap<T, Value>::queryBox(const Point<T>& min_corner, const Point<T>& 
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::queryBox(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, Query_Type qt) const {
+void SpatialMap<T, Value>::queryBox(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt) const {
   spatial::SearchCallback_first<spatial::b_box<T> > callback(ret);
   spatial::b_box<T> query_box(rect.min_corner(), rect.max_corner());
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -358,23 +348,23 @@ void SpatialMap<T, Value>::queryBox(const Box<T>& rect, Vector_t<spatial::b_box<
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::queryBoth(const Box<T>& rect, Vector_t<spatial::b_value<T, Value> >& ret, Query_Type qt) const {
+void SpatialMap<T, Value>::queryBoth(const Box<T>& rect, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt) const {
   spatial::SearchCallback<spatial::b_value<T, Value> > callback(ret);
   spatial::b_box<T> query_box(rect.min_corner(), rect.max_corner());
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);
@@ -382,23 +372,23 @@ void SpatialMap<T, Value>::queryBoth(const Box<T>& rect, Vector_t<spatial::b_val
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_value<T, Value> >& ret, Query_Type qt) const {
+void SpatialMap<T, Value>::queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt) const {
   spatial::SearchCallback<spatial::b_value<T, Value> > callback(ret);
   spatial::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
-    case Query_Type::contains :
+    case spatial::QueryType::contains :
       _rtreeMap.query(spatial::bgi::contains(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covered_by :
+    case spatial::QueryType::covered_by :
       _rtreeMap.query(spatial::bgi::covered_by(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::covers :
+    case spatial::QueryType::covers :
       _rtreeMap.query(spatial::bgi::covers(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::disjoint :
+    case spatial::QueryType::disjoint :
       _rtreeMap.query(spatial::bgi::disjoint(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::intersects :
+    case spatial::QueryType::intersects :
       _rtreeMap.query(spatial::bgi::intersects(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::overlaps :
+    case spatial::QueryType::overlaps :
       _rtreeMap.query(spatial::bgi::overlaps(query_box), boost::make_function_output_iterator(callback)); break;
-    case Query_Type::within :
+    case spatial::QueryType::within :
       _rtreeMap.query(spatial::bgi::within(query_box), boost::make_function_output_iterator(callback)); break;
     default:
       assert(false);

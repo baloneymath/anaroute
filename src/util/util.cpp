@@ -59,8 +59,54 @@ namespace util {
       retStr = retStr.substr(pos + 1);
     return retStr;
   }
+  // memory
   
-  // String_t
+
+	double getPeakMemoryUsage() {
+#ifdef __linux__
+		FILE* fmem = fopen("/proc/self/status", "r");
+		char membuf[128];
+		double vmPeak = 0;
+		while (fgets(membuf, 128, fmem)) {
+			char* ch;
+			if ((ch = strstr(membuf, "VmPeak:"))) {
+				vmPeak = atol(ch + 7);
+				continue;
+			}
+		}
+		fclose(fmem);
+		return vmPeak;
+#else
+		return -1;
+#endif
+	}
+
+	double getCurrMemoryUsage() {
+#ifdef __linux__
+		FILE* fmem = fopen("/proc/self/status", "r");
+		char membuf[128];
+		double vmSize = 0;
+		while (fgets(membuf, 128, fmem)) {
+			char* ch;
+			if ((ch = strstr(membuf, "VmSize:"))) {
+				vmSize = atol(ch + 7);
+				break;
+			}
+		}
+		fclose(fmem);
+		return vmSize;
+#else
+		return -1;
+#endif
+	}
+
+	void showMemoryUsage(bool flag) {
+		if (flag)
+			fprintf(stderr, "Peak Memory Usage: %f MB\n", getPeakMemoryUsage() / MEM_SCALE);
+		else
+			fprintf(stderr, "Curr Memory Usage: %f MB\n", getCurrMemoryUsage() / MEM_SCALE);
+	}
+	// String
   void splitString(const char* str, const String_t& delims, Vector_t<String_t>& tokens) {
     tokens.clear();
     String_t s(str), token;

@@ -51,6 +51,30 @@ void CirDB::buildSpatialBlks() {
   }
 }
 
+bool CirDB::queryPin(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vPinIndices) {
+  assert(layerIdx >= 0 and layerIdx < _vSpatialPins.size());
+  _vSpatialPins[layerIdx].query(bl, tr, vPinIndices);
+  return vPinIndices.size() > 0;
+}
+
+bool CirDB::queryPin(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vPinIndices) {
+  assert(layerIdx >= 0 and layerIdx < _vSpatialPins.size());
+  _vSpatialPins[layerIdx].query(box, vPinIndices);
+  return vPinIndices.size() > 0;
+}
+
+bool CirDB::queryBlk(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vBlkIndices) {
+  assert(layerIdx >= 0 and layerIdx < _vSpatialBlks.size());
+  _vSpatialBlks[layerIdx].query(bl, tr, vBlkIndices);
+  return vBlkIndices.size() > 0;
+}
+
+bool CirDB::queryBlk(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vBlkIndices) {
+  assert(layerIdx >= 0 and layerIdx < _vSpatialBlks.size());
+  _vSpatialBlks[layerIdx].query(box, vBlkIndices);
+  return vBlkIndices.size() > 0;
+}
+
 //////////////////////////////////
 //  Private Setter              //
 //////////////////////////////////

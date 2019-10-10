@@ -12,20 +12,34 @@
 PROJECT_NAMESPACE_START
 
 void GrGridRoute::solve() {
-  UInt_t i;
 
   initGrids(1, 1);
 
   markInvalidGrids();
 
-  PairingHeap<Net*, Net_Cmp> pqueue;
-  
+  // inita nets in pqueue
+  PairingHeap<Net*, Net_Cmp> pq;
+  UInt_t i;
   Net* pNet;
   Cir_ForEachNet(_cir, pNet, i) {
     // ignore dangling net
     if (pNet->numPins() > 1) {
-      pqueue.push(pNet);
+      pq.push(pNet);
     }
+  }
+  // rip up and reroute
+  Queue_t<Net*> qFrozenNet;
+  while (!pq.empty() or !qFrozenNet.empty()) {
+    while (qFrozenNet.size() > _params.numFrozen) {
+      pq.push(qFrozenNet.front());
+      qFrozenNet.pop();
+    }
+    if (pq.empty()) {
+      pq.push(qFrozenNet.front());
+      qFrozenNet.pop();
+    }
+    pNet = pq.top();
+    pq.pop();
   }
 
 
@@ -122,6 +136,7 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
   //}
 
 }
+
 void GrGridRoute::markInvalidGrids() {
   UInt_t i, j, k, layerIdx;
   const Blk* cpBlk;
@@ -129,10 +144,37 @@ void GrGridRoute::markInvalidGrids() {
     for (j = 0; j < _gridMap.numGridCellsX(i); ++j) {
       for (k = 0; k < _gridMap.numGridCellsY(i); ++k) {
         GrGridCell& gridCell = _gridMap.gridCell(i, j, k);
-        
+        Vector_t<UInt_t> vBlkIndices;
+        Vector_t<UInt_t> vPinIndices;
+        Point<Int_t> loc(gridCell.x(), gridCell.y());
+        if (_cir.queryBlk(i, loc, loc, vBlkIndices)) {
+          gridCell.setInvalid();
+        }
       }
     }
   }
+  //for (j = _gridMap.numGridCellsY(2) - 1; j >= 0; --j) {
+    //for (k = 0; k < _gridMap.numGridCellsX(2); ++k) {
+      //GrGridCell& gridCell = _gridMap.gridCell(2, k, j);
+      //if (gridCell.bValid())
+        //printf(".");
+      //else
+        //printf("X");
+    //}
+    //printf("\n");
+  //}
+}
+
+void GrGridRoute::routeSingleNet() {
+
+}
+
+void GrGridRoute::routeSingleSymNet() {
+
+}
+
+void GrGridRoute::routeSingleSelfSymNet() {
+
 }
 
 PROJECT_NAMESPACE_END
