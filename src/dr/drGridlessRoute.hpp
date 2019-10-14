@@ -34,11 +34,11 @@ class DrGridlessRoute {
       Int_t c1 = w_pin_cnt  * pn1->numPins() +
                  w_sym      * pn1->hasSymNet() +
                  w_selfSym  * pn1->bSelfSym() +
-                 w_fail_cnt * pn1->failCnt();
+                 w_fail_cnt * pn1->drFailCnt();
       Int_t c2 = w_pin_cnt  * pn2->numPins() +
                  w_sym      * pn2->hasSymNet() +
                  w_selfSym  * pn2->bSelfSym() +
-                 w_fail_cnt * pn2->failCnt();
+                 w_fail_cnt * pn2->drFailCnt();
       return c1 < c2;
     }
     Int_t w_pin_cnt = 1;

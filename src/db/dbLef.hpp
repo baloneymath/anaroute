@@ -53,45 +53,50 @@ class LefDB {
   //   Layers                           //
   ////////////////////////////////////////
   // All
-  UInt_t                                   numLayers()                                const { return _vAllLayers.size(); }
-  UInt_t                                   str2LayerIdx(const String_t& n)            const { return _mStr2AllLayerIdx.at(n); }
-  const Pair_t<LefLayerType, UInt_t>&      layerPair(const UInt_t i)                  const { return _vAllLayers[i]; }
-  const Pair_t<LefLayerType, UInt_t>&      str2Layer(const String_t& n)               const { return _vAllLayers[str2LayerIdx(n)]; }
-  bool                                     bImplantLayer(const UInt_t i)              const { return _vAllLayers[i].first == LefLayerType::IMPLANT; }
-  bool                                     bMastersliceLayer(const UInt_t i)          const { return _vAllLayers[i].first == LefLayerType::MASTERSLICE; }
-  bool                                     bCutLayer(const UInt_t i)                  const { return _vAllLayers[i].first == LefLayerType::CUT; }
-  bool                                     bRoutingLayer(const UInt_t i)              const { return _vAllLayers[i].first == LefLayerType::ROUTING; }
-  bool                                     bOverlapLayer(const UInt_t i)              const { return _vAllLayers[i].first == LefLayerType::OVERLAP; }
+  UInt_t                                   numLayers()                                    const { return _vAllLayers.size(); }
+  UInt_t                                   str2LayerIdx(const String_t& n)                const { return _mStr2AllLayerIdx.at(n); }
+  UInt_t                                   implantLayerIdx2LayerIdx(const UInt_t i)       const { return _vImplantLayerIdx2AllLayerIdx[i]; }
+  UInt_t                                   mastersliceLayerIdx2LayerIdx(const UInt_t i)   const { return _vMastersliceLayerIdx2AllLayerIdx[i]; }
+  UInt_t                                   cutLayerIdx2LayerIdx(const UInt_t i)           const { return _vCutLayerIdx2AllLayerIdx[i]; }
+  UInt_t                                   routingLayerIdx2LayerIdx(const UInt_t i)       const { return _vRoutingLayerIdx2AllLayerIdx[i]; }
+  UInt_t                                   overlapLayerIdx2LayerIdx(const UInt_t i)       const { return _vOverlapLayerIdx2AllLayerIdx[i]; }
+  const Pair_t<LefLayerType, UInt_t>&      layerPair(const UInt_t i)                      const { return _vAllLayers[i]; }
+  const Pair_t<LefLayerType, UInt_t>&      str2Layer(const String_t& n)                   const { return _vAllLayers[str2LayerIdx(n)]; }
+  bool                                     bImplantLayer(const UInt_t i)                  const { return _vAllLayers[i].first == LefLayerType::IMPLANT; }
+  bool                                     bMastersliceLayer(const UInt_t i)              const { return _vAllLayers[i].first == LefLayerType::MASTERSLICE; }
+  bool                                     bCutLayer(const UInt_t i)                      const { return _vAllLayers[i].first == LefLayerType::CUT; }
+  bool                                     bRoutingLayer(const UInt_t i)                  const { return _vAllLayers[i].first == LefLayerType::ROUTING; }
+  bool                                     bOverlapLayer(const UInt_t i)                  const { return _vAllLayers[i].first == LefLayerType::OVERLAP; }
   // Implant Layers                                                                    
-  const LefImplantLayer&                   implantLayer(const UInt_t i)               const { return _vImplantLayers[i]; }
-  const Vector_t<LefImplantLayer>&         vImplantLayers()                           const { return _vImplantLayers; }
-  UInt_t                                   numImplantLayers()                         const { return _vImplantLayers.size(); }
-  UInt_t                                   str2ImplantLayerIdx(const String_t& n)     const { return _mStr2ImplantLayerIdx.at(n); }
-  const LefImplantLayer&                   str2ImplantLayer(const String_t& n)        const { return _vImplantLayers[str2ImplantLayerIdx(n)]; }
+  const LefImplantLayer&                   implantLayer(const UInt_t i)                   const { return _vImplantLayers[i]; }
+  const Vector_t<LefImplantLayer>&         vImplantLayers()                               const { return _vImplantLayers; }
+  UInt_t                                   numImplantLayers()                             const { return _vImplantLayers.size(); }
+  UInt_t                                   str2ImplantLayerIdx(const String_t& n)         const { return _mStr2ImplantLayerIdx.at(n); }
+  const LefImplantLayer&                   str2ImplantLayer(const String_t& n)            const { return _vImplantLayers[str2ImplantLayerIdx(n)]; }
   // Masterslice Layers
-  const LefMastersliceLayer&               mastersliceLayer(const UInt_t i)           const { return _vMastersliceLayers[i]; }
-  const Vector_t<LefMastersliceLayer>&     vMastersliceLayers()                       const { return _vMastersliceLayers; }
-  UInt_t                                   numMastersliceLayers()                     const { return _vMastersliceLayers.size(); }
-  UInt_t                                   str2MastersliceLayerIdx(const String_t& n) const { return _mStr2MastersliceLayerIdx.at(n); }
-  const LefMastersliceLayer&               str2MastersliceLayer(const String_t& n)    const { return _vMastersliceLayers[str2MastersliceLayerIdx(n)]; }
+  const LefMastersliceLayer&               mastersliceLayer(const UInt_t i)               const { return _vMastersliceLayers[i]; }
+  const Vector_t<LefMastersliceLayer>&     vMastersliceLayers()                           const { return _vMastersliceLayers; }
+  UInt_t                                   numMastersliceLayers()                         const { return _vMastersliceLayers.size(); }
+  UInt_t                                   str2MastersliceLayerIdx(const String_t& n)     const { return _mStr2MastersliceLayerIdx.at(n); }
+  const LefMastersliceLayer&               str2MastersliceLayer(const String_t& n)        const { return _vMastersliceLayers[str2MastersliceLayerIdx(n)]; }
   // Cut Layers
-  const LefCutLayer&                       cutLayer(const UInt_t i)                   const { return _vCutLayers[i]; }
-  const Vector_t<LefCutLayer>&             vCutLayers()                               const { return _vCutLayers; }
-  UInt_t                                   numCutLayers()                             const { return _vCutLayers.size(); }
-  UInt_t                                   str2CutLayerIdx(const String_t& n)         const { return _mStr2CutLayerIdx.at(n); }
-  const LefCutLayer&                       str2CutLayer(const String_t& n)            const { return _vCutLayers[str2CutLayerIdx(n)]; }
+  const LefCutLayer&                       cutLayer(const UInt_t i)                       const { return _vCutLayers[i]; }
+  const Vector_t<LefCutLayer>&             vCutLayers()                                   const { return _vCutLayers; }
+  UInt_t                                   numCutLayers()                                 const { return _vCutLayers.size(); }
+  UInt_t                                   str2CutLayerIdx(const String_t& n)             const { return _mStr2CutLayerIdx.at(n); }
+  const LefCutLayer&                       str2CutLayer(const String_t& n)                const { return _vCutLayers[str2CutLayerIdx(n)]; }
   // Routing layers                                                          
-  const LefRoutingLayer&                   routingLayer(const UInt_t i)               const { return _vRoutingLayers[i]; }
-  const Vector_t<LefRoutingLayer>&         vRoutingLayers()                           const { return _vRoutingLayers; }
-  UInt_t                                   numRoutingLayers()                         const { return _vRoutingLayers.size(); }
-  UInt_t                                   str2RoutinglayerIdx(const String_t& n)     const { return _mStr2RoutingLayerIdx.at(n); }
-  const LefRoutingLayer&                   str2Routinglayer(const String_t& n)        const { return _vRoutingLayers[str2RoutinglayerIdx(n)]; }
+  const LefRoutingLayer&                   routingLayer(const UInt_t i)                   const { return _vRoutingLayers[i]; }
+  const Vector_t<LefRoutingLayer>&         vRoutingLayers()                               const { return _vRoutingLayers; }
+  UInt_t                                   numRoutingLayers()                             const { return _vRoutingLayers.size(); }
+  UInt_t                                   str2RoutinglayerIdx(const String_t& n)         const { return _mStr2RoutingLayerIdx.at(n); }
+  const LefRoutingLayer&                   str2Routinglayer(const String_t& n)            const { return _vRoutingLayers[str2RoutinglayerIdx(n)]; }
   // Overlap layers                                                          
-  const LefOverlapLayer&                   overlapLayer(const UInt_t i)               const { return _vOverlapLayers[i]; }
-  const Vector_t<LefOverlapLayer>&         vOverlapLayers()                           const { return _vOverlapLayers; }
-  UInt_t                                   numOverlapLayers()                         const { return _vOverlapLayers.size(); }
-  UInt_t                                   str2OverlaplayerIdx(const String_t& n)     const { return _mStr2OverlapLayerIdx.at(n); }
-  const LefOverlapLayer&                   str2Overlaplayer(const String_t& n)        const { return _vOverlapLayers[str2OverlaplayerIdx(n)]; }
+  const LefOverlapLayer&                   overlapLayer(const UInt_t i)                   const { return _vOverlapLayers[i]; }
+  const Vector_t<LefOverlapLayer>&         vOverlapLayers()                               const { return _vOverlapLayers; }
+  UInt_t                                   numOverlapLayers()                             const { return _vOverlapLayers.size(); }
+  UInt_t                                   str2OverlaplayerIdx(const String_t& n)         const { return _mStr2OverlapLayerIdx.at(n); }
+  const LefOverlapLayer&                   str2Overlaplayer(const String_t& n)            const { return _vOverlapLayers[str2OverlaplayerIdx(n)]; }
   ////////////////////////////////////////
   //   Vias                             //
   ////////////////////////////////////////
@@ -131,6 +136,11 @@ class LefDB {
   UMap_t<String_t, UInt_t>                _mStr2CutLayerIdx;
   UMap_t<String_t, UInt_t>                _mStr2RoutingLayerIdx;
   UMap_t<String_t, UInt_t>                _mStr2OverlapLayerIdx;
+  Vector_t<UInt_t>                        _vImplantLayerIdx2AllLayerIdx;
+  Vector_t<UInt_t>                        _vMastersliceLayerIdx2AllLayerIdx;
+  Vector_t<UInt_t>                        _vCutLayerIdx2AllLayerIdx;
+  Vector_t<UInt_t>                        _vRoutingLayerIdx2AllLayerIdx;
+  Vector_t<UInt_t>                        _vOverlapLayerIdx2AllLayerIdx;
   
   // Via
   Vector_t<LefVia>              _vVias;

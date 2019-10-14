@@ -9,12 +9,14 @@
 #ifndef _GR_GRID_ROUTE_HPP_
 #define _GR_GRID_ROUTE_HPP_
 
+#include "src/geo/point3d.hpp"
 #include "grMgr.hpp"
 #include "grGridMap3d.hpp"
 
 PROJECT_NAMESPACE_START
 
 class GrGridRoute {
+  friend class GrAstar;
  public:
   GrGridRoute(GrMgr& mgr, CirDB& c)
     : _grMgr(mgr), _cir(c) {}
@@ -25,8 +27,9 @@ class GrGridRoute {
  private:
   GrMgr&      _grMgr;
   CirDB&      _cir;
+  // for explicit grid construction method
   GrGridMap3d _gridMap;
-  
+  Vector_t<Vector_t<Point3d<Int_t>>> _vvNetPinLocs; // (x,y,z) of pins of each net in the gridMap
   /////////////////////////////////////////
   //    Private structs                  //
   /////////////////////////////////////////
@@ -36,11 +39,11 @@ class GrGridRoute {
       Int_t c1 = w_pin_cnt  * pn1->numPins() +
                  w_sym      * pn1->hasSymNet() +
                  w_selfSym  * pn1->bSelfSym() +
-                 w_fail_cnt * pn1->failCnt();
+                 w_fail_cnt * pn1->grFailCnt();
       Int_t c2 = w_pin_cnt  * pn2->numPins() +
                  w_sym      * pn2->hasSymNet() +
                  w_selfSym  * pn2->bSelfSym() +
-                 w_fail_cnt * pn2->failCnt();
+                 w_fail_cnt * pn2->grFailCnt();
       return c1 < c2;
     }
     Int_t w_pin_cnt = 1;
@@ -52,16 +55,19 @@ class GrGridRoute {
   struct RR_Param {
     UInt_t numFrozen = 1;
     UInt_t numMaxFails = 3;
-  } _params;
+  } _rrParams;
 
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
+  // explicit grid method
   void initGrids(const Int_t scaleX, const Int_t scaleY); // dim = (scaleX * stepX), (scaleY * stepY)
-  void markInvalidGrids();
-  void routeSingleNet();
-  void routeSingleSymNet();
-  void routeSingleSelfSymNet();
+  void markBlockedGrids();
+  // incremental grid method
+  void initSteps();
+  // Path search kernel
+  bool routeSingleNet(Net& n, const Int_t netWeight);
+  bool routeSymNet(Net& n, const Int_t netWeight);
 };
 
 PROJECT_NAMESPACE_END

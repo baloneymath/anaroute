@@ -35,11 +35,23 @@ void Net::addNode(const NetNode& n) {
   _vNodes.emplace_back(n);
 }
 
-void Net::addFail() {
-  ++_failCnt;
-}
-void Net::clearFail() {
-  _failCnt = 0;
+void Net::addGrFail() {
+  ++_grFailCnt;
 }
 
+void Net::addDrFail() {
+  ++_drFailCnt;
+}
+
+void Net::clearGrFail() {
+  _grFailCnt = 0;
+}
+
+void Net::clearDrFail() {
+  _drFailCnt = 0;
+}
+
+void Net::setGuides(const Vector_t<Pair_t<Box<Int_t>, Int_t>>& v) {
+  _vGuides = v;
+}
 PROJECT_NAMESPACE_END
