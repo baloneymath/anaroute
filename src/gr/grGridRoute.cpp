@@ -1,6 +1,6 @@
 /**
- * @file   drGridRoute.cpp
- * @brief  Detailed Routing - Grid based Routing
+ * @file   grGridRoute.cpp
+ * @brief  Global Routing - Grid based Routing
  * @author Hao Chen
  * @date   10/07/2019
  *
@@ -14,7 +14,7 @@ PROJECT_NAMESPACE_START
 
 void GrGridRoute::solve() {
 
-  initGrids(5, 5);
+  initGrids(_param.grid_x_scale, _param.grid_y_scale);
   markBlockedGrids();
   
 
@@ -43,11 +43,21 @@ void GrGridRoute::solve() {
     pNet = pq.top();
     pq.pop();
     if (pNet->hasSymNet()) {
-      routeSingleNet(*pNet, 1);
-      //routeSymNet(*pNet, 1);
+      if (pNet->symNetIdx() > pNet->idx()) {
+        if (!routeSingleNet(*pNet, _rrParams.symNetWeight)) {
+          pNet->addGrFail();
+          qFrozenNet.push(pNet);
+        }
+      }
+    }
+    else if (pNet->bSelfSym()) {
+      if (!routeSingleNet(*pNet, _rrParams.selfSymNetWeight)) {
+        pNet->addGrFail();
+        qFrozenNet.push(pNet);
+      }
     }
     else {
-      if (!routeSingleNet(*pNet, 1)) {
+      if (!routeSingleNet(*pNet, _rrParams.normalNetWeight)) {
         pNet->addGrFail();
         qFrozenNet.push(pNet);
       }
@@ -176,27 +186,25 @@ void GrGridRoute::markBlockedGrids() {
           }
           if (freeArea == 0) {
             gridCell.setInvalid();
-            for (t = 0; t < 3; ++t) {
-              if (i < _gridMap.numGridEdgesZ(t) and
-                  j < _gridMap.numGridEdgesX(t) and
-                  k < _gridMap.numGridEdgesY(t)) {
-                _gridMap.gridEdge(t, i, j, k).setMaxCap(0);
-              }
-              if (i > 0 and j > 0 and k > 0) {
-                _gridMap.gridEdge(t, i - 1, j - 1, k - 1).setMaxCap(0);
-              }
-            }
           }
-          else {
-            UInt_t cap = std::round((Float_t)freeArea / gridCell.box().area());
-            for (t = 0; t < 3; ++t) {
-              if (i < _gridMap.numGridEdgesZ(t) and
-                  j < _gridMap.numGridEdgesX(t) and
-                  k < _gridMap.numGridEdgesY(t)) {
-                _gridMap.gridEdge(t, i, j, k).setMaxCap(cap);
+          UInt_t cap = std::round((Float_t)freeArea / gridCell.box().area());
+          for (t = 0; t < 3; ++t) {
+            if (i < _gridMap.numGridEdgesZ(t) and
+                j < _gridMap.numGridEdgesX(t) and
+                k < _gridMap.numGridEdgesY(t)) {
+              GrGridEdge& gridEdge = _gridMap.gridEdge(t, i, j, k);
+              gridEdge.setMaxCap(std::min(cap, gridEdge.maxCap()));
+              if (i > 0) {
+                GrGridEdge& prevEdge = _gridMap.gridEdge(2, i - 1, j, k);
+                prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
               }
-              if (i > 0 and j > 0 and k > 0) {
-                _gridMap.gridEdge(t, i - 1, j - 1, k - 1).setMaxCap(cap);
+              if (j > 0) {
+                GrGridEdge& prevEdge = _gridMap.gridEdge(0, i, j - 1, k);
+                prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
+              }
+              if (k > 0) {
+                GrGridEdge& prevEdge = _gridMap.gridEdge(1, i, j, k - 1);
+                prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
               }
             }
           }
@@ -230,11 +238,6 @@ bool GrGridRoute::routeSingleNet(Net& n, const Int_t netWeight) {
   GrAstar astarKernel(_cir, n, netWeight, *this);
   return astarKernel.runKernel();
 }
-
-bool GrGridRoute::routeSymNet(Net& n, const Int_t netWeight) {
-  return false;
-}
-
 
 PROJECT_NAMESPACE_END
 

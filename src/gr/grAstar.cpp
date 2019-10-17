@@ -17,11 +17,14 @@
 PROJECT_NAMESPACE_START
 
 bool GrAstar::runKernel() {
-  std::cout<<_net.name()<<std::endl;
-  initComps();
-  initAstarNodes();
-  splitSubNetMST(_vCompPairs);
   
+  initComps(_vPinLocs);
+  initAstarNodes();
+  
+  std::cout<<_net.name();
+  std::cout<< (_net.bSelfSym()? " SelfSym" :"");
+  std::cout<< (_net.hasSymNet()? " Sym " + _cir.net(_net.symNetIdx()).name() : "") << std::endl;
+  std::cout<<"Comps:"<<std::endl;
   for (auto& v : _vCompDatas) {
     for (auto& p : v)
       std::cout << p;
@@ -29,10 +32,38 @@ bool GrAstar::runKernel() {
   }
   std::cout<<std::endl;
   
-  for (const Pair_t<UInt_t, UInt_t>& pair : _vCompPairs) {
-    if (!routeSubNet(pair.first, pair.second)) {
-      fprintf(stderr, "GrAstar::%s ERROR: Route subnet failed!\n", __func__);
-      return false;
+  splitSubNetMST(_vCompPairs);
+  
+  if (_net.bSelfSym()) {
+    if (!bSatisfySelfSymCondition()) {
+      fprintf(stderr, "GrAstar::%s WARNING: Net %s does not satisfy self symmetric condition!\n", __func__, _net.name().c_str());
+    }
+    for (const Pair_t<UInt_t, UInt_t>& pair : _vCompPairs) {
+      if (!routeSubNet(pair.first, pair.second)) {
+        fprintf(stderr, "GrAstar::%s ERROR: Route SelfSym Net failed!\n", __func__);
+        return false;
+      }
+    }
+  }
+  else if (_net.hasSymNet()) {
+    if (!bSatisfySymCondition()) {
+      fprintf(stderr, "GrAstar::%s WARNING: Net %s does not satisfy symmetric net condition!\n", __func__, _net.name().c_str());
+    }
+    for (const Pair_t<UInt_t, UInt_t>& pair : _vCompPairs) {
+      if (!routeSubNet(pair.first, pair.second)) {
+        fprintf(stderr, "GrAstar::%s ERROR: Route Sym Net failed!\n", __func__);
+        return false;
+      }
+    }
+    genSymNetGuidesFromGuides();
+  }
+  else {
+    // normal net
+    for (const Pair_t<UInt_t, UInt_t>& pair : _vCompPairs) {
+      if (!routeSubNet(pair.first, pair.second)) {
+        fprintf(stderr, "GrAstar::%s ERROR: Route subnet failed!\n", __func__);
+        return false;
+      }
     }
   }
   
@@ -55,14 +86,14 @@ bool GrAstar::runKernel() {
 /////////////////////////////////////////
 //    Private functions                //
 /////////////////////////////////////////
-void GrAstar::initComps() {
+void GrAstar::initComps(const Vector_t<Point3d<Int_t>>& vPinLocs) {
   DisjointSet pinLocDS;
-  pinLocDS.init(_vPinLocs.size());
+  pinLocDS.init(vPinLocs.size());
   UInt_t i, j;
-  for (i = 0; i < _vPinLocs.size(); ++i) {
-    for (j = i + 1; j < _vPinLocs.size(); ++j) {
-      const Point3d<Int_t>& p1 = _vPinLocs[i];
-      const Point3d<Int_t>& p2 = _vPinLocs[j];
+  for (i = 0; i < vPinLocs.size(); ++i) {
+    for (j = i + 1; j < vPinLocs.size(); ++j) {
+      const Point3d<Int_t>& p1 = vPinLocs[i];
+      const Point3d<Int_t>& p2 = vPinLocs[j];
       if (bNeighbor(p1, p2) and pinLocDS.find(i) != pinLocDS.find(j)) {
         pinLocDS.merge(i, j);
       }
@@ -75,11 +106,11 @@ void GrAstar::initComps() {
     _vCompDatas[i].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
   }
   j = 0;
-  for (i = 0; i < _vPinLocs.size(); ++i) {
+  for (i = 0; i < vPinLocs.size(); ++i) {
     if (_mPinLocIdx2CompIdx.find(pinLocDS.find(i)) == _mPinLocIdx2CompIdx.end()) {
       _mPinLocIdx2CompIdx[pinLocDS.find(i)] = j++;
     }
-    _vCompDatas[_mPinLocIdx2CompIdx[pinLocDS.find(i)]].insert(_vPinLocs[i]);
+    _vCompDatas[_mPinLocIdx2CompIdx[pinLocDS.find(i)]].insert(vPinLocs[i]);
   }
   _compDS.init(_vCompDatas.size());
 }
@@ -150,6 +181,46 @@ void GrAstar::splitSubNetMST(Vector_t<Pair_t<UInt_t, UInt_t>>& vCompPairs) {
   }
 }
 
+bool GrAstar::bSatisfySelfSymCondition() {
+  std::sort(_vPinLocs.begin(), _vPinLocs.end());
+  for (const Point3d<Int_t>& p : _vPinLocs) {
+    _selfSymAxisX += p.x();
+  }
+  _selfSymAxisX /= _vPinLocs.size();
+  for (const Point3d<Int_t>& p : _vPinLocs) {
+    const Int_t symX = (Int_t)(2 * _selfSymAxisX - p.x());
+    const Point3d<Int_t> symPt(symX, p.y(), p.z());
+    if (!std::binary_search(_vPinLocs.begin(), _vPinLocs.end(), symPt)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool GrAstar::bSatisfySymCondition() {
+  const Net& symNet = _cir.net(_net.symNetIdx());
+  Vector_t<Point3d<Int_t>>& vSymPinLocs = _grGridRoute._vvNetPinLocs[symNet.idx()];
+  std::sort(vSymPinLocs.begin(), vSymPinLocs.end());
+  for (const Point3d<Int_t>& p : _vPinLocs) {
+    _symAxisX += p.x();
+  }
+  for (const Point3d<Int_t>& p : vSymPinLocs) {
+    _symAxisX += p.x();
+  }
+  _symAxisX /= (_vPinLocs.size() + vSymPinLocs.size());
+  if (vSymPinLocs.size() != _vPinLocs.size()) {
+    return false;
+  }
+  for (const Point3d<Int_t>& p : _vPinLocs) {
+    const Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+    const Point3d<Int_t> symPt(symX, p.y(), p.z());
+    if (!std::binary_search(vSymPinLocs.begin(), vSymPinLocs.end(), symPt)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool GrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
   UInt_t i = 0;
   
@@ -198,6 +269,9 @@ bool GrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
       // init cost
       GrAstarNode* pNode = &_vvvAstarNodes[p.z()][p.x()][p.y()];
       Int_t costF = _param.factorH * dist_nearest;
+      if (_net.bSelfSym()) {
+        costF *= std::abs(p.x() - _selfSymAxisX);
+      }
       pNode->setCostF(i, costF);
       pNode->setCostG(i, 0);
       pNode->setBendCnt(i, 0);
@@ -243,6 +317,21 @@ bool GrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
           kd[i ^ 1].nearestSearch(p_scaled, p_nearest, dist_nearest);
           Int_t costF = (costG * _param.factorG + dist_nearest * _param.factorH) *
                         (bOverflow(pU, pV) ? _param.overflowCost : 1);
+          if (_net.bSelfSym()) {
+            const Int_t symX_U = (Int_t)(2 * _selfSymAxisX - pU->coord().x());
+            const Int_t symX_V = (Int_t)(2 * _selfSymAxisX - pV->coord().x());
+            const GrAstarNode* pU_sym = &_vvvAstarNodes[pU->coord().z()][symX_U][pU->coord().y()];
+            const GrAstarNode* pV_sym = &_vvvAstarNodes[pV->coord().z()][symX_V][pV->coord().y()];
+            costF *= bOverflow(pU_sym, pV_sym) ? _param.overflowCost : 1;
+            costF *= std::abs(pV->coord().x() - _selfSymAxisX);
+          }
+          if (_net.hasSymNet()) {
+            const Int_t symX_U = (Int_t)(2 * _symAxisX - pU->coord().x());
+            const Int_t symX_V = (Int_t)(2 * _symAxisX - pV->coord().x());
+            const GrAstarNode* pU_sym = &_vvvAstarNodes[pU->coord().z()][symX_U][pU->coord().y()];
+            const GrAstarNode* pV_sym = &_vvvAstarNodes[pV->coord().z()][symX_V][pV->coord().y()];
+            costF *= bOverflow(pU_sym, pV_sym) ? _param.overflowCost : 1;
+          }
           pV->setCostG(i, costG);
           pV->setCostF(i, costF);
           pV->setBendCnt(i, bendCnt);
@@ -329,78 +418,110 @@ void GrAstar::backTrack(const GrAstarNode* pNode, const UInt_t bigCompIdx, const
 
 void GrAstar::updateGridEdges() {
   UInt_t i, j;
-  UInt_t netIdx = _net.idx();
-  for (i = 0; i < _vvGuidePaths.size(); ++i) {
-    for (j = 0; j + 1 < _vvGuidePaths[i].size(); ++j) {
-      const Point3d<Int_t>& u = _vvGuidePaths[i][j];
-      const Point3d<Int_t>& v = _vvGuidePaths[i][j + 1];
-      switch (findDir(u, v)) {
-        case PathDir::LEFT:
-        case PathDir::RIGHT:
-          {
-            assert(u.z() == v.z() and u.y() == v.y());
-            _grGridRoute._gridMap.gridEdge(0, u.z(), std::min(u.x(), v.x()), u.y()).addNetIdx(netIdx, _netWeight);
-            break;
-          }
-        case PathDir::UP:
-        case PathDir::DOWN:
-          {
-            assert(u.z() == v.z() and u.x() == v.x());
-            _grGridRoute._gridMap.gridEdge(1, u.z(), u.x(), std::min(u.y(), v.y())).addNetIdx(netIdx, _netWeight);
-            break;
-          }
-        case PathDir::VIA_UP:
-        case PathDir::VIA_DOWN:
-          {
-            assert(u.x() == v.x() and u.y() == v.y());
-            _grGridRoute._gridMap.gridEdge(2, std::min(u.z(), v.z()), u.x(), u.y()).addNetIdx(netIdx, _netWeight);
-            break;
-          }
-        default:
-          assert(false);
+  auto __updateGridEdges = [&] (const Vector_t<Vector_t<Point3d<Int_t>>>& vvGuides, const UInt_t netIdx) {
+    for (i = 0; i < vvGuides.size(); ++i) {
+      for (j = 0; j + 1 < vvGuides[i].size(); ++j) {
+        const Point3d<Int_t>& u = vvGuides[i][j];
+        const Point3d<Int_t>& v = vvGuides[i][j + 1];
+        switch (findDir(u, v)) {
+          case PathDir::LEFT:
+          case PathDir::RIGHT:
+            {
+              assert(u.z() == v.z() and u.y() == v.y());
+              _grGridRoute._gridMap.gridEdge(0, u.z(), std::min(u.x(), v.x()), u.y()).addNetIdx(netIdx, _netWeight);
+              break;
+            }
+          case PathDir::UP:
+          case PathDir::DOWN:
+            {
+              assert(u.z() == v.z() and u.x() == v.x());
+              _grGridRoute._gridMap.gridEdge(1, u.z(), u.x(), std::min(u.y(), v.y())).addNetIdx(netIdx, _netWeight);
+              break;
+            }
+          case PathDir::VIA_UP:
+          case PathDir::VIA_DOWN:
+            {
+              assert(u.x() == v.x() and u.y() == v.y());
+              _grGridRoute._gridMap.gridEdge(2, std::min(u.z(), v.z()), u.x(), u.y()).addNetIdx(netIdx, _netWeight);
+              break;
+            }
+          default:
+            assert(false);
+        }
       }
     }
-  }
+  };
+  __updateGridEdges(_vvGuidePaths, _net.idx());
+  if (_net.hasSymNet())
+    __updateGridEdges(_vvSymGuidePaths, _net.symNetIdx());
 }
 
 void GrAstar::saveGuide2Net() {
   Vector_t<Pair_t<Box<Int_t>, Int_t>> vGuides;
-  UInt_t numPts = 0;
-  for (const Vector_t<Point3d<Int_t>>& v : _vvGuidePaths)
-    numPts += v.size();
-  vGuides.reserve(numPts);
-  for (const Vector_t<Point3d<Int_t>>& v : _vvGuidePaths) {
-    for (const Point3d<Int_t>& p : v) {
-      const GrGridCell& gridCell = _grGridRoute._gridMap.gridCell(p.z(), p.x(), p.y());
-      vGuides.emplace_back(gridCell.box(), _cir.lef().routingLayerIdx2LayerIdx(p.z()));
+  auto __saveGuides = [&] (const Vector_t<Vector_t<Point3d<Int_t>>>& vvGuidePaths, Vector_t<Pair_t<Box<Int_t>, Int_t>>& vGuides) {
+    UInt_t numPts = 0;
+    for (const Vector_t<Point3d<Int_t>>& v : vvGuidePaths)
+      numPts += v.size();
+    vGuides.reserve(numPts);
+    for (const Vector_t<Point3d<Int_t>>& v : vvGuidePaths) {
+      for (const Point3d<Int_t>& p : v) {
+        const GrGridCell& gridCell = _grGridRoute._gridMap.gridCell(p.z(), p.x(), p.y());
+        vGuides.emplace_back(gridCell.box(), _cir.lef().routingLayerIdx2LayerIdx(p.z()));
+      }
     }
-  }
+  };
+  __saveGuides(_vvGuidePaths, vGuides);
   _net.setGuides(vGuides);
+  if (_net.hasSymNet()) {
+    Vector_t<Pair_t<Box<Int_t>, Int_t>> vSymGuides;
+    __saveGuides(_vvSymGuidePaths, vSymGuides);
+    _cir.net(_net.symNetIdx()).setGuides(vSymGuides);
+  }
 }
 
-bool GrAstar::bConnected() {
-  DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher> pts;
-  pts.set_empty_key(Point3d<Int_t>(-1, -1, -1));
-  pts.set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
-  for (const auto& p : _vPinLocs)
-    pts.insert(p);
-  for (const auto& v : _vvGuidePaths)
-    for (const auto& p : v)
-      pts.insert(p);
-  DisjointSet ds;
-  ds.init(pts.size());
-  Vector_t<Point3d<Int_t>> vPts;
-  vPts.reserve(pts.size());
-  for (const auto& p : pts)
-    vPts.emplace_back(p);
-  UInt_t i, j;
-  for (i = 0; i < vPts.size(); ++i) {
-    for (j = i + 1; j < vPts.size(); ++j) {
-      if (bNeighbor(vPts[i], vPts[j]))
-        ds.merge(i, j);
+// for symnet
+void GrAstar::genSymNetGuidesFromGuides() {
+  assert(_net.hasSymNet());
+  for (const Vector_t<Point3d<Int_t>>& v : _vvGuidePaths) {
+    _vvSymGuidePaths.emplace_back();
+    for (const Point3d<Int_t>& p : v) {
+      const Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+      _vvSymGuidePaths.back().emplace_back(symX, p.y(), p.z());
     }
   }
-  return ds.nSets() == 1;
+}
+
+// for debug
+bool GrAstar::bConnected() {
+  auto __bConnected = [&] (const Vector_t<Point3d<Int_t>>& vPinLocs, const Vector_t<Vector_t<Point3d<Int_t>>>& vvGuidePaths) -> bool {
+    DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher> pts;
+    pts.set_empty_key(Point3d<Int_t>(-1, -1, -1));
+    pts.set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
+    for (const auto& p : vPinLocs)
+      pts.insert(p);
+    for (const auto& v : vvGuidePaths)
+      for (const auto& p : v)
+        pts.insert(p);
+    DisjointSet ds;
+    ds.init(pts.size());
+    Vector_t<Point3d<Int_t>> vPts;
+    vPts.reserve(pts.size());
+    for (const auto& p : pts)
+      vPts.emplace_back(p);
+    UInt_t i, j;
+    for (i = 0; i < vPts.size(); ++i) {
+      for (j = i + 1; j < vPts.size(); ++j) {
+        if (bNeighbor(vPts[i], vPts[j]))
+          ds.merge(i, j);
+      }
+    }
+    return ds.nSets() == 1;
+  };
+  if (_net.hasSymNet()) {
+    if (!__bConnected(_grGridRoute._vvNetPinLocs[_net.symNetIdx()], _vvSymGuidePaths))
+      return false;
+  }
+  return __bConnected(_vPinLocs, _vvGuidePaths);
 }
 
 /////////////////////////////////////////
@@ -433,7 +554,6 @@ void GrAstar::neighbors(const GrAstarNode* pNode, Vector_t<GrAstarNode*>& vpNeig
 }
 
 Int_t GrAstar::scaledMDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
-  assert(u.x() == v.x() or u.y() == v.y() or u.z() == v.z());
   Int_t cost = 0;
   cost += abs(u.x() - v.x()) * _param.horCost;
   cost += abs(u.y() - v.y()) * _param.verCost;

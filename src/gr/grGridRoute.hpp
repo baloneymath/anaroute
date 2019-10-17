@@ -51,10 +51,17 @@ class GrGridRoute {
     Int_t w_selfSym = 1;
     Int_t w_fail_cnt = 1;
   };
+  struct Grid_Param {
+    UInt_t grid_x_scale = 5;
+    UInt_t grid_y_scale = 5;
+  } _param;
   // for rip up and reroute
   struct RR_Param {
-    UInt_t numFrozen = 1;
-    UInt_t numMaxFails = 3;
+    UInt_t numFrozen        = 1;
+    UInt_t numMaxFails      = 3;
+    UInt_t normalNetWeight  = 1;
+    UInt_t symNetWeight     = 1;
+    UInt_t selfSymNetWeight = 1;
   } _rrParams;
 
   /////////////////////////////////////////
@@ -67,6 +74,7 @@ class GrGridRoute {
   void initSteps();
   // Path search kernel
   bool routeSingleNet(Net& n, const Int_t netWeight);
+  bool routeSelfSymNet(Net& n, const Int_t netWeight);
   bool routeSymNet(Net& n, const Int_t netWeight);
 };
 
