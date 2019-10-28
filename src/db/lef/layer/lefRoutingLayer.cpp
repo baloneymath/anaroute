@@ -16,8 +16,8 @@ void LefRoutingLayer::setName(const String_t& n) {
 
 void LefRoutingLayer::setRouteDir(const String_t& d) {
   _routeDirStr = d;
-  if (d == "HORIZONTAL") _routeDir = RouteDir_t::HORIZONTAL;
-  else if (d == "VERTICAL") _routeDir = RouteDir_t::VERTICAL;
+  if (d == "HORIZONTAL") _routeDir = RouteDir::HORIZONTAL;
+  else if (d == "VERTICAL") _routeDir = RouteDir::VERTICAL;
   else assert(false);
 }
 

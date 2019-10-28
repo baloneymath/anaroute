@@ -52,7 +52,7 @@ class LefVia {
   String_t             _name;
   bool                 _bDefault; // true: fixed via, false: generated via
   Int_t                _resistance;
-  UInt_t              _layerIndices[3]; // 0 -> botLayer 1 -> cutLayer 2 -> topLayer
+  UInt_t               _layerIndices[3]; // 0 -> botLayer 1 -> cutLayer 2 -> topLayer
   String_t             _layerNames[3];   // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
   Vector_t<Box<Int_t>> _vBoxes[3];       // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
   /////////////////////////////////

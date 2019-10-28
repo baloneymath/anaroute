@@ -49,13 +49,13 @@ class GrAstar {
   struct Param {
     Int_t horCost = 1;
     Int_t verCost = 1;
-    Int_t viaCost = 3;
+    Int_t viaCost = 10;
     Int_t factorG = 1;
     Int_t factorH = 1;
     Int_t overflowCost = 10;
   } _param;
 
-  enum class PathDir {
+  enum class PathDir : Byte_t {
     LEFT      = 0,
     RIGHT     = 1,
     UP        = 2,
@@ -66,12 +66,14 @@ class GrAstar {
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
-  void    initComps(const Vector_t<Point3d<Int_t>>& vPinLocs);
   void    initAstarNodes();
+  void    initComps(const Vector_t<Point3d<Int_t>>& vPinLocs);
   void    resetAstarNodes();
   void    splitSubNetMST(Vector_t<Pair_t<UInt_t, UInt_t>>& vCompPairs);
   bool    bSatisfySelfSymCondition();
+  void    makeSelfSym();
   bool    bSatisfySymCondition();
+  void    makeSym();
   bool    routeSubNet(UInt_t srcIdx, UInt_t tarIdx); 
   UInt_t  mergeComp(const UInt_t srcIdx, const UInt_t tarIdx);
   void    backTrack(const GrAstarNode* pNode, const UInt_t bigCompIdx, const UInt_t srcIdx, const UInt_t tarIdx);

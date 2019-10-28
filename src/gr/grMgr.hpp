@@ -23,6 +23,8 @@ class GrMgr {
 
   void solve();
   void runGridRoute();
+  void extendResults();
+
  private:
   CirDB& _cir; 
 };

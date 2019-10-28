@@ -35,8 +35,7 @@ class GrGridEdge {
     _maxCap = c;
   }
   void addNetIdx(const UInt_t i, const UInt_t c) {
-    bool bNewElement = _sNetIndices.emplace(i).second;
-    assert(bNewElement);
+    _sNetIndices.emplace(i);
     _ocpCap += c;
   }
   void removeNetIdx(const UInt_t i, const UInt_t c) {

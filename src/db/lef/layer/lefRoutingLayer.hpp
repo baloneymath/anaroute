@@ -40,7 +40,7 @@ class LefRoutingLayer {
   friend class LefReader;
   
  public:
-  enum class RouteDir_t : Byte_t {
+  enum class RouteDir : Byte_t {
     HORIZONTAL = 0,
     VERTICAL   = 1,
     BOTH       = 2,
@@ -51,7 +51,7 @@ class LefRoutingLayer {
   };
 
   LefRoutingLayer()
-    : _name(""), _routeDirStr(""), _routeDir(RouteDir_t::FORBID),
+    : _name(""), _routeDirStr(""), _routeDir(RouteDir::FORBID),
       _minArea(0), _minWidth(0), _maxWidth(0), _defaultWidth(0),
       _pitch(0), _pitchX(0), _pitchY(0),
       _offset(0), _offsetX(0), _offsetY(0) {}
@@ -62,7 +62,7 @@ class LefRoutingLayer {
   ////////////////////////////////////////
   const String_t&         name()                      const { return _name; }
   const String_t&         routeDirStr()               const { return _routeDirStr; }
-  RouteDir_t              routeDir()                  const { return _routeDir; }
+  RouteDir                routeDir()                  const { return _routeDir; }
   Int_t                   minArea()                   const { return _minArea; }
   Int_t                   minWidth()                  const { return _minWidth; }
   Int_t                   maxWidth()                  const { return _maxWidth; }
@@ -88,7 +88,7 @@ class LefRoutingLayer {
   //////////////////////////////////////
   String_t                  _name;
   String_t                  _routeDirStr;
-  RouteDir_t                _routeDir;
+  RouteDir                  _routeDir;
   Int_t                     _minArea;
   Int_t                     _minWidth;
   Int_t                     _maxWidth;

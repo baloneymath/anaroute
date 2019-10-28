@@ -22,6 +22,10 @@ void Pin::setNetIdx(const UInt_t i) {
   _netIdx = i;
 }
 
+void Pin::setIdx(const UInt_t i) {
+  _idx = i;
+}
+
 void Pin::setMinLayerIdx(const UInt_t i) {
   _minLayerIdx = i;
 }

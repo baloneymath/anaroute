@@ -41,6 +41,7 @@ class Net {
   
   // global routing
   Int_t                                       grFailCnt()               const { return _grFailCnt; }
+  UInt_t                                      numGuides()               const { return _vGuides.size(); }
   Vector_t<Pair_t<Box<Int_t>, Int_t>>&        vGuides()                       { return _vGuides; }
   const Vector_t<Pair_t<Box<Int_t>, Int_t>>&  vGuides()                 const { return _vGuides; }
   // detailed routing
@@ -79,7 +80,7 @@ class Net {
 //  Iterators                   //
 //////////////////////////////////
 #define Net_ForEachPinIdx(net, idx, i) \
-  for (i = 0; i < net.numPins() and (idx = net.pinIdx(i)); ++i)
+  for (i = 0, idx = net.pinIdx(i); i < net.numPins(); ++i, idx = net.pinIdx(i))
 
 #define Net_ForEachNetNode(net, pNode_, i) \
   for (i = 0; i < net.numNodes() and (pNode_ = &net.node(i)); ++i)

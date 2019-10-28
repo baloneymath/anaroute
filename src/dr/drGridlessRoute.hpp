@@ -14,16 +14,18 @@
 PROJECT_NAMESPACE_START
 
 class DrGridlessRoute {
+  friend class DrAstar;
  public:
-  DrGridlessRoute(DrMgr& mgr, CirDB& c)
-    : _drMgr(mgr), _cir(c) {}
+  DrGridlessRoute(CirDB& c, DrMgr& dr, DrcMgr& drc)
+    : _cir(c), _drMgr(dr), _drcMgr(drc) {}
   ~DrGridlessRoute() {}
 
   void solve();
 
  private:
-  DrMgr& _drMgr;
-  CirDB& _cir;
+  CirDB&  _cir;
+  DrMgr&  _drMgr;
+  DrcMgr& _drcMgr;
   
   /////////////////////////////////////////
   //    Private structs                  //
@@ -46,9 +48,13 @@ class DrGridlessRoute {
     Int_t w_selfSym = 1;
     Int_t w_fail_cnt = 1;
   };
+  struct RR_Param {
+    UInt_t numFrozen;
+  } _rrParams;
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
+  bool routeSingleNet(Net& n);
   
 };
 

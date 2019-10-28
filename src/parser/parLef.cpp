@@ -297,7 +297,7 @@ void LefReader::parseDefaultVia(const lefiVia& v) {
   }
   assert(v.numLayers() == 3);
   for (UInt_t i = 0; i < (UInt_t)v.numLayers(); ++i) {
-#ifndef _NDEBUG
+#ifndef NDEBUG
     const Pair_t<LefLayerType, UInt_t>& cur = _lef.str2Layer(v.layerName(i));
     switch (i) {
       case 0: assert(cur.first == LefLayerType::MASTERSLICE or cur.first == LefLayerType::ROUTING); break;

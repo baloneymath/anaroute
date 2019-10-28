@@ -23,7 +23,7 @@ void GrGridRoute::solve() {
   UInt_t i;
   Net* pNet;
   Cir_ForEachNet(_cir, pNet, i) {
-    // ignore dangling net
+    // ignore dangling nets
     if (pNet->numPins() > 1) {
       //if (pNet->name() == "CLK")
       pq.push(pNet);
@@ -82,8 +82,11 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
   const Int_t minSpacing = lefLayerM1.spacingTable().table.size() ?
                            lefLayerM1.spacingTable().table[0].second[0] :
                            lefLayerM1.spacing(0);
-  const Int_t stepX = minSpacing * scaleX;
-  const Int_t stepY = minSpacing * scaleY;
+  //const Int_t minWidth = lefLayerM1.minWidth();
+  //const Int_t unitLength = minSpacing + minWidth;
+  const Int_t unitLength = minSpacing;
+  const Int_t stepX = unitLength * scaleX;
+  const Int_t stepY = unitLength * scaleY;
   const UInt_t numZ = _cir.lef().numRoutingLayers();
   const UInt_t numX = _cir.width() / stepX;
   const UInt_t numY = _cir.height() / stepY;
@@ -144,6 +147,7 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
         Int_t xh = cpBox->xh() - offsetX;
         Int_t yl = cpBox->yl() - offsetY;
         Int_t yh = cpBox->yh() - offsetY;
+        assert(xl >= 0 and xh >= 0 and yl >= 0 and yh >= 0);
         UInt_t xlIdx = xl / stepX;
         UInt_t xhIdx = xh / stepX;
         UInt_t ylIdx = yl / stepY;
@@ -154,6 +158,7 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
         if (yhIdx == _gridMap.numGridCellsY()) {
           --yhIdx;
         }
+        assert(xlIdx >= 0 and xhIdx >= 0 and ylIdx >= 0 and yhIdx >= 0);
         assert(_cir.lef().bRoutingLayer(layerIdx));
         UInt_t routingLayerIdx = _cir.lef().layerPair(layerIdx).second;
         for (j = xlIdx; j <= xhIdx; ++j) {
@@ -194,19 +199,19 @@ void GrGridRoute::markBlockedGrids() {
                 k < _gridMap.numGridEdgesY(t)) {
               GrGridEdge& gridEdge = _gridMap.gridEdge(t, i, j, k);
               gridEdge.setMaxCap(std::min(cap, gridEdge.maxCap()));
-              if (i > 0) {
-                GrGridEdge& prevEdge = _gridMap.gridEdge(2, i - 1, j, k);
-                prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
-              }
-              if (j > 0) {
-                GrGridEdge& prevEdge = _gridMap.gridEdge(0, i, j - 1, k);
-                prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
-              }
-              if (k > 0) {
-                GrGridEdge& prevEdge = _gridMap.gridEdge(1, i, j, k - 1);
-                prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
-              }
             }
+          }
+          if (i > 0) {
+            GrGridEdge& prevEdge = _gridMap.gridEdge(2, i - 1, j, k);
+            prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
+          }
+          if (j > 0) {
+            GrGridEdge& prevEdge = _gridMap.gridEdge(0, i, j - 1, k);
+            prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
+          }
+          if (k > 0) {
+            GrGridEdge& prevEdge = _gridMap.gridEdge(1, i, j, k - 1);
+            prevEdge.setMaxCap(std::min(cap, prevEdge.maxCap()));
           }
         }
       }

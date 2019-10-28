@@ -32,6 +32,9 @@ public:
   void parseGds(const String_t& filename)       { _gdsr.parse(filename); }
   void parseSymNet(const String_t& filename)    { _symNetr.parse(filename); }
 
+  // patch for the bug from placement
+  void correctPinNBlkLoc();
+
 private:
   CirDB&           _cir;
   LefReader        _lefr;

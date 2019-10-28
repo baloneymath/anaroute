@@ -11,21 +11,22 @@
 
 #include "src/global/global.hpp"
 #include "src/db/dbCir.hpp"
+#include "src/drc/drcMgr.hpp"
 
 PROJECT_NAMESPACE_START
 
 class DrMgr {
  public:
-  DrMgr(CirDB& c)
-    : _cir(c) {}
+  DrMgr(CirDB& c, DrcMgr& d)
+    : _cir(c), _drcMgr(d) {}
   ~DrMgr() {}
 
   void solve();
   void runGridlessRoute();
 
  private:
-  CirDB& _cir;
-
+  CirDB&  _cir;
+  DrcMgr& _drcMgr;
   /////////////////////////////////////////
   //    Private structs                  //
   /////////////////////////////////////////

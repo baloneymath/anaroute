@@ -19,7 +19,7 @@ class Pin {
   friend class Ispd08Reader;
  public:
   Pin()
-    : _name(""), _netName(""), _netIdx(MAX_UINT),
+    : _name(""), _netName(""), _netIdx(MAX_UINT), _idx(MAX_UINT),
       _minLayerIdx(MAX_UINT), _maxLayerIdx(0) {}
   ~Pin() {}
 
@@ -29,6 +29,7 @@ class Pin {
   const String_t&                         name()                                        const { return _name; }
   const String_t&                         netName()                                     const { return _netName; }
   UInt_t                                  netIdx()                                      const { return _netIdx; }
+  UInt_t                                  idx()                                         const { return _idx; }
   UInt_t                                  minLayerIdx()                                 const { return _minLayerIdx; }
   UInt_t                                  maxLayerIdx()                                 const { return _maxLayerIdx; }
   UInt_t                                  numBoxes(const UInt_t layerIdx)               const { return _vvBoxes[layerIdx].size(); }
@@ -43,6 +44,7 @@ class Pin {
   String_t                        _name;
   String_t                        _netName;
   UInt_t                          _netIdx;
+  UInt_t                          _idx;
   UInt_t                          _minLayerIdx;
   UInt_t                          _maxLayerIdx;
   Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
@@ -53,6 +55,7 @@ class Pin {
   void setName(const String_t& n);
   void setNetName(const String_t& n);
   void setNetIdx(const UInt_t i);
+  void setIdx(const UInt_t i);
   void setMinLayerIdx(const UInt_t i);
   void setMaxLayerIdx(const UInt_t i);
   void addBox(const UInt_t layerIdx, const Box<Int_t>& box);

@@ -18,26 +18,38 @@ PROJECT_NAMESPACE_START
 
 bool GrAstar::runKernel() {
   
-  initComps(_vPinLocs);
-  initAstarNodes();
-  
-  std::cout<<_net.name();
-  std::cout<< (_net.bSelfSym()? " SelfSym" :"");
-  std::cout<< (_net.hasSymNet()? " Sym " + _cir.net(_net.symNetIdx()).name() : "") << std::endl;
-  std::cout<<"Comps:"<<std::endl;
-  for (auto& v : _vCompDatas) {
-    for (auto& p : v)
-      std::cout << p;
-    std::cout<<std::endl;
-  }
-  std::cout<<std::endl;
-  
-  splitSubNetMST(_vCompPairs);
-  
   if (_net.bSelfSym()) {
     if (!bSatisfySelfSymCondition()) {
       fprintf(stderr, "GrAstar::%s WARNING: Net %s does not satisfy self symmetric condition!\n", __func__, _net.name().c_str());
+      fprintf(stderr, "GrAstar::%s Make Self Sym %s\n", __func__, _net.name().c_str());
+      makeSelfSym();
     }
+  }
+  else if (_net.hasSymNet()) {
+    if (!bSatisfySymCondition()) {
+      fprintf(stderr, "GrAstar::%s WARNING: Net %s does not satisfy symmetric net condition!\n", __func__, _net.name().c_str());
+      fprintf(stderr, "GrAstar::%s Make Sym %s %s\n", __func__, _net.name().c_str(), _cir.net(_net.symNetIdx()).name().c_str());
+      makeSym();
+    }
+  }
+
+  initAstarNodes();
+  initComps(_vPinLocs);
+  splitSubNetMST(_vCompPairs);
+  
+  //std::cout<<_net.name();
+  //std::cout<< (_net.bSelfSym()? " SelfSym" :"");
+  //std::cout<< (_net.hasSymNet()? " Sym " + _cir.net(_net.symNetIdx()).name() : "") << std::endl;
+  //std::cout<<"Comps:"<<std::endl;
+  //for (auto& v : _vCompDatas) {
+    //for (auto& p : v)
+      //std::cout << p;
+    //std::cout<<std::endl;
+  //}
+  //std::cout<<std::endl;
+  
+  
+  if (_net.bSelfSym()) {
     for (const Pair_t<UInt_t, UInt_t>& pair : _vCompPairs) {
       if (!routeSubNet(pair.first, pair.second)) {
         fprintf(stderr, "GrAstar::%s ERROR: Route SelfSym Net failed!\n", __func__);
@@ -46,9 +58,6 @@ bool GrAstar::runKernel() {
     }
   }
   else if (_net.hasSymNet()) {
-    if (!bSatisfySymCondition()) {
-      fprintf(stderr, "GrAstar::%s WARNING: Net %s does not satisfy symmetric net condition!\n", __func__, _net.name().c_str());
-    }
     for (const Pair_t<UInt_t, UInt_t>& pair : _vCompPairs) {
       if (!routeSubNet(pair.first, pair.second)) {
         fprintf(stderr, "GrAstar::%s ERROR: Route Sym Net failed!\n", __func__);
@@ -67,54 +76,24 @@ bool GrAstar::runKernel() {
     }
   }
   
-  std::cout<<"sol:"<<std::endl;
-  for (auto& v : _vvGuidePaths) {
-    for (auto& p : v)
-      std::cout << p;
-    std::cout << std::endl;
-  }
-  std::cout<<std::endl;
+  //std::cout<<"sol:"<<std::endl;
+  //for (auto& v : _vvGuidePaths) {
+    //for (auto& p : v)
+      //std::cout << p;
+    //std::cout << std::endl;
+  //}
+  //std::cout<<std::endl;
   
   updateGridEdges();
   saveGuide2Net();
 
   assert(bConnected());
-  
   return true;
 }
 
 /////////////////////////////////////////
 //    Private functions                //
 /////////////////////////////////////////
-void GrAstar::initComps(const Vector_t<Point3d<Int_t>>& vPinLocs) {
-  DisjointSet pinLocDS;
-  pinLocDS.init(vPinLocs.size());
-  UInt_t i, j;
-  for (i = 0; i < vPinLocs.size(); ++i) {
-    for (j = i + 1; j < vPinLocs.size(); ++j) {
-      const Point3d<Int_t>& p1 = vPinLocs[i];
-      const Point3d<Int_t>& p2 = vPinLocs[j];
-      if (bNeighbor(p1, p2) and pinLocDS.find(i) != pinLocDS.find(j)) {
-        pinLocDS.merge(i, j);
-      }
-    }
-  }
-  //printf("%s %d\n", _net.name().c_str(), pinLocDS.nSets());
-  _vCompDatas.resize(pinLocDS.nSets());
-  for (i = 0; i < _vCompDatas.size(); ++i) {
-    _vCompDatas[i].set_empty_key(Point3d<Int_t>(-1, -1, -1));
-    _vCompDatas[i].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
-  }
-  j = 0;
-  for (i = 0; i < vPinLocs.size(); ++i) {
-    if (_mPinLocIdx2CompIdx.find(pinLocDS.find(i)) == _mPinLocIdx2CompIdx.end()) {
-      _mPinLocIdx2CompIdx[pinLocDS.find(i)] = j++;
-    }
-    _vCompDatas[_mPinLocIdx2CompIdx[pinLocDS.find(i)]].insert(vPinLocs[i]);
-  }
-  _compDS.init(_vCompDatas.size());
-}
-
 void GrAstar::initAstarNodes() {
   GrGridMap3d& gridMap = _grGridRoute._gridMap;
   UInt_t i, j, k;
@@ -141,6 +120,35 @@ void GrAstar::resetAstarNodes() {
   }
 }
 
+void GrAstar::initComps(const Vector_t<Point3d<Int_t>>& vPinLocs) {
+  DisjointSet pinLocDS;
+  pinLocDS.init(vPinLocs.size());
+  UInt_t i, j;
+  for (i = 0; i < vPinLocs.size(); ++i) {
+    const Point3d<Int_t>& p1 = vPinLocs[i];
+    for (j = i + 1; j < vPinLocs.size(); ++j) {
+      const Point3d<Int_t>& p2 = vPinLocs[j];
+      if (bNeighbor(p1, p2) and pinLocDS.find(i) != pinLocDS.find(j)) {
+        pinLocDS.merge(i, j);
+      }
+    }
+  }
+  //printf("%s %d\n", _net.name().c_str(), pinLocDS.nSets());
+  _vCompDatas.resize(pinLocDS.nSets());
+  for (i = 0; i < _vCompDatas.size(); ++i) {
+    _vCompDatas[i].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
+    _vCompDatas[i].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
+  }
+  j = 0;
+  for (i = 0; i < vPinLocs.size(); ++i) {
+    if (_mPinLocIdx2CompIdx.find(pinLocDS.find(i)) == _mPinLocIdx2CompIdx.end()) {
+      _mPinLocIdx2CompIdx[pinLocDS.find(i)] = j++;
+    }
+    _vCompDatas[_mPinLocIdx2CompIdx[pinLocDS.find(i)]].insert(vPinLocs[i]);
+  }
+  _compDS.init(_vCompDatas.size());
+}
+
 void GrAstar::splitSubNetMST(Vector_t<Pair_t<UInt_t, UInt_t>>& vCompPairs) {
   lemon::ListGraph graph;
   Vector_t<lemon::ListGraph::Node> vGraphNodes;
@@ -156,9 +164,9 @@ void GrAstar::splitSubNetMST(Vector_t<Pair_t<UInt_t, UInt_t>>& vCompPairs) {
     for (j = i + 1; j < _vCompDatas.size(); ++j) {
       vGraphEdges.emplace_back(graph.addEdge(vGraphNodes[i], vGraphNodes[j]));
       Int_t minDist = MAX_INT;
-      for (const Point3d<Int_t>& p1 : _vCompDatas[i]) {
-        for (const Point3d<Int_t>& p2 : _vCompDatas[j]) {
-          Int_t dist = scaledMDist(p1, p2);
+      for (const Point3d<Int_t>& u : _vCompDatas[i]) {
+        for (const Point3d<Int_t>& v : _vCompDatas[j]) {
+          Int_t dist = scaledMDist(u, v);
           if (dist < minDist) {
             minDist = dist; 
           }
@@ -175,9 +183,11 @@ void GrAstar::splitSubNetMST(Vector_t<Pair_t<UInt_t, UInt_t>>& vCompPairs) {
 
   Vector_t<lemon::ListGraph::Edge> vResEdges;
   lemon::kruskal(graph, edgeCostMap, std::back_inserter(vResEdges));
+  assert(vResEdges.size() == _vCompDatas.size() - 1);
   for (i = 0; i < vResEdges.size(); ++i) {
     lemon::ListGraph::Edge& edge = vResEdges[i];
     vCompPairs.emplace_back(graph.id(graph.u(edge)), graph.id(graph.v(edge)));
+    //vCompPairs.emplace_back(i, i + 1);
   }
 }
 
@@ -195,6 +205,20 @@ bool GrAstar::bSatisfySelfSymCondition() {
     }
   }
   return true;
+}
+
+void GrAstar::makeSelfSym() {
+  Vector_t<Point3d<Int_t>> vNewPinLocs;
+  for (const Point3d<Int_t>& p : _vPinLocs) {
+    const Int_t symX = (Int_t)(2 * _selfSymAxisX - p.x());
+    const Point3d<Int_t> symPt(symX, p.y(), p.z());
+    if (!std::binary_search(_vPinLocs.begin(), _vPinLocs.end(), symPt)) {
+      vNewPinLocs.emplace_back(symPt);
+    }
+  }
+  for (const Point3d<Int_t>& p : vNewPinLocs) {
+    _vPinLocs.emplace_back(p);
+  }
 }
 
 bool GrAstar::bSatisfySymCondition() {
@@ -221,13 +245,42 @@ bool GrAstar::bSatisfySymCondition() {
   return true;
 }
 
+void GrAstar::makeSym() {
+  assert(_net.hasSymNet() and _symAxisX > 0);
+  Net& symNet = _cir.net(_net.symNetIdx());
+  Vector_t<Point3d<Int_t>>& vSymPinLocs = _grGridRoute._vvNetPinLocs[symNet.idx()];
+  for (const auto& p : _vPinLocs) {
+    const Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+    const Point3d<Int_t> symPt(symX, p.y(), p.z());
+    if (!std::binary_search(vSymPinLocs.begin(), vSymPinLocs.end(), symPt)) {
+      vSymPinLocs.emplace_back(symPt);
+    }
+  }
+  for (const auto& p : vSymPinLocs) {
+    const Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+    const Point3d<Int_t> symPt(symX, p.y(), p.z());
+    if (!std::binary_search(_vPinLocs.begin(), _vPinLocs.end(), symPt)) {
+      _vPinLocs.emplace_back(symPt);
+    }
+  }
+}
+
 bool GrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
+  assert(_compDS.find(srcIdx) != _compDS.find(tarIdx));
   UInt_t i = 0;
   
   // init source and target
-  UInt_t id[2] = {srcIdx, tarIdx};
+  Int_t id[2] = {_compDS.find(srcIdx), _compDS.find(tarIdx)};
   DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher>* pTar[2] = {&_vCompDatas[id[0]], &_vCompDatas[id[1]]};
   
+  // check if already connected
+  for (const Point3d<Int_t>& p : _vCompDatas[id[0]]) {
+    if (_vCompDatas[id[1]].find(p) != _vCompDatas[id[1]].end()) {
+      mergeComp(id[0], id[1]);
+      return true;
+    }
+  }
+
   // init kdtrees
   K3dTree<Int_t> kd[2];
   for (i = 0; i < 2; ++i) {
@@ -288,8 +341,8 @@ bool GrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
       GrAstarNode* pU = (i == 0) ? pq0.top() : pq1.top();
       if (pU->bExplored(i ^ 1) or
           pTar[i ^ 1]->find(pU->coord()) != pTar[i ^ 1]->end()) {
-        const UInt_t bigCompIdx = mergeComp(srcIdx, tarIdx);
-        backTrack(pU, bigCompIdx, srcIdx, tarIdx);
+        const UInt_t bigCompIdx = mergeComp(id[0], id[1]);
+        backTrack(pU, bigCompIdx, id[0], id[1]);
         return true;
       }
       if (i == 0)
@@ -403,12 +456,7 @@ void GrAstar::backTrack(const GrAstarNode* pNode, const UInt_t bigCompIdx, const
   __backTrack(0);
   __backTrack(1);
   assert(_compDS.find(srcIdx) == _compDS.find(tarIdx));
-  if (srcIdx == bigCompIdx) {
-    _vCompDatas[tarIdx] = _vCompDatas[bigCompIdx];
-  }
-  else {
-    _vCompDatas[srcIdx] = _vCompDatas[bigCompIdx];
-  }
+  _vCompDatas[_compDS.find(srcIdx)] = _vCompDatas[bigCompIdx];
   _vvGuidePaths.resize(_vvGuidePaths.size() + 1);
   _vvGuidePaths.back().reserve(lPathPts.size());
   for (const Point3d<Int_t>& p : lPathPts) {
@@ -489,13 +537,14 @@ void GrAstar::genSymNetGuidesFromGuides() {
       _vvSymGuidePaths.back().emplace_back(symX, p.y(), p.z());
     }
   }
+
 }
 
 // for debug
 bool GrAstar::bConnected() {
   auto __bConnected = [&] (const Vector_t<Point3d<Int_t>>& vPinLocs, const Vector_t<Vector_t<Point3d<Int_t>>>& vvGuidePaths) -> bool {
     DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher> pts;
-    pts.set_empty_key(Point3d<Int_t>(-1, -1, -1));
+    pts.set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
     pts.set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
     for (const auto& p : vPinLocs)
       pts.insert(p);
@@ -518,8 +567,9 @@ bool GrAstar::bConnected() {
     return ds.nSets() == 1;
   };
   if (_net.hasSymNet()) {
-    if (!__bConnected(_grGridRoute._vvNetPinLocs[_net.symNetIdx()], _vvSymGuidePaths))
+    if (!__bConnected(_grGridRoute._vvNetPinLocs[_net.symNetIdx()], _vvSymGuidePaths)) {
       return false;
+    }
   }
   return __bConnected(_vPinLocs, _vvGuidePaths);
 }
@@ -533,24 +583,47 @@ bool GrAstar::bNeighbor(const Point3d<Int_t>& p1, const Point3d<Int_t>& p2) {
 
 void GrAstar::neighbors(const GrAstarNode* pNode, Vector_t<GrAstarNode*>& vpNeighbors) {
   const Point3d<Int_t>& p = pNode->coord();
-  // left
-  if (p.x() > 0)
-    vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() - 1][p.y()]);
-  // bottom
-  if (p.y() > 0)
-    vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x()][p.y() - 1]);
-  // right
-  if (p.x() < (Int_t)_grGridRoute._gridMap.numGridCellsX() - 1)
-    vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() + 1][p.y()]);
-  // top
-  if (p.y() < (Int_t)_grGridRoute._gridMap.numGridCellsY() - 1)
-    vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x()][p.y() + 1]);
   // lower layer
   if (p.z() > 0)
     vpNeighbors.emplace_back(&_vvvAstarNodes[p.z() - 1][p.x()][p.y()]);
   // upper layer
   if (p.z() < (Int_t)_grGridRoute._gridMap.numGridCellsZ() - 1)
     vpNeighbors.emplace_back(&_vvvAstarNodes[p.z() + 1][p.x()][p.y()]);
+  if (p.x() > 0)
+    vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() - 1][p.y()]);
+  if (p.x() < (Int_t)_grGridRoute._gridMap.numGridCellsX() - 1)
+    vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() + 1][p.y()]);
+  if (p.y() > 0)
+    vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x()][p.y() - 1]);
+  if (p.y() < (Int_t)_grGridRoute._gridMap.numGridCellsY() - 1)
+    vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x()][p.y() + 1]);
+
+  //switch (_cir.lef().routingLayer(p.z()).routeDir()) {
+    //case LefRoutingLayer::RouteDir::HORIZONTAL:
+      //if (p.x() > 0)
+        //vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() - 1][p.y()]);
+      //if (p.x() < (Int_t)_grGridRoute._gridMap.numGridCellsX() - 1)
+        //vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() + 1][p.y()]);
+      //break;
+    //case LefRoutingLayer::RouteDir::VERTICAL:
+      //if (p.y() > 0)
+        //vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x()][p.y() - 1]);
+      //if (p.y() < (Int_t)_grGridRoute._gridMap.numGridCellsY() - 1)
+        //vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x()][p.y() + 1]);
+      //break;
+    //case LefRoutingLayer::RouteDir::BOTH:
+      //if (p.x() > 0)
+        //vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() - 1][p.y()]);
+      //if (p.x() < (Int_t)_grGridRoute._gridMap.numGridCellsX() - 1)
+        //vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() + 1][p.y()]);
+      //if (p.y() > 0)
+        //vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x()][p.y() - 1]);
+      //if (p.y() < (Int_t)_grGridRoute._gridMap.numGridCellsY() - 1)
+        //vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x()][p.y() + 1]);
+      //break;
+    //default:
+      //assert(false);
+  //}
 }
 
 Int_t GrAstar::scaledMDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {

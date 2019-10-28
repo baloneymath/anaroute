@@ -9,6 +9,8 @@
 #ifndef ANAROUTE_GLOBAL_HPP_
 #define ANAROUTE_GLOBAL_HPP_
 
+//#define NDEBUG
+
 #include <cassert>
 #include <cstdio>
 #include <cstring>

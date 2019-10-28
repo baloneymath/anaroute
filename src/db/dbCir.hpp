@@ -80,9 +80,19 @@ class CirDB {
   //  Funcs                       //
   //////////////////////////////////
   // Spatial
+  const Vector_t<SpatialMap<Int_t, UInt_t>>& vSpatialPins()        const { return _vSpatialPins; }
+  const Vector_t<SpatialMap<Int_t, UInt_t>>& vSpatialBlks()        const { return _vSpatialBlks; }
+  const Vector_t<SpatialMap<Int_t, UInt_t>>& vSpatialRoutedWires() const { return _vSpatialRoutedWires; }
+  const Vector_t<Spatial<Int_t>>&            vSpatialNetGuides(const UInt_t netIdx) const { return _vvSpatialNetGuides[netIdx]; }
   void buildSpatial();
   void buildSpatialPins();
   void buildSpatialBlks();
+  void buildSpatialNetGuides();
+  void initSpatialRoutedWires();
+  void addSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
+  void addSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
+  bool removeSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
+  bool removeSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   bool queryPin(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vPinIndices);
   bool queryPin(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vPinIndices);
   bool queryBlk(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vBlkIndices);
@@ -110,6 +120,9 @@ class CirDB {
  
   Vector_t<SpatialMap<Int_t, UInt_t>>  _vSpatialPins;
   Vector_t<SpatialMap<Int_t, UInt_t>>  _vSpatialBlks;
+  Vector_t<SpatialMap<Int_t, UInt_t>>  _vSpatialRoutedWires;
+
+  Vector_t<Vector_t<Spatial<Int_t>>>   _vvSpatialNetGuides;
 
   //////////////////////////////////
   //  Private Setter              //

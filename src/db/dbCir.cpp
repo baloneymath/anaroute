@@ -16,6 +16,7 @@ PROJECT_NAMESPACE_START
 void CirDB::buildSpatial() {
   buildSpatialPins();
   buildSpatialBlks();
+  initSpatialRoutedWires();
 }
 
 void CirDB::buildSpatialPins() {
@@ -49,6 +50,98 @@ void CirDB::buildSpatialBlks() {
     }
     _vSpatialBlks[layerIdx] = SpatialMap<Int_t, UInt_t>(vvShapes[layerIdx]);
   }
+}
+
+void CirDB::buildSpatialNetGuides() {
+  _vvSpatialNetGuides.resize(_vNets.size());
+  UInt_t i;
+  const Net* cpNet;
+  Cir_ForEachNetC((*this), cpNet, i) {
+    const Vector_t<Pair_t<Box<Int_t>, Int_t>>& vGuides = cpNet->vGuides();
+    _vvSpatialNetGuides[i].resize(_lef.numLayers());
+    for (const Pair_t<Box<Int_t>, Int_t>& pair : vGuides) {
+      _vvSpatialNetGuides[i][pair.second].insert(pair.first);
+    }
+  }
+}
+
+void CirDB::initSpatialRoutedWires() {
+  _vSpatialRoutedWires.resize(_lef.numLayers());
+}
+
+void CirDB::addSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
+  assert(u.z() == v.z());
+  const UInt_t layerIdx = u.z();
+  assert(layerIdx >= 0 and layerIdx < _vSpatialRoutedWires.size());
+  assert(_lef.bRoutingLayer(layerIdx) or _lef.bMastersliceLayer(layerIdx));
+  const Pair_t<LefLayerType, UInt_t>& layerPair = _lef.layerPair(layerIdx);
+  const LefRoutingLayer& routingLayer = _lef.routingLayer(layerPair.second);
+  const Int_t halfWidth = routingLayer.minWidth() / 2;
+  const Point<Int_t> min_corner(std::min(u.x(), v.x()) - halfWidth, std::min(u.y(), v.y()) - halfWidth);
+  const Point<Int_t> max_corner(std::max(u.x(), v.x()) + halfWidth, std::max(u.y(), v.y()) + halfWidth);
+  _vSpatialRoutedWires[layerIdx].insert(min_corner, max_corner, netIdx);
+}
+
+void CirDB::addSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
+  assert(u.x() == v.x() and u.y() == v.y());
+  const Int_t botLayerIdx = std::min(u.z(), v.z()); 
+  const Int_t cutLayerIdx = botLayerIdx + 1;
+  const Int_t topLayerIdx = std::max(u.z(), v.z());
+  assert(topLayerIdx - botLayerIdx == 2); // routing-routing, or master-routing
+
+  const LefVia& via = _lef.via(viaIdx);
+  const Point<Int_t> offSetPt(u.x(), u.y());
+  for (const Box<Int_t>& box : via.vBotBoxes()) {
+    Box<Int_t> shift_box(box.bl() + offSetPt, box.tr() + offSetPt);
+    _vSpatialRoutedWires[botLayerIdx].insert(shift_box, netIdx);
+  }
+  for (const Box<Int_t>& box : via.vCutBoxes()) {
+    Box<Int_t> shift_box(box.bl() + offSetPt, box.tr() + offSetPt);
+    _vSpatialRoutedWires[cutLayerIdx].insert(shift_box, netIdx);
+  }
+  for (const Box<Int_t>& box : via.vTopBoxes()) {
+    Box<Int_t> shift_box(box.bl() + offSetPt, box.tr() + offSetPt);
+    _vSpatialRoutedWires[topLayerIdx].insert(shift_box, netIdx);
+  }
+  
+}
+
+bool CirDB::removeSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
+  assert(u.z() == v.z());
+  const UInt_t layerIdx = u.z();
+  assert(layerIdx >= 0 and layerIdx < _vSpatialRoutedWires.size());
+  assert(_lef.bRoutingLayer(layerIdx) or _lef.bMastersliceLayer(layerIdx));
+  const Pair_t<LefLayerType, UInt_t>& layerPair = _lef.layerPair(layerIdx);
+  const LefRoutingLayer& routingLayer = _lef.routingLayer(layerPair.second);
+  const Int_t halfWidth = routingLayer.minWidth() / 2;
+  const Point<Int_t> min_corner(std::min(u.x(), v.x()) - halfWidth, std::min(u.y(), v.y()) - halfWidth);
+  const Point<Int_t> max_corner(std::max(u.x(), v.x()) + halfWidth, std::max(u.y(), v.y()) + halfWidth);
+  return _vSpatialRoutedWires[layerIdx].erase(min_corner, max_corner, netIdx);
+}
+
+bool CirDB::removeSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
+  assert(u.x() == v.x() and u.y() == v.y());
+  const Int_t botLayerIdx = std::min(u.z(), v.z()); 
+  const Int_t cutLayerIdx = botLayerIdx + 1;
+  const Int_t topLayerIdx = std::max(u.z(), v.z());
+  assert(topLayerIdx - botLayerIdx == 2); // routing-routing, or master-routing
+
+  const LefVia& via = _lef.via(viaIdx);
+  const Point<Int_t> offSetPt(u.x(), u.y());
+  bool ret = true;
+  for (const Box<Int_t>& box : via.vBotBoxes()) {
+    Box<Int_t> shift_box(box.bl() + offSetPt, box.tr() + offSetPt);
+    ret &= _vSpatialRoutedWires[botLayerIdx].erase(shift_box, netIdx);
+  }
+  for (const Box<Int_t>& box : via.vCutBoxes()) {
+    Box<Int_t> shift_box(box.bl() + offSetPt, box.tr() + offSetPt);
+    ret &= _vSpatialRoutedWires[cutLayerIdx].erase(shift_box, netIdx);
+  }
+  for (const Box<Int_t>& box : via.vTopBoxes()) {
+    Box<Int_t> shift_box(box.bl() + offSetPt, box.tr() + offSetPt);
+    ret &= _vSpatialRoutedWires[topLayerIdx].erase(shift_box, netIdx);
+  }
+  return ret;
 }
 
 bool CirDB::queryPin(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vPinIndices) {
@@ -146,11 +239,17 @@ void CirDB::printInfo() const {
     const auto& vvBoxes = pin.vvBoxes();
     for (UInt_t j = 0; j < vvBoxes.size(); ++j) {
       for (UInt_t k = 0; k < vvBoxes[j].size(); ++k) {
+        const auto& box = pin.box(j, k);
+        // a bug from placement
+        assert(box.xl() % 10 == 0);
+        assert(box.yl() % 10 == 0);
+        assert(box.xh() % 10 == 0);
+        assert(box.yh() % 10 == 0);
         fprintf(fout, "      %d (%d %d %d %d)\n", j,
-                                                  pin.box(j, k).xl(),
-                                                  pin.box(j, k).yl(),
-                                                  pin.box(j, k).xh(),
-                                                  pin.box(j, k).yh());
+                                                  box.xl(),
+                                                  box.yl(),
+                                                  box.xh(),
+                                                  box.yh());
       }
     }
   }
@@ -173,6 +272,11 @@ void CirDB::printInfo() const {
   }
   fprintf(fout, "\n  BLOCKS\n");
   for (const auto& blk : _vBlks) {
+    // a bug from placement
+    assert(blk.xl() % 10 == 0);
+    assert(blk.yl() % 10 == 0);
+    assert(blk.xh() % 10 == 0);
+    assert(blk.yh() % 10 == 0);
     fprintf(fout, "    BLOCK %u (%d %d %d %d)\n", blk.layerIdx(),
                                                   blk.xl(),
                                                   blk.yl(),

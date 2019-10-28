@@ -52,7 +52,7 @@ find_package(Boost 1.6 REQUIRED COMPONENTS system graph iostreams)
 find_package(ZLIB REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
-set(CMAKE_CXX_FLAGS "-g -pg -std=c++14 -Wall -fPIC")
+set(CMAKE_CXX_FLAGS "-g -std=c++14 -Wall -fPIC")
 
 
 ##################################################
@@ -72,6 +72,7 @@ add_executable(${PROJECT_NAME}
   src/db/dbPin.cpp
   src/db/dbCir.cpp
   src/db/dbNet.cpp
+  src/parser/parser.cpp
   src/parser/parLef.cpp
   src/parser/parTech.cpp
   src/parser/parIspd08.cpp
@@ -83,6 +84,10 @@ add_executable(${PROJECT_NAME}
   src/ta/taMgr.cpp
   src/dr/drMgr.cpp
   src/dr/drGridlessRoute.cpp
+  src/dr/drAstar.cpp
+  src/drc/drcMgr.cpp
+  src/writer/wrGrGuide.cpp
+  src/writer/wrGds.cpp
 )
 
 ##################################################

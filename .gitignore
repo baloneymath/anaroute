@@ -1,4 +1,5 @@
 bin/anaroute
+bin/out
 build/
 bench/
 tags
