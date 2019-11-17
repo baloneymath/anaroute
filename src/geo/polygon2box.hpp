@@ -14,6 +14,15 @@
 
 namespace limbo {
   namespace geometry {
+    //template<>
+    //struct coordinate_traits<PROJECT_NAMESPACE::Int_t> {
+      //typedef PROJECT_NAMESPACE::Int_t coordinate_type;
+      //typedef PROJECT_NAMESPACE::Int_t area_type;
+      //typedef PROJECT_NAMESPACE::Int_t manhattan_area_type;
+      //typedef PROJECT_NAMESPACE::UInt_t unsigned_area_type;
+      //typedef PROJECT_NAMESPACE::Int_t coordinate_difference;
+      //typedef PROJECT_NAMESPACE::Int_t coordinate_distance;
+    //};
     ////////////////////////////////////////
     //   point_traits                     //
     ////////////////////////////////////////

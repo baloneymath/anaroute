@@ -85,6 +85,7 @@ add_executable(${PROJECT_NAME}
   src/dr/drMgr.cpp
   src/dr/drGridlessRoute.cpp
   src/dr/drAstar.cpp
+  src/dr/drViaSelector.cpp
   src/drc/drcMgr.cpp
   src/writer/wrGrGuide.cpp
   src/writer/wrGds.cpp

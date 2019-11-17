@@ -323,7 +323,7 @@ bool GrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
       GrAstarNode* pNode = &_vvvAstarNodes[p.z()][p.x()][p.y()];
       Int_t costF = _param.factorH * dist_nearest;
       if (_net.bSelfSym()) {
-        costF *= std::abs(p.x() - _selfSymAxisX);
+        costF *= abs(p.x() - _selfSymAxisX);
       }
       pNode->setCostF(i, costF);
       pNode->setCostG(i, 0);

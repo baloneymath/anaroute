@@ -93,13 +93,24 @@ class CirDB {
   void addSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   bool removeSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   bool removeSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
-  bool queryPin(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vPinIndices);
-  bool queryPin(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vPinIndices);
-  bool queryBlk(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vBlkIndices);
-  bool queryBlk(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vBlkIndices);
-
+  bool querySpatialPin(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vPinIndices);
+  bool querySpatialPin(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vPinIndices);
+  bool querySpatialBlk(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vBlkIndices);
+  bool querySpatialBlk(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vBlkIndices);
+  bool existSpatialPin(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr);
+  bool existSpatialPin(const UInt_t layerIdx, const Box<Int_t>& box);
+  bool existSpatialBlk(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr);
+  bool existSpatialBlk(const UInt_t layerIdx, const Box<Int_t>& box);
+  bool querySpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vNetIndices);
+  bool querySpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vNetIndices);
+  bool existSpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl,const Point<Int_t>& tr);
+  bool existSpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box);
+  bool existSpatialRoutedWireNet(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, const UInt_t netIdx);
+  bool existSpatialRoutedWireNet(const UInt_t layerIdx, const Box<Int_t>& box, const UInt_t netIdx);
+  
   // for debug
   void printInfo() const;
+ 
  private:
   String_t                       _name;
   LefDB                          _lef;

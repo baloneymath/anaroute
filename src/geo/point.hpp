@@ -107,17 +107,19 @@ T Point<T>::Mdistance(const Point<T>& p1, const Point<T>& p2) {
 PROJECT_NAMESPACE_END
 
 namespace boost { namespace geometry { namespace traits {
-  template<> struct tag<PROJECT_NAMESPACE::Point<int> > { typedef point_tag type; };
-  template<> struct coordinate_type<PROJECT_NAMESPACE::Point<int> > { typedef int type; };
-  template<> struct coordinate_system<PROJECT_NAMESPACE::Point<int> > { typedef cs::cartesian type; };
-  template<> struct dimension<PROJECT_NAMESPACE::Point<int> > : boost::mpl::int_<2> {};
-  template<> struct access<PROJECT_NAMESPACE::Point<int>, 0> {
-    static int get(PROJECT_NAMESPACE::Point<int>  const& p) { return p.x(); }
-    static void set(PROJECT_NAMESPACE::Point<int> & p, int const& value) { p.setX(value); }
+  // int32_t
+  using Int_t = PROJECT_NAMESPACE::Int_t;
+  template<> struct tag<PROJECT_NAMESPACE::Point<Int_t> > { typedef point_tag type; };
+  template<> struct coordinate_type<PROJECT_NAMESPACE::Point<Int_t> > { typedef Int_t type; };
+  template<> struct coordinate_system<PROJECT_NAMESPACE::Point<Int_t> > { typedef cs::cartesian type; };
+  template<> struct dimension<PROJECT_NAMESPACE::Point<Int_t> > : boost::mpl::int_<2> {};
+  template<> struct access<PROJECT_NAMESPACE::Point<Int_t>, 0> {
+    static Int_t get(PROJECT_NAMESPACE::Point<Int_t>  const& p) { return p.x(); }
+    static void set(PROJECT_NAMESPACE::Point<Int_t> & p, Int_t const& value) { p.setX(value); }
   };
-  template<> struct access<PROJECT_NAMESPACE::Point<int>, 1> {
-    static int get(PROJECT_NAMESPACE::Point<int> const& p) { return p.y(); }
-    static void set(PROJECT_NAMESPACE::Point<int> & p, int const& value) { p.setY(value); }
+  template<> struct access<PROJECT_NAMESPACE::Point<Int_t>, 1> {
+    static int get(PROJECT_NAMESPACE::Point<Int_t> const& p) { return p.y(); }
+    static void set(PROJECT_NAMESPACE::Point<Int_t> & p, Int_t const& value) { p.setY(value); }
   };
 }}}
 

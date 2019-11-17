@@ -183,7 +183,7 @@ void GrGridRoute::markBlockedGrids() {
         Vector_t<UInt_t> vPinIndices;
         const Point<Int_t>& bl = gridCell.bl();
         const Point<Int_t>& tr = gridCell.tr();
-        if (_cir.queryBlk(i, bl, tr, vBlkIndices)) {
+        if (_cir.querySpatialBlk(i, bl, tr, vBlkIndices)) {
           Int_t freeArea = gridCell.box().area();
           for (const UInt_t idx: vBlkIndices) {
             const Blk* cpBlk = &_cir.blk(idx);

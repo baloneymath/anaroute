@@ -13,6 +13,10 @@
 PROJECT_NAMESPACE_START
 
 void DrGridlessRoute::solve() {
+  
+  _vAllAstarNodesMap.resize(_cir.lef().numLayers());
+  for (auto& m : _vAllAstarNodesMap)
+    m.set_empty_key(Point<Int_t>(-1, -1));
 
   PairingHeap<Net*, Net_Cmp> pq;
   UInt_t i;
@@ -23,7 +27,7 @@ void DrGridlessRoute::solve() {
       if (pNet->hasSymNet() and pNet->idx() > pNet->symNetIdx()) {
         continue;
       }
-      //if (pNet->name() == "net1")
+      if (pNet->name() == "AVSS")
       pq.push(pNet);
     }
   }
@@ -44,6 +48,7 @@ void DrGridlessRoute::solve() {
       pNet->addDrFail();
       qFrozenNet.push(pNet);
     }
+    return;
   }
 }
 

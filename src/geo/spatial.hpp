@@ -140,7 +140,8 @@ public:
   // query
   void    query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
   void    query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
-
+  bool    exist(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  bool    exist(const Box<T>& rect, spatial::QueryType qt = spatial::QueryType::intersects) const;
 };
 
 template<typename T, typename Value>
@@ -197,6 +198,8 @@ public:
   void    queryBox(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
   void    queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
   void    queryBoth(const Box<T>& rect, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  bool    exist(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  bool    exist(const Box<T>& rect, spatial::QueryType qt = spatial::QueryType::intersects) const;
 
 };
 
@@ -247,6 +250,20 @@ void Spatial<T>::query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, sp
     default:
       assert(false);
   }
+}
+
+template<typename T>
+bool Spatial<T>::exist(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt) const {
+  Vector_t<spatial::b_box<T>> ret;
+  query(min_corner, max_corner, ret, qt);
+  return ret.size();
+}
+
+template<typename T>
+bool Spatial<T>::exist(const Box<T>& rect, spatial::QueryType qt) const {
+  Vector_t<spatial::b_box<T>> ret;
+  query(rect, ret, qt);
+  return ret.size();
 }
 
 
@@ -395,6 +412,19 @@ void SpatialMap<T, Value>::queryBoth(const Point<T>& min_corner, const Point<T>&
   }
 }
 
+template<typename T, typename Value>
+bool SpatialMap<T, Value>::exist(const Box<T>& rect, spatial::QueryType qt) const {
+  Vector_t<spatial::b_value<T, Value>> ret;
+  query(rect, ret, qt);
+  return ret.size();
+}
+
+template<typename T, typename Value>
+bool SpatialMap<T, Value>::exist(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt) const {
+  Vector_t<spatial::b_value<T, Value>> ret;
+  query(min_corner, max_corner, ret, qt);
+  return ret.size();
+}
 
 PROJECT_NAMESPACE_END
 

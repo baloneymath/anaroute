@@ -70,7 +70,7 @@ void GdsWriter::writeCellEnd() {
 void GdsWriter::writeCellRef(const String_t& cellName, const Point<Int_t>& loc, const Float_t mag, const Float_t angle) {
   _gw.gds_write_sref();
   _gw.gds_write_sname(cellName.c_str());
-  Int_t x[1], y[1];
+  int x[1], y[1];
   x[0] = loc.x();
   y[0] = loc.y();
   _gw.gds_write_xy(x, y, 1);
@@ -85,7 +85,7 @@ void GdsWriter::writeRectangle(const Box<Int_t>& box, const Int_t layerIdx, cons
   _gw.gds_write_layer(static_cast<short>(layerIdx));
   _gw.gds_write_datatype(static_cast<short>(dataType));
 
-  Int_t x[5], y[5];
+  int x[5], y[5];
   x[0] = box.xl(); y[0] = box.yl();
   x[1] = box.xh(); y[1] = box.yl();
   x[2] = box.xh(); y[2] = box.yh();
@@ -108,8 +108,8 @@ void GdsWriter::writeText(const String_t& text, const Int_t x, const Int_t y, co
 
 /// write an path
 void GdsWriter::writePath(const Vector_t<Int_t>& vPts, const Int_t width, const Int_t layerIdx, const Int_t dataType, const Int_t endCapType) {
-  Vector_t<Int_t> vXs;
-  Vector_t<Int_t> vYs;
+  Vector_t<int> vXs;
+  Vector_t<int> vYs;
   vXs.reserve(vPts.size());
   vYs.reserve(vPts.size());
   for (const Point<Int_t>& p : vPts) {

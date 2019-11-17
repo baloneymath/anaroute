@@ -28,16 +28,16 @@ class DrcMgr {
   //    Wire level checking              //
   /////////////////////////////////////////
   // short
-  bool checkWireRoutingLayerShort(const Box<Int_t>& b);
-  bool checkWireCutLayerShort(const Box<Int_t>& b);
+  bool checkWireRoutingLayerShort(const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireCutLayerShort(const UInt_t layerIdx, const Box<Int_t>& b) const;
   // min width
-  bool checkWireMinWidth(const Box<Int_t>& b);
+  bool checkWireMinWidth(const UInt_t layerIdx, const Box<Int_t>& b) const;
   // min area
-  bool checkWireMinArea(const Box<Int_t>& b);
+  bool checkWireMinArea(const UInt_t layerIdx, const Box<Int_t>& b) const;
   // spacing
-  bool checkWireRoutingLayerSpacing(const Box<Int_t>& b);
-  bool checkWireCutLayerSpacing(const Box<Int_t>& b);
-  bool checkWireEolSpacing(const Box<Int_t>& b);
+  bool checkWireRoutingLayerSpacing(const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireCutLayerSpacing(const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireEolSpacing(const UInt_t layerIdx, const Box<Int_t>& b) const;
   
   /////////////////////////////////////////
   //    Net level checking               //

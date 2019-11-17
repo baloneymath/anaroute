@@ -5,8 +5,11 @@
  * @date   10/25/2019
  *
  **/
-
+using namespace std;
 #include "drAstar.hpp"
+#include "drViaSelector.hpp"
+#include "src/ds/pqueue.hpp"
+#include "src/writer/wrGds.hpp"
 
 #include <lemon/maps.h>
 #include <lemon/kruskal.h>
@@ -15,6 +18,8 @@
 PROJECT_NAMESPACE_START
 
 bool DrAstar::runKernel() {
+  
+  constructAllLayerBoxes();
   if (_net.bSelfSym()) {
     computeSelfSymAxisX();
     if (!bSatisfySelfSymCondition()) {
@@ -24,13 +29,21 @@ bool DrAstar::runKernel() {
   else if (_net.hasSymNet()) {
     computeSymAxisX();
     if (!bSatisfySymCondition()) {
-      fprintf(stderr, "DrAstar::%s WARNING: Net %s does not satisfy symmetric net condition!\n", __func__, _net.name().c_str());
+      fprintf(stderr, "DrAstar::%s WARNING: Net %s %s does not satisfy symmetric net condition!\n", __func__, _net.name().c_str(), _cir.net(_net.symNetIdx()).name().c_str());
     }
   }
-  
+
   initAcsPoints();
   splitSubNetMST();
 
+  for (const Pair_t<UInt_t, UInt_t>& pair : _vCompPairs) {
+    if (!routeSubNet(pair.first, pair.second)) {
+      fprintf(stderr, "DrAstar::%s ERROR: Route net %s failed!\n", __func__, _net.name().c_str());
+      return false;
+    }
+  }
+  saveResult2Net();
+  visualize();
   return true;
 }
 
@@ -120,12 +133,7 @@ void DrAstar::splitSubNetMST() {
   }
 }
 
-
-bool DrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
-
-}
-
-bool DrAstar::computeSelfSymAxisX() {
+void DrAstar::computeSelfSymAxisX() {
   UInt_t i, j, pinIdx, layerIdx;
   const Box<Int_t>* cpBox;
   Int_t numBoxes = 0;
@@ -141,8 +149,7 @@ bool DrAstar::computeSelfSymAxisX() {
   _selfSymAxisX /= numBoxes;
 }
 
-
-bool DrAstar::computeSymAxisX() {
+void DrAstar::computeSymAxisX() {
   Net& symNet = _cir.net(_net.symNetIdx());
   UInt_t i, j, pinIdx, layerIdx;
   const Box<Int_t>* cpBox;
@@ -168,14 +175,46 @@ bool DrAstar::computeSymAxisX() {
   _symAxisX /= numBoxes;
 }
 
-bool DrAstar::bSatisfySelfSymCondition() const {
+void DrAstar::constructAllLayerBoxes() {
+  _vAllLayerBoxes.resize(_cir.lef().numLayers());
   UInt_t i, j, pinIdx, layerIdx;
   const Box<Int_t>* cpBox;
   Net_ForEachPinIdx(_net, pinIdx, i) {
     const Pin& pin = _cir.pin(pinIdx);
     Pin_ForEachLayerIdx(pin, layerIdx) {
       Pin_ForEachLayerBoxC(pin, layerIdx, cpBox, j) {
-        
+        _vAllLayerBoxes[layerIdx].emplace_back(*cpBox);
+      }
+    }
+  }
+  if (_net.hasSymNet()) {
+    const Net& symNet = _cir.net(_net.symNetIdx());
+    Net_ForEachPinIdx(symNet, pinIdx, i) {
+      const Pin& pin = _cir.pin(pinIdx);
+      Pin_ForEachLayerIdx(pin, layerIdx) {
+        Pin_ForEachLayerBoxC(pin, layerIdx, cpBox, j) {
+          _vAllLayerBoxes[layerIdx].emplace_back(*cpBox);
+        }
+      }
+    }
+  }
+  for (Vector_t<Box<Int_t>>& v : _vAllLayerBoxes) {
+    std::sort(v.begin(), v.end());
+  }
+}
+
+bool DrAstar::bSatisfySelfSymCondition() const {
+  for (const Vector_t<Box<Int_t>>& v : _vAllLayerBoxes) {
+    for (const Box<Int_t>& box : v) {
+      Box<Int_t> symBox;
+      const Int_t symXL = 2 * _selfSymAxisX - box.xh();
+      const Int_t symXH = 2 * _selfSymAxisX - box.xl();
+      symBox.setXL(symXL);
+      symBox.setYL(box.yl());
+      symBox.setXH(symXH);
+      symBox.setYH(box.yh());
+      if (!std::binary_search(v.begin(), v.end(), symBox)) {
+        return false;
       }
     }
   }
@@ -183,11 +222,442 @@ bool DrAstar::bSatisfySelfSymCondition() const {
 }
 
 bool DrAstar::bSatisfySymCondition() const {
+  for (const Vector_t<Box<Int_t>>& v : _vAllLayerBoxes) {
+    for (const Box<Int_t>& box : v) {
+      Box<Int_t> symBox;
+      const Int_t symXL = 2 * _symAxisX - box.xh();
+      const Int_t symXH = 2 * _symAxisX - box.xl();
+      symBox.setXL(symXL);
+      symBox.setYL(box.yl());
+      symBox.setXH(symXH);
+      symBox.setYH(box.yh());
+      if (!std::binary_search(v.begin(), v.end(), symBox)) {
+        return false;
+      }
+    }
+  }
   return true;
 }
+
+bool DrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
+  assert(_compDS.find(srcIdx) != _compDS.find(tarIdx));
+
+  // init source and target
+  DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher>& src = _vCompAcsPts[srcIdx];
+  DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher>& tar = _vCompAcsPts[tarIdx];
+
+
+  // init priority queue
+  typedef PairingHeap<DrAstarNode*, DrAstarNodeCmp0> PQueue_t;
+  PQueue_t pq;
+  typedef DenseHashMap<DrAstarNode*, PQueue_t::point_iterator> Itermap_t;
+  Itermap_t itMap;
+  itMap.set_empty_key(nullptr);
+
+  // reset cost
+  resetAstarNodes();
+
+  // add new nodes
+  for (const Point3d<Int_t>& p : src) {
+    Point<Int_t> p2d(p.x(), p.y());
+    if (_vAllAstarNodesMap[p.z()].find(p2d) == _vAllAstarNodesMap[p.z()].end())
+      _vAllAstarNodesMap[p.z()][p2d] = new DrAstarNode(p);
+  }
+  for (const Point3d<Int_t>& p : tar) {
+    Point<Int_t> p2d(p.x(), p.y());
+    if (_vAllAstarNodesMap[p.z()].find(p2d) == _vAllAstarNodesMap[p.z()].end())
+      _vAllAstarNodesMap[p.z()][p2d] = new DrAstarNode(p);
+  }
+
+  // add src to pq
+  for (const Point3d<Int_t>& p : src) {
+    Point<Int_t> p2d(p.x(), p.y());
+    Int_t layerIdx = p.z();
+    Int_t dist_nearest = nearestTarBoxDist(p, tarIdx);
+    assert(_vAllAstarNodesMap[layerIdx].find(p2d) != _vAllAstarNodesMap[layerIdx].end());
+    DrAstarNode* pNode = _vAllAstarNodesMap[layerIdx][p2d];
+    Int_t costF = _param.factorH * dist_nearest;
+    if (_net.bSelfSym()) {
+      costF += abs(p.x() - _selfSymAxisX) * _param.horCost;
+    }
+    pNode->setCostF(0, costF);
+    pNode->setCostG(0, 0);
+    pNode->setBendCnt(0, 0);
+    itMap[pNode] = pq.push(pNode);
+  }
+  // path search
+  while (!pq.empty()) {
+    auto __pathSearch = [&] (const UInt_t i) -> bool {
+      DrAstarNode* pU = pq.top();
+      const Point3d<Int_t>& u = pU->coord();
+      const Point<Int_t> u2d(u.x(), u.y());
+      if (tar.find(u) != tar.end()
+          or bConnected2TarBox(pU, tarIdx)
+          //or _cir.existSpatialRoutedWireNet(u.z(), u2d, u2d, _net.idx())  
+         ) {
+        const UInt_t bigCompIdx = mergeComp(srcIdx, tarIdx);
+        backTrack(pU, bigCompIdx, srcIdx, tarIdx);
+        return true;
+      }
+      pq.pop();
+      pU->setExplored(i, true);
+      if (pU->vpNeighbors().empty()) {
+        Vector_t<DrAstarNode*> vpNeighbors;
+        neighbors(pU, vpNeighbors);
+        pU->setNeighbors(vpNeighbors);
+      }
+      for (DrAstarNode* pV : pU->vpNeighbors()) {
+        if (pV->bExplored(i))
+          continue;
+        const Point3d<Int_t>& v = pV->coord();
+        if (u.z() != v.z()) {
+          UInt_t viaIdx = selectVia(pU, pV);
+          if (viaIdx == MAX_INT)
+            continue;
+        }
+        if (bViolateDRC(pU, pV))
+          continue;
+        Int_t costG = pU->costG(i) + scaledMDist(u, v);
+        Int_t bendCnt = pU->bendCnt(i) + hasBend(pU, pV, i);
+        if (bNeedUpdate(pV, i, costG, bendCnt)) {
+          pV->setParent(i, pU);
+          Int_t dist_nearest = nearestTarBoxDist(v, tarIdx);
+          Int_t costF = (costG * _param.factorG + dist_nearest * _param.factorH);
+          if (bInsideGuide(pV))
+            costF += _param.guideCost;
+          //***************************
+          //  Sym and Self Sym
+          //  TODO
+          //***************************
+          pV->setCostG(i, costG);
+          pV->setCostF(i, costF);
+          pV->setBendCnt(i, bendCnt);
+          auto it = itMap.find(pV);
+          if (it != itMap.end())
+            pq.modify(it->second, pV);
+          else
+            itMap[pV] = pq.push(pV);
+        }
+      }
+      return false;
+    };
+    if (__pathSearch(0))
+      return true;
+  }
+  return false;
+}
+
+void DrAstar::resetAstarNodes() {
+  for (auto& m : _vAllAstarNodesMap) {
+    for (auto& p : m) {
+      DrAstarNode* pNode = p.second;
+      pNode->reset();
+    }
+  }
+}
+
+UInt_t DrAstar::mergeComp(const UInt_t srcIdx, const UInt_t tarIdx) {
+  _compDS.merge(srcIdx, tarIdx);
+  UInt_t bigCompIdx = srcIdx;
+  UInt_t smallCompIdx = tarIdx;
+  if (_vCompAcsPts[bigCompIdx].size() < _vCompAcsPts[smallCompIdx].size()) {
+    std::swap(bigCompIdx, smallCompIdx);
+  }
+  auto& bigComp = _vCompAcsPts[bigCompIdx];
+  auto& smallComp = _vCompAcsPts[smallCompIdx];
+  if (_compDS.nSets() > 1) {
+    bigComp.insert(smallComp.begin(), smallComp.end());
+  }
+  return bigCompIdx;
+}
+
+void DrAstar::backTrack(const DrAstarNode* pNode, const UInt_t bigCompIdx, const UInt_t srcIdx, const UInt_t tarIdx) {
+  List_t<Point3d<Int_t>> lPathPts;
+  add2Path(0, pNode->coord(), lPathPts);
+  if (_compDS.nSets() > 1) {
+    _vCompAcsPts[bigCompIdx].insert(pNode->coord());
+  }
+  auto __backTrack = [&] (const Int_t i) {
+    const DrAstarNode* pPar = pNode->pParent(i);
+    if (pPar == nullptr)
+      return;
+    if (_compDS.nSets() > 1) {
+      while (pPar != nullptr) {
+        add2Path(i, pPar->coord(), lPathPts);
+        _vCompAcsPts[bigCompIdx].insert(pPar->coord());
+        pPar = pPar->pParent(i);
+      }
+    }
+    else {
+      while (pPar != nullptr) {
+        add2Path(i, pPar->coord(), lPathPts);
+        pPar = pPar->pParent(i);
+      }
+    }
+  };
+  __backTrack(0);
+  assert(_compDS.find(srcIdx) == _compDS.find(tarIdx));
+  const UInt_t rootIdx = _compDS.find(srcIdx);
+  const UInt_t childIdx = (rootIdx == srcIdx) ? tarIdx : srcIdx;
+  _vCompAcsPts[rootIdx] = _vCompAcsPts[bigCompIdx];
+  List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>> lPathVec;
+  mergePath(lPathPts, lPathVec);
+  // save path
+  savePath(lPathVec);
+  // add to comp
+  //for (const auto& pair : _vCompBoxes[childIdx]) {
+    //_vCompBoxes[rootIdx].emplace_back(pair);
+  //}
+  //UInt_t i;
+  //const auto& vRoutePath = _vvRoutePaths.back();
+  //const auto& vViaIndices = _vvRouteViaIndices.back();
+  //for (i = 0; i < vRoutePath.size(); ++i) {
+    //const auto& vec = vRoutePath[i];
+    //const Point3d<Int_t>& u = vec.first;
+    //const Point3d<Int_t>& v = vec.second;
+    //if (u.z() == v.z()) {
+      //Box<Int_t> wire;
+      //toWire(u, v, wire);
+      //_vCompBoxes[rootIdx].emplace_back(wire, u.z());
+      //assert(vViaIndices[i] == MAX_INT);
+    //}
+    //else {
+      //Vector_t<Pair_t<Box<Int_t>, Int_t>> vLayerBoxes;
+      //assert(vViaIndices[i] != MAX_INT);
+      //toVia(u, v, vViaIndices[i], vLayerBoxes);
+      //for (const auto& pair : vLayerBoxes) {
+        //_vCompBoxes[rootIdx].emplace_back(pair);
+      //}
+    //}
+  //}
+}
+
+void DrAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec) {
+  _vvRoutePaths.resize(_vvRoutePaths.size() + 1);
+  _vvRoutePaths.back().reserve(lPathVec.size());
+  _vvRouteViaIndices.resize(_vvRouteViaIndices.size() + 1);
+  _vvRouteViaIndices.back().reserve(lPathVec.size());
+  for (const auto& pair : lPathVec) {
+    _vvRoutePaths.back().emplace_back(pair);
+  }
+  // add exact shapes to spatial
+  const auto& vPathVec = _vvRoutePaths.back();
+  Vector_t<UInt_t>& vPathViaIndices = _vvRouteViaIndices.back();
+  for (const auto& pair : vPathVec) {
+    const Point3d<Int_t>& u = pair.first;
+    const Point3d<Int_t>& v = pair.second;
+    if (u.z() == v.z()) {
+      addWire2RoutedSpatial(u, v);
+      vPathViaIndices.emplace_back(MAX_INT);
+    }
+    else {
+      UInt_t viaIdx = selectVia(u, v);
+      assert(viaIdx != MAX_INT);
+      vPathViaIndices.emplace_back(viaIdx);
+      cerr << "ViaIdx: "<<viaIdx << endl;
+      addVia2RoutedSpatial(u, v, viaIdx);
+    }
+  }
+}
+
+void DrAstar::saveResult2Net() {
+  //for (auto& v : _vvRoutePaths) {
+    //cerr << endl << endl;
+    //for (auto& p : v) {
+      //std::cerr << p;
+    //}
+  //}
+  
+}
+
 /////////////////////////////////////////
 //    Helper functions                 //
 /////////////////////////////////////////
+void DrAstar::neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbors) {
+  const Point3d<Int_t>& p = pU->coord();
+  assert(p != Point3d<Int_t>(0,0,0));
+  const Pair_t<LefLayerType, UInt_t>& layerPair = _cir.lef().layerPair(p.z());
+  assert(_cir.lef().bRoutingLayer(p.z()));
+  const LefRoutingLayer& layer = _cir.lef().routingLayer(layerPair.second);
+  const Int_t minSpacing = layer.spacingTable().table.size() ?
+                           layer.spacingTable().table[0].second[0] :
+                           layer.spacing(0);
+  const Int_t minWidth = layer.minWidth();
+  const Int_t minBorderDist = minSpacing + minWidth;
+
+  if (p.z() > 0) {
+    Point<Int_t> p2d(p.x(), p.y());
+    Int_t layerIdx = p.z() - 2;
+    if (layerIdx >= 0 and _cir.lef().bRoutingLayer(layerIdx)) {
+      if (_vAllAstarNodesMap[layerIdx].find(p2d) == _vAllAstarNodesMap[layerIdx].end()) {
+        _vAllAstarNodesMap[layerIdx][p2d] = new DrAstarNode(Point3d<Int_t>(p.x(), p.y(), layerIdx));
+      }
+      vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p2d]);
+    }
+  }
+  if (p.z() < (Int_t)_vAllAstarNodesMap.size() - 2) {
+    Point<Int_t> p2d(p.x(), p.y());
+    Int_t layerIdx = p.z() + 2;
+    if (_cir.lef().bRoutingLayer(layerIdx)) {
+      if (_vAllAstarNodesMap[layerIdx].find(p2d) == _vAllAstarNodesMap[layerIdx].end()) {
+        _vAllAstarNodesMap[layerIdx][p2d] = new DrAstarNode(Point3d<Int_t>(p.x(), p.y(), layerIdx));
+      }
+      vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p2d]);
+    }
+  }
+  if (p.x() - minBorderDist > _cir.xl()) {
+    Int_t newX = p.x() - minSpacing;
+    Point<Int_t> p_neighbor(newX, p.y());
+    Int_t layerIdx = p.z();
+    if (_vAllAstarNodesMap[layerIdx].find(p_neighbor) == _vAllAstarNodesMap[layerIdx].end()) {
+      _vAllAstarNodesMap[layerIdx][p_neighbor] = new DrAstarNode(Point3d<Int_t>(newX, p.y(), p.z()));
+    }
+    vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p_neighbor]);
+  }
+  if (p.x() + minBorderDist < _cir.xh()) {
+    Int_t newX = p.x() + minSpacing;
+    Point<Int_t> p_neighbor(newX, p.y());
+    Int_t layerIdx = p.z();
+    if (_vAllAstarNodesMap[layerIdx].find(p_neighbor) == _vAllAstarNodesMap[layerIdx].end()) {
+      _vAllAstarNodesMap[layerIdx][p_neighbor] = new DrAstarNode(Point3d<Int_t>(newX, p.y(), p.z()));
+    }
+    vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p_neighbor]);
+  }
+  if (p.y() - minBorderDist > _cir.yl()) {
+    Int_t newY = p.y() - minSpacing;
+    Point<Int_t> p_neighbor(p.x(), newY);
+    Int_t layerIdx = p.z();
+    if (_vAllAstarNodesMap[layerIdx].find(p_neighbor) == _vAllAstarNodesMap[layerIdx].end()) {
+      _vAllAstarNodesMap[layerIdx][p_neighbor] = new DrAstarNode(Point3d<Int_t>(p.x(), newY, p.z()));
+    }
+    vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p_neighbor]);
+  }
+  if (p.y() + minBorderDist < _cir.yh()) {
+    Int_t newY = p.y() + minSpacing;
+    Point<Int_t> p_neighbor(p.x(), newY);
+    Int_t layerIdx = p.z();
+    if (_vAllAstarNodesMap[layerIdx].find(p_neighbor) == _vAllAstarNodesMap[layerIdx].end()) {
+      _vAllAstarNodesMap[layerIdx][p_neighbor] = new DrAstarNode(Point3d<Int_t>(p.x(), newY, p.z()));
+    }
+    vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p_neighbor]);
+  }
+
+}
+
+bool DrAstar::bViolateDRC(const DrAstarNode* pU, const DrAstarNode* pV) const {
+  const Point3d<Int_t>& u = pU->coord();
+  const Point3d<Int_t>& v = pV->coord();
+  if (u.z() == v.z()) {
+    assert(u.x() == v.x() or u.y() == v.y());
+    const Int_t z = u.z();
+    const Pair_t<LefLayerType, UInt_t>& layerPair = _cir.lef().layerPair(z);
+    assert(layerPair.first == LefLayerType::ROUTING);
+    const LefRoutingLayer& layer = _cir.lef().routingLayer(layerPair.second);
+    const Int_t halfWidth = layer.minWidth() / 2;
+    const Int_t xl = std::min(u.x(), v.x()) - halfWidth;
+    const Int_t xh = std::max(u.x(), v.x()) + halfWidth;
+    const Int_t yl = std::min(u.y(), v.y()) - halfWidth;
+    const Int_t yh = std::max(u.y(), v.y()) + halfWidth;
+    const Box<Int_t> box(xl, yl, xh, yh);
+    if (!_drcMgr.checkWireRoutingLayerShort(z, box))
+      return true;
+    if (!_drcMgr.checkWireMinWidth(z, box))
+      return true;
+    if (!_drcMgr.checkWireMinArea(z, box))
+      return true;
+    if (!_drcMgr.checkWireRoutingLayerSpacing(z, box))
+      return true;
+    if (!_drcMgr.checkWireEolSpacing(z, box))
+      return true;
+  }
+  else {
+    //assert(u.x() == v.x() and u.y() == v.y());
+    //const Int_t x = u.x();
+    //const Int_t y = u.y();
+    //const Int_t zl = std::min(u.z(), v.z());
+    //const Int_t zh = std::max(u.z(), v.z());
+    //const Pair_t<LefLayerType, UInt_t>& lowerLayerPair = _cir.lef().layerPair(zl);
+    //const Pair_t<LefLayerType, UInt_t>& upperLayerPair = _cir.lef().layerPair(zh);
+    //assert(lowerlayerPair.first == LefLayerType::ROUTING);
+    //assert(upperlayerPair.first == LefLayerType::ROUTING);
+    //assert(zh - zl == 2);
+    //const LefRoutingLayer& lowerLayer = _cir.lef().routingLayer(lowerLayerPair.second);
+    //const LefRoutingLayer& upperLayer = _cir.lef().routingLayer(upperLayerPair.second);
+    //const Int_t halfWidth_l = lowerLayer.minWidth() / 2;
+    //const Int_t halfWidth_h = upperLayer.minWidth() / 2;
+    //const Int_t xl_l = x - halfWidth_l;
+    //const Int_t xh_l = x + halfWidth_l;
+  }
+  return false;
+}
+
+UInt_t DrAstar::selectVia(const DrAstarNode* pU, const DrAstarNode* pV) {
+  const Point3d<Int_t>& u = pU->coord();
+  const Point3d<Int_t>& v = pV->coord();
+  return selectVia(u, v);
+}
+
+UInt_t DrAstar::selectVia(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
+  DrViaSelector vs(_cir, _drcMgr);
+  return vs.selectViaIdx(u, v);
+}
+
+void DrAstar::addWire2RoutedSpatial(const DrAstarNode* pU, const DrAstarNode* pV) {
+  const Point3d<Int_t>& u = pU->coord();
+  const Point3d<Int_t>& v = pV->coord();
+  addWire2RoutedSpatial(u, v);
+}
+
+void DrAstar::addWire2RoutedSpatial(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
+  //assert(u.z() == v.z());
+  //const Int_t z = u.z();
+  //const Pair_t<LefLayerType, UInt_t>& layerPair = _cir.lef().layerPair(z);
+  //assert(layerPair.first == LefLayerType::ROUTING);
+  //const LefRoutingLayer& layer = _cir.lef().routingLayer(layerPair.second);
+  //const Int_t halfWidth = layer.minWidth() / 2;
+  //const Int_t xl = std::min(u.x(), v.x()) - halfWidth;
+  //const Int_t xh = std::max(u.x(), v.x()) + halfWidth;
+  //const Int_t yl = std::min(u.y(), v.y()) - halfWidth;
+  //const Int_t yh = std::max(u.y(), v.y()) + halfWidth;
+  //Box<Int_t> wire(xl, yl, xh, yh);
+  //_cir.addSpatialRoutedWire(_net.idx(), )
+  //_vSpatialRoutedPath[z].insert(wire);
+  _cir.addSpatialRoutedWire(_net.idx(), u, v);
+}
+
+void DrAstar::addVia2RoutedSpatial(const DrAstarNode* pU, const DrAstarNode* pV, const UInt_t viaIdx) {
+  const Point3d<Int_t>& u = pU->coord();
+  const Point3d<Int_t>& v = pV->coord();
+  addVia2RoutedSpatial(u, v, viaIdx);
+}
+
+void DrAstar::addVia2RoutedSpatial(const Point3d<Int_t>& u, const Point3d<Int_t>& v, const UInt_t viaIdx) {
+  //const Int_t zl = std::min(u.z(), v.z());
+  //const Int_t zc = zl + 1;
+  //const Int_t zh = std::max(u.z(), v.z());
+  //assert(zh - zl == 2);
+  //assert(u.x() == v.x() and u.y() == v.y());
+  //const Int_t x = u.x();
+  //const Int_t y = u.y();
+  //UInt_t i;
+  //for (i = 0; i < lefVia.numBotBoxes(); ++i) {
+    //Box<Int_t> box(lefVia.botBox(i));
+    //box.shift(x, y);
+    //_vSpatialRoutedPath[zl].insert(box);
+  //}
+  //for (i = 0; i < lefVia.numCutBoxes(); ++i) {
+    //Box<Int_t> box(lefVia.cutBox(i));
+    //box.shift(x, y);
+    //_vSpatialRoutedPath[zc].insert(box);
+  //}
+  //for (i = 0; i < lefVia.numTopBoxes(); ++i) {
+    //Box<Int_t> box(lefVia.topBox(i));
+    //box.shift(x, y);
+    //_vSpatialRoutedPath[zh].insert(box);
+  //}
+  _cir.addSpatialRoutedVia(_net.idx(), viaIdx, u, v);
+}
+
 Int_t DrAstar::scaledMDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
   Int_t dist = 0;
   dist += abs(u.x() - v.x()) * _param.horCost;
@@ -198,15 +668,221 @@ Int_t DrAstar::scaledMDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
 
 Int_t DrAstar::scaledMDist(const Box<Int_t>& u, const Box<Int_t>& v) {
   Int_t dist = 0;
-  dist += std::max({u.bl().x() - v.tr().x(), v.bl().x() - u.tr().x(), 0}) * _param.horCost;
-  dist += std::max({u.bl().y() - v.tr().y(), v.bl().y() - u.tr().y(), 0}) * _param.verCost;
+  dist += std::max({u.bl().x() - v.tr().x(), v.bl().x() - u.tr().x(), (Int_t)0}) * _param.horCost;
+  dist += std::max({u.bl().y() - v.tr().y(), v.bl().y() - u.tr().y(), (Int_t)0}) * _param.verCost;
   return dist;
+}
+
+Int_t DrAstar::scaledMDist(const Point3d<Int_t>& u, const Pair_t<Box<Int_t>, Int_t>& pair) {
+  Int_t dx = 0, dy = 0, dz = 0;
+  const Box<Int_t>& box = pair.first;
+  if (u.x() < box.xl())
+    dx = box.xl() - u.x();
+  else if (u.x() > box.xh())
+    dx = u.x() - box.xh();
+  if (u.y() < box.yl())
+    dy = box.yl() - u.y();
+  else if (u.y() > box.yh())
+    dy = u.y() - box.yh();
+  dz = abs(u.z() - pair.second);
+  return dx * _param.horCost + 
+         dy * _param.verCost +
+         dz * _param.viaCost;
 }
 
 Int_t DrAstar::scaledMDist(const Pair_t<Box<Int_t>, Int_t>& u, const Pair_t<Box<Int_t>, Int_t>& v) {
   Int_t dist = scaledMDist(u.first, v.first);
   dist += abs(u.second - v.second) * _param.viaCost;
   return dist;
+}
+
+Int_t DrAstar::nearestTarBoxDist(const Point3d<Int_t>& u, const UInt_t tarIdx) {
+  Int_t dist_nearest = MAX_INT;
+  for (const Pair_t<Box<Int_t>, Int_t>& pair : _vCompBoxes[tarIdx]) {
+    Int_t dist = scaledMDist(u, pair);
+    if (dist_nearest > dist)
+      dist_nearest = dist;
+  }
+  return dist_nearest;
+}
+
+bool DrAstar::hasBend(const DrAstarNode* pU, const DrAstarNode* pV, const Int_t i) {
+  if (pU->pParent(i) != nullptr) {
+    return findDir(pU->pParent(i)->coord(), pU->coord()) != findDir(pU->coord(), pV->coord());
+  }
+  return false;
+}
+
+DrAstar::PathDir DrAstar::findDir(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
+  if (u.z() == v.z()) {
+    if (u.x() == v.x()) {
+      assert(u.y() != v.y());
+      return u.y() < v.y() ? PathDir::UP : PathDir::DOWN;
+    }
+    else {
+      assert(u.x() != v.x());
+      return u.x() < v.x() ? PathDir::RIGHT : PathDir::LEFT;
+    }
+  }
+  else {
+    assert(u.x() == v.x() and u.y() == v.y());
+    return u.z() < v.z() ? PathDir::VIA_UP : PathDir::VIA_DOWN;
+  }
+}
+
+bool DrAstar::bNeedUpdate(const DrAstarNode* pV, const Int_t i, const Int_t costG, const Int_t bendCnt) {
+  if (pV->costG(i) > costG)
+    return true;
+  else if (pV->bendCnt(i) > bendCnt)
+    return true;
+  return false;
+}
+
+bool DrAstar::bInsideGuide(const DrAstarNode* pV) {
+  const Point3d<Int_t>& v = pV->coord();
+  assert(v.z() < (Int_t)_vSpatialNetGuides.size() and v.z() > 0);
+  const Point<Int_t> v2d(v.x(), v.y());
+  return _vSpatialNetGuides[v.z()].exist(v2d, v2d);
+}
+
+void DrAstar::add2Path(const Int_t i, const Point3d<Int_t>& u, List_t<Point3d<Int_t>>& lPathPts) {
+  if (i == 0)
+    lPathPts.emplace_front(u);
+  else
+    lPathPts.emplace_back(u);
+}
+
+bool DrAstar::bConnected2TarBox(const DrAstarNode* pU, const UInt_t tarIdx) {
+  const Point3d<Int_t>& u = pU->coord();
+  const Point<Int_t> u2d(u.x(), u.y());
+  const Vector_t<Pair_t<Box<Int_t>, Int_t>>& vTarBoxes = _vCompBoxes[tarIdx];
+  for (const Pair_t<Box<Int_t>, Int_t>& pair : vTarBoxes) {
+    if (pair.second == u.z() and Box<Int_t>::bConnect(pair.first, u2d)) {
+      return true;
+    } 
+  }
+  return false;
+}
+
+bool DrAstar::bNeedMergePath(const Point3d<Int_t>& u1, const Point3d<Int_t>& v1, const Point3d<Int_t>& u2, const Point3d<Int_t>& v2) {
+  // path1: u1 -> v1, path2: u2 -> v2
+  if (u1.z() != v1.z()) {
+    cerr << u1 << v1 << endl;
+    assert(u1.x() == v1.x() and u1.y() == v1.y());
+    return false;
+  }
+  return findDir(u1, v1) == findDir(u2, v2);
+}
+
+void DrAstar::mergePath(const List_t<Point3d<Int_t>>& lPathPts, List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec) {
+  if (lPathPts.size() == 1) {
+    lPathVec.emplace_back(lPathPts.front(), lPathPts.front());
+    return;
+  }
+  else {
+    auto u1 = lPathPts.begin();
+    auto v1 = std::next(u1, 1);
+    auto v2 = std::next(v1, 1);
+    for (; v2 != lPathPts.end(); ++v2) {
+      if (bNeedMergePath(*u1, *v1, *v1, *v2)) {
+        v1 = v2;
+      }
+      else {
+        lPathVec.emplace_back(*u1, *v1);
+        u1 = v1;
+        v1 = v2;
+      }
+    }
+    lPathVec.emplace_back(*u1, *v1);
+  }
+  //cerr << "================" << endl;
+  //for (auto& p : lPathPts) {
+    //cerr << p << endl;
+  //}
+  //cerr << endl;
+  //for (auto& p : newList) {
+    //cerr << p.first << p.second << endl;
+  //}
+  //cerr << "================" << endl;
+}
+
+void DrAstar::toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, Box<Int_t>& wire) {
+  assert(u.z() == v.z());
+  const Int_t z = u.z();
+  const Pair_t<LefLayerType, UInt_t>& layerPair = _cir.lef().layerPair(z);
+  assert(layerPair.first == LefLayerType::ROUTING);
+  const LefRoutingLayer& layer = _cir.lef().routingLayer(layerPair.second);
+  const Int_t halfWidth = layer.minWidth() / 2;
+  const Int_t xl = std::min(u.x(), v.x()) - halfWidth;
+  const Int_t xh = std::max(u.x(), v.x()) + halfWidth;
+  const Int_t yl = std::min(u.y(), v.y()) - halfWidth;
+  const Int_t yh = std::max(u.y(), v.y()) + halfWidth;
+  wire.setXL(xl);
+  wire.setXH(xh);
+  wire.setYL(yl);
+  wire.setYH(yh);
+}
+
+void DrAstar::toVia(const Point3d<Int_t>& u, const Point3d<Int_t>& v, const UInt_t viaIdx, Vector_t<Pair_t<Box<Int_t>, Int_t>>& vRet) {
+  const Int_t zl = std::min(u.z(), v.z());
+  const Int_t zc = zl + 1;
+  const Int_t zh = std::max(u.z(), v.z());
+  assert(zh - zl == 2);
+  assert(u.x() == v.x() and u.y() == v.y());
+  const Int_t x = u.x();
+  const Int_t y = u.y();
+  const LefVia& lefVia = _cir.lef().via(viaIdx);
+  UInt_t i;
+  for (i = 0; i < lefVia.numBotBoxes(); ++i) {
+    Box<Int_t> box(lefVia.botBox(i));
+    box.shift(x, y);
+    vRet.emplace_back(box, zl);
+  }
+  for (i = 0; i < lefVia.numCutBoxes(); ++i) {
+    Box<Int_t> box(lefVia.cutBox(i));
+    box.shift(x, y);
+    vRet.emplace_back(box, zc);
+  }
+  for (i = 0; i < lefVia.numTopBoxes(); ++i) {
+    Box<Int_t> box(lefVia.topBox(i));
+    box.shift(x, y);
+    vRet.emplace_back(box, zh);
+  }
+  
+}
+
+// for debug
+void DrAstar::visualize() {
+  GdsWriter gw(_cir.name() + "_" + _net.name() + ".gds");
+  gw.initWriter();
+  gw.createLib("TOP", 2000, 1e-6/2000);
+  gw.writeCellBgn("INTERCONNECTION");
+
+  for (const auto& v : _vCompBoxes) {
+    for (const auto& p : v) {
+      gw.writeRectangle(p.first, p.second, 0);
+    }
+  }
+  
+  const auto& vGuides = _net.vGuides();
+  for (const auto& p : vGuides) {
+    gw.writeRectangle(p.first, p.second + 2000, 0);
+  }
+
+  for (const auto& v : _vvRoutePaths) {
+    for (const auto& p : v) {
+      const Point3d<Int_t> u = p.first;
+      const Point3d<Int_t> v = p.second;
+      if (u.z() != v.z())
+        continue;
+      Box<Int_t> box;
+      toWire(u, v, box);
+      gw.writeRectangle(box, u.z() + 1000, 0);
+    }
+  }
+
+  gw.writeCellEnd();
+  gw.endLib();
 }
 
 PROJECT_NAMESPACE_END

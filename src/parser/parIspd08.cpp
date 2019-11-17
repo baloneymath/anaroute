@@ -54,8 +54,8 @@ void Ispd08Reader::parse(const String_t& filename) {
       for (UInt_t k = 1; k + 1 < vTokens.size(); k += 2) {
         Int_t x = std::stoi(vTokens[k]);
         Int_t y = std::stoi(vTokens[k + 1]);
-        assert(x % 10 == 0 or x % 10 == 9 or x % 10 == 5 or x % 10 == 4);
-        assert(y % 10 == 0 or y % 10 == 9 or y % 10 == 5 or y % 10 == 4);
+        assert(abs(x) % 10 == 0 or abs(x) % 10 == 9 or abs(x) % 10 == 5 or abs(x) % 10 == 4);
+        assert(abs(y) % 10 == 0 or abs(y) % 10 == 9 or abs(y) % 10 == 5 or abs(y) % 10 == 4);
         x = to_db_unit(x);
         y = to_db_unit(y);
         vPts.emplace_back(x, y);

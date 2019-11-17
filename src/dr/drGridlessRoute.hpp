@@ -10,6 +10,8 @@
 #define _DR_GRIDLESS_ROUTE_HPP_
 
 #include "drMgr.hpp"
+#include "src/ds/hash.hpp"
+#include "drAstarNode.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -18,7 +20,13 @@ class DrGridlessRoute {
  public:
   DrGridlessRoute(CirDB& c, DrMgr& dr, DrcMgr& drc)
     : _cir(c), _drMgr(dr), _drcMgr(drc) {}
-  ~DrGridlessRoute() {}
+  ~DrGridlessRoute() {
+    for (auto& v : _vAllAstarNodesMap) {
+      for (auto& m : v) {
+        delete m.second;
+      }
+    }
+  }
 
   void solve();
 
@@ -27,6 +35,10 @@ class DrGridlessRoute {
   DrMgr&  _drMgr;
   DrcMgr& _drcMgr;
   
+
+  // for Astar
+  Vector_t<DenseHashMap<Point<Int_t>, DrAstarNode*, Point<Int_t>::hasher>>  _vAllAstarNodesMap;
+
   /////////////////////////////////////////
   //    Private structs                  //
   /////////////////////////////////////////

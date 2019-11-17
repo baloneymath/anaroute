@@ -20,21 +20,33 @@ void Parser::correctPinNBlkLoc() {
       //Pin_ForEachLayerBox((*pPin), layerIdx, pBox, j) {
       for (j = 0; j < pPin->numBoxes(layerIdx); ++j) {
         Box<Int_t>* pBox = &pPin->_vvBoxes[layerIdx][j];
-        assert(pBox->xl() % 10 == 0 or pBox->xl() % 10 == 8);
-        assert(pBox->yl() % 10 == 0 or pBox->yl() % 10 == 8);
-        assert(pBox->xh() % 10 == 0 or pBox->xh() % 10 == 8);
-        assert(pBox->yh() % 10 == 0 or pBox->yh() % 10 == 8);
-        if (pBox->xl() % 10 == 8) {
-          pBox->setXL(pBox->xl() + 2);
+        assert(abs(pBox->xl()) % 10 == 0 or abs(pBox->xl()) % 10 == 8);
+        assert(abs(pBox->yl()) % 10 == 0 or abs(pBox->yl()) % 10 == 8);
+        assert(abs(pBox->xh()) % 10 == 0 or abs(pBox->xh()) % 10 == 8);
+        assert(abs(pBox->yh()) % 10 == 0 or abs(pBox->yh()) % 10 == 8);
+        if (abs(pBox->xl()) % 10 == 8) {
+          if (pBox->xl() > 0)
+            pBox->setXL(pBox->xl() + 2);
+          else
+            pBox->setXL(pBox->xl() - 2);
         }
-        if (pBox->yl() % 10 == 8) {
-          pBox->setYL(pBox->yl() + 2);
+        if (abs(pBox->yl()) % 10 == 8) {
+          if (pBox->yl() > 0)
+            pBox->setYL(pBox->yl() + 2);
+          else
+            pBox->setYL(pBox->yl() - 2);
         }
-        if (pBox->xh() % 10 == 8) {
-          pBox->setXH(pBox->xh() + 2);
+        if (abs(pBox->xh()) % 10 == 8) {
+          if (pBox->xh() > 0)
+            pBox->setXH(pBox->xh() + 2);
+          else
+            pBox->setXH(pBox->xh() - 2);
         }
-        if (pBox->yh() % 10 == 8) {
-          pBox->setYH(pBox->yh() + 2);
+        if (abs(pBox->yh()) % 10 == 8) {
+          if (pBox->yh() > 0)
+            pBox->setYH(pBox->yh() + 2);
+          else
+            pBox->setYH(pBox->yh() - 2);
         }
       }
     }
@@ -44,21 +56,33 @@ void Parser::correctPinNBlkLoc() {
   Blk* pBlk;
   Cir_ForEachBlk(_cir, pBlk, i) {
     Box<Int_t>* pBox = &pBlk->_box;
-    assert(pBox->xl() % 10 == 0 or pBox->xl() % 10 == 8);
-    assert(pBox->yl() % 10 == 0 or pBox->yl() % 10 == 8);
-    assert(pBox->xh() % 10 == 0 or pBox->xh() % 10 == 8);
-    assert(pBox->yh() % 10 == 0 or pBox->yh() % 10 == 8);
-    if (pBox->xl() % 10 == 8) {
-      pBox->setXL(pBox->xl() + 2);
+    assert(abs(pBox->xl()) % 10 == 0 or abs(pBox->xl()) % 10 == 8);
+    assert(abs(pBox->yl()) % 10 == 0 or abs(pBox->yl()) % 10 == 8);
+    assert(abs(pBox->xh()) % 10 == 0 or abs(pBox->xh()) % 10 == 8);
+    assert(abs(pBox->yh()) % 10 == 0 or abs(pBox->yh()) % 10 == 8);
+    if (abs(pBox->xl()) % 10 == 8) {
+      if (pBox->xl() > 0)
+        pBox->setXL(pBox->xl() + 2);
+      else
+        pBox->setXL(pBox->xl() - 2);
     }
-    if (pBox->yl() % 10 == 8) {
-      pBox->setYL(pBox->yl() + 2);
+    if (abs(pBox->yl()) % 10 == 8) {
+      if (pBox->yl() > 0)
+        pBox->setYL(pBox->yl() + 2);
+      else
+        pBox->setYL(pBox->yl() - 2);
     }
-    if (pBox->xh() % 10 == 8) {
-      pBox->setXH(pBox->xh() + 2);
+    if (abs(pBox->xh()) % 10 == 8) {
+      if (pBox->xh() > 0)
+        pBox->setXH(pBox->xh() + 2);
+      else
+        pBox->setXH(pBox->xh() - 2);
     }
-    if (pBox->yh() % 10 == 8) {
-      pBox->setYH(pBox->yh() + 2);
+    if (abs(pBox->yh()) % 10 == 8) {
+      if (pBox->yh() > 0)
+        pBox->setYH(pBox->yh() + 2);
+      else
+        pBox->setYH(pBox->yh() - 2);
     }
   }
 }
