@@ -43,6 +43,7 @@ class DrAstar {
   DisjointSet                                                     _compDS;
   Vector_t<Vector_t<Pair_t<Box<Int_t>, Int_t>>>                   _vCompBoxes;
   Vector_t<DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher>>  _vCompAcsPts;
+  Vector_t<Vector_t<Spatial<Int_t>>>                              _vCompSpatialBoxes;
   Vector_t<Pair_t<UInt_t, UInt_t>>                                _vCompPairs;
   
   Vector_t<DenseHashMap<Point<Int_t>, DrAstarNode*, Point<Int_t>::hasher>>&  _vAllAstarNodesMap;
@@ -57,7 +58,7 @@ class DrAstar {
     Int_t viaCost = 1000;
     Int_t factorG = 1;
     Int_t factorH = 1;
-    Int_t guideCost = -5000;
+    Int_t guideCost = -2000;
   } _param;
   
   enum class PathDir : Byte_t {
@@ -79,7 +80,7 @@ class DrAstar {
   //    Private functions                //
   /////////////////////////////////////////
   void    splitSubNetMST();
-  void    initAcsPoints();
+  void    init();
   void    computeSelfSymAxisX();
   void    computeSymAxisX();
   void    constructAllLayerBoxes();
@@ -95,6 +96,7 @@ class DrAstar {
   /////////////////////////////////////////
   //    Helper functions                 //
   /////////////////////////////////////////
+  void    addAcsPts(const UInt_t idx, const Int_t z, const Box<Int_t>& box);
   void    neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbors);
   bool    bViolateDRC(const DrAstarNode* pU, const DrAstarNode* pV) const;
   UInt_t  selectVia(const DrAstarNode* pU, const DrAstarNode* pV);
