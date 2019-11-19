@@ -24,10 +24,10 @@ void DrGridlessRoute::solve() {
   Cir_ForEachNet(_cir, pNet, i) {
     // ignore dangling nets
     if (pNet->numPins() > 1) {
-      if (pNet->hasSymNet() and pNet->idx() > pNet->symNetIdx()) {
-        continue;
-      }
-      if (pNet->name() == "AVSS")
+      //if (pNet->hasSymNet() and pNet->idx() > pNet->symNetIdx()) {
+        //continue;
+      //}
+      //if (pNet->name() == "AVSS")
       pq.push(pNet);
     }
   }
@@ -43,12 +43,12 @@ void DrGridlessRoute::solve() {
       qFrozenNet.pop();
     }
     pNet = pq.top();
+    std::cerr << pNet->name() << std::endl;
     pq.pop();
     if (!routeSingleNet(*pNet)) {
       pNet->addDrFail();
       qFrozenNet.push(pNet);
     }
-    return;
   }
 }
 

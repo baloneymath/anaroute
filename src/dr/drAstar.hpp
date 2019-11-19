@@ -43,7 +43,7 @@ class DrAstar {
   DisjointSet                                                     _compDS;
   Vector_t<Vector_t<Pair_t<Box<Int_t>, Int_t>>>                   _vCompBoxes;
   Vector_t<DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher>>  _vCompAcsPts;
-  Vector_t<Vector_t<Spatial<Int_t>>>                              _vCompSpatialBoxes;
+  Vector_t<UMap_t<Int_t, Spatial<Int_t>>>                         _vCompSpatialBoxes;
   Vector_t<Pair_t<UInt_t, UInt_t>>                                _vCompPairs;
   
   Vector_t<DenseHashMap<Point<Int_t>, DrAstarNode*, Point<Int_t>::hasher>>&  _vAllAstarNodesMap;
