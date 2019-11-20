@@ -40,13 +40,15 @@ class Net {
   bool                        bSelfSym()                const { return _bSelfSym; }
   
   // global routing
-  Int_t                                       grFailCnt()               const { return _grFailCnt; }
-  UInt_t                                      numGuides()               const { return _vGuides.size(); }
-  Vector_t<Pair_t<Box<Int_t>, Int_t>>&        vGuides()                       { return _vGuides; }
-  const Vector_t<Pair_t<Box<Int_t>, Int_t>>&  vGuides()                 const { return _vGuides; }
+  Int_t                                       grFailCnt()    const { return _grFailCnt; }
+  UInt_t                                      numGuides()    const { return _vGuides.size(); }
+  Vector_t<Pair_t<Box<Int_t>, Int_t>>&        vGuides()            { return _vGuides; }
+  const Vector_t<Pair_t<Box<Int_t>, Int_t>>&  vGuides()      const { return _vGuides; }
   // detailed routing
-  Int_t                       drFailCnt()               const { return _drFailCnt; }
-  bool                        bRouted()                 const { return _bRouted; }
+  Int_t                       drFailCnt()                    const { return _drFailCnt; }
+  bool                        bRouted()                      const { return _bRouted; }
+  Vector_t<Pair_t<Box<Int_t>, Int_t>>&        vWires()             { return _vWires; }
+  const Vector_t<Pair_t<Box<Int_t>, Int_t>>&  vWires()       const { return _vWires; }
 
   //////////////////////////////////
   //  Setter                      //
@@ -74,6 +76,7 @@ class Net {
   Int_t                               _grFailCnt;
   Int_t                               _drFailCnt;
   Vector_t<Pair_t<Box<Int_t>, Int_t>> _vGuides; // from global routing
+  Vector_t<Pair_t<Box<Int_t>, Int_t>> _vWires;
 };
 
 //////////////////////////////////

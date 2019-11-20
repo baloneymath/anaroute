@@ -455,36 +455,45 @@ void DrAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPa
   _vvRoutePaths.back().reserve(lPathVec.size());
   _vvRouteViaIndices.resize(_vvRouteViaIndices.size() + 1);
   _vvRouteViaIndices.back().reserve(lPathVec.size());
+  _vvRoutedWires.resize(_vvRoutedWires.size() + 1);
+  _vvRoutedWires.back().reserve(lPathVec.size());
   for (const auto& pair : lPathVec) {
     _vvRoutePaths.back().emplace_back(pair);
   }
   // add exact shapes to spatial
   const auto& vPathVec = _vvRoutePaths.back();
-  Vector_t<UInt_t>& vPathViaIndices = _vvRouteViaIndices.back();
+  auto& vPathViaIndices = _vvRouteViaIndices.back();
+  auto& vRoutedWires = _vvRoutedWires.back();
   for (const auto& pair : vPathVec) {
     const Point3d<Int_t>& u = pair.first;
     const Point3d<Int_t>& v = pair.second;
     if (u.z() == v.z()) {
-      addWire2RoutedSpatial(u, v);
       vPathViaIndices.emplace_back(MAX_INT);
+      //addWire2RoutedSpatial(u, v);
+      Box<Int_t> wire;
+      toWire(u, v, wire);
+      vRoutedWires.emplace_back(wire, u.z());
     }
     else {
       UInt_t viaIdx = selectVia(u, v);
       assert(viaIdx != MAX_INT);
       vPathViaIndices.emplace_back(viaIdx);
-      addVia2RoutedSpatial(u, v, viaIdx);
+      //addVia2RoutedSpatial(u, v, viaIdx);
+      Vector_t<Pair_t<Box<Int_t>, Int_t>> vLayerBoxes;
+      toVia(u, v, viaIdx,  vLayerBoxes);
+      for (const auto& pair : vLayerBoxes) {
+        vRoutedWires.emplace_back(pair);
+      }
     }
   }
 }
 
 void DrAstar::saveResult2Net() {
-  //for (auto& v : _vvRoutePaths) {
-    //cerr << endl << endl;
-    //for (auto& p : v) {
-      //std::cerr << p;
-    //}
-  //}
-  
+  for (const auto& vRoutedWires : _vvRoutedWires) {
+    for (const auto& pair : vRoutedWires) {
+      _net.vWires().emplace_back(pair);
+    }
+  }
 }
 
 /////////////////////////////////////////
@@ -816,7 +825,6 @@ bool DrAstar::bConnected2TarBox(const DrAstarNode* pU, const UInt_t tarIdx) {
 bool DrAstar::bNeedMergePath(const Point3d<Int_t>& u1, const Point3d<Int_t>& v1, const Point3d<Int_t>& u2, const Point3d<Int_t>& v2) {
   // path1: u1 -> v1, path2: u2 -> v2
   if (u1.z() != v1.z()) {
-    cerr << u1 << v1 << endl;
     assert(u1.x() == v1.x() and u1.y() == v1.y());
     return false;
   }

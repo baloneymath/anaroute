@@ -86,6 +86,10 @@ void CirDB::addSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, c
   _vSpatialRoutedWires[layerIdx].insert(min_corner, max_corner, netIdx);
 }
 
+void CirDB::addSpatialRoutedWire(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& box) {
+  _vSpatialRoutedWires[layerIdx].insert(box, netIdx);
+}
+
 void CirDB::addSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
   assert(u.x() == v.x() and u.y() == v.y());
   const Int_t x = u.x();
@@ -129,6 +133,10 @@ bool CirDB::removeSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u
   const Point<Int_t> min_corner(xl, yl);
   const Point<Int_t> max_corner(xh, yh);
   return _vSpatialRoutedWires[layerIdx].erase(min_corner, max_corner, netIdx);
+}
+
+bool CirDB::removeSpatialRoutedWire(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& box) {
+  return _vSpatialRoutedWires[layerIdx].erase(box, netIdx);
 }
 
 bool CirDB::removeSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {

@@ -50,7 +50,7 @@ class DrAstar {
 
   Vector_t<Vector_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>>     _vvRoutePaths;
   Vector_t<Vector_t<UInt_t>>                                     _vvRouteViaIndices;
-  //Vector_t<Spatial<Int_t>>&  _vSpatialRoutedWires;
+  Vector_t<Vector_t<Pair_t<Box<Int_t>, Int_t>>>                  _vvRoutedWires;
 
   struct Param {
     Int_t horCost = 1;
