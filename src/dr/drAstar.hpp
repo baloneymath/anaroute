@@ -22,10 +22,17 @@ class DrAstar {
  public:
   DrAstar(CirDB& c, Net& n, DrGridlessRoute& d)
     : _cir(c), _net(n), _drGridlessRoute(d), _drcMgr(d._drcMgr),
-      _vSpatialNetGuides(c.vSpatialNetGuides(n.idx())),
-      _vAllAstarNodesMap(d._vAllAstarNodesMap)
+      _vSpatialNetGuides(c.vSpatialNetGuides(n.idx()))
+      //_vAllAstarNodesMap(d._vAllAstarNodesMap)
       //_vSpatialRoutedWires(c.v)
-  {}
+  {
+    for (auto& v : _vAllAstarNodesMap) {
+      for (auto& m : v) {
+        delete m.second;
+      }
+    }
+
+  }
   ~DrAstar() {}
 
   bool runKernel();
@@ -46,7 +53,8 @@ class DrAstar {
   Vector_t<UMap_t<Int_t, Spatial<Int_t>>>                         _vCompSpatialBoxes;
   Vector_t<Pair_t<UInt_t, UInt_t>>                                _vCompPairs;
   
-  Vector_t<DenseHashMap<Point<Int_t>, DrAstarNode*, Point<Int_t>::hasher>>&  _vAllAstarNodesMap;
+  //Vector_t<DenseHashMap<Point<Int_t>, DrAstarNode*, Point<Int_t>::hasher>>&  _vAllAstarNodesMap;
+  Vector_t<DenseHashMap<Point<Int_t>, DrAstarNode*, Point<Int_t>::hasher>>  _vAllAstarNodesMap;
 
   Vector_t<Vector_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>>     _vvRoutePaths;
   Vector_t<Vector_t<UInt_t>>                                     _vvRouteViaIndices;
@@ -59,6 +67,8 @@ class DrAstar {
     Int_t factorG = 1;
     Int_t factorH = 1;
     Int_t guideCost = -5000;
+    Int_t factorStep_1 = 4;
+    Int_t factorStep_2 = 2;
   } _param;
   
   enum class PathDir : Byte_t {

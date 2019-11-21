@@ -19,6 +19,10 @@ PROJECT_NAMESPACE_START
 
 bool DrAstar::runKernel() {
   
+  _vAllAstarNodesMap.resize(_cir.lef().numLayers());
+  for (auto& m : _vAllAstarNodesMap)
+    m.set_empty_key(Point<Int_t>(-1, -1));
+  
   constructAllLayerBoxes();
   if (_net.bSelfSym()) {
     computeSelfSymAxisX();
@@ -366,7 +370,8 @@ bool DrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
           //***************************
           //  Sym and Self Sym
           //  TODO
-          //***************************
+          //***************************a
+          pV->setDist2Tar(i, dist_nearest);
           pV->setCostG(i, costG);
           pV->setCostF(i, costF);
           pV->setBendCnt(i, bendCnt);
@@ -510,6 +515,11 @@ void DrAstar::neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbo
                            layer.spacing(0);
   const Int_t minWidth = layer.minWidth();
   const Int_t minBorderDist = minSpacing + minWidth;
+  Int_t step = minSpacing;
+  if (pU->dist2Tar(0) > 8 * minSpacing)
+    step *= _param.factorStep_1;
+  else if (pU->dist2Tar(0) > 4 * minSpacing)
+    step *= _param.factorStep_2;
 
   if (p.z() > 0) {
     Point<Int_t> p2d(p.x(), p.y());
@@ -532,7 +542,7 @@ void DrAstar::neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbo
     }
   }
   if (p.x() - minBorderDist > _cir.xl()) {
-    Int_t newX = p.x() - minSpacing;
+    Int_t newX = p.x() - step;
     Point<Int_t> p_neighbor(newX, p.y());
     Int_t layerIdx = p.z();
     if (_vAllAstarNodesMap[layerIdx].find(p_neighbor) == _vAllAstarNodesMap[layerIdx].end()) {
@@ -541,7 +551,7 @@ void DrAstar::neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbo
     vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p_neighbor]);
   }
   if (p.x() + minBorderDist < _cir.xh()) {
-    Int_t newX = p.x() + minSpacing;
+    Int_t newX = p.x() + step;
     Point<Int_t> p_neighbor(newX, p.y());
     Int_t layerIdx = p.z();
     if (_vAllAstarNodesMap[layerIdx].find(p_neighbor) == _vAllAstarNodesMap[layerIdx].end()) {
@@ -550,7 +560,7 @@ void DrAstar::neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbo
     vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p_neighbor]);
   }
   if (p.y() - minBorderDist > _cir.yl()) {
-    Int_t newY = p.y() - minSpacing;
+    Int_t newY = p.y() - step;
     Point<Int_t> p_neighbor(p.x(), newY);
     Int_t layerIdx = p.z();
     if (_vAllAstarNodesMap[layerIdx].find(p_neighbor) == _vAllAstarNodesMap[layerIdx].end()) {
@@ -559,7 +569,7 @@ void DrAstar::neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbo
     vpNeighbors.emplace_back(_vAllAstarNodesMap[layerIdx][p_neighbor]);
   }
   if (p.y() + minBorderDist < _cir.yh()) {
-    Int_t newY = p.y() + minSpacing;
+    Int_t newY = p.y() + step;
     Point<Int_t> p_neighbor(p.x(), newY);
     Int_t layerIdx = p.z();
     if (_vAllAstarNodesMap[layerIdx].find(p_neighbor) == _vAllAstarNodesMap[layerIdx].end()) {
@@ -790,6 +800,8 @@ bool DrAstar::bConnected2TarBox(const DrAstarNode* pU, const UInt_t tarIdx) {
     toWire(u, v, wire);
     return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
   }
+  //const Point<Int_t> u2d(u.x(), u.y());
+  //return _vCompSpatialBoxes[tarIdx][u.z()].find(u2d, u2d);
   //const Vector_t<Pair_t<Box<Int_t>, Int_t>>& vTarBoxes = _vCompBoxes[tarIdx];
   //for (const Pair_t<Box<Int_t>, Int_t>& pair : vTarBoxes) {
     //if (pair.second == u.z() and Box<Int_t>::bConnect(pair.first, wire)) {

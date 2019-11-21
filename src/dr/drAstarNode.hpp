@@ -21,13 +21,16 @@ class DrAstarNode {
               const Int_t f0 = MAX_INT, const Int_t f1 = MAX_INT,
               const Int_t b0 = MAX_INT, const Int_t b1 = MAX_INT,
               const bool e0 = false, const bool e1 = false,
-              DrAstarNode* p0 = nullptr, DrAstarNode* p1 = nullptr)
+              DrAstarNode* p0 = nullptr, DrAstarNode* p1 = nullptr,
+              const Int_t d0 = MAX_INT, const Int_t d1 = MAX_INT)
     : _coord(co),
       _costG{g0, g1},
       _costF{f0, f1},
       _bendCnt{b0, b1},
       _bExplored{e0, e1},
-      _pParent{p0, p1} {}
+      _pParent{p0, p1},
+      _dist2Tar{d0, d1}
+    {}
 
   ~DrAstarNode() {}
 
@@ -40,6 +43,7 @@ class DrAstarNode {
   Int_t                           bendCnt(const UInt_t i)       const { return _bendCnt[i]; }
   bool                            bExplored(const UInt_t i)     const { return _bExplored[i]; }
   DrAstarNode*                    pParent(const UInt_t i)       const { return _pParent[i]; }
+  Int_t                           dist2Tar(const UInt_t i)      const { return _dist2Tar[i]; }
   Vector_t<DrAstarNode*>&         vpNeighbors()                       { return _vpNeighbors; }
   const Vector_t<DrAstarNode*>&   vpNeighbors()                 const { return _vpNeighbors; }
   
@@ -52,6 +56,7 @@ class DrAstarNode {
   void setBendCnt(const UInt_t i, const Int_t c) { _bendCnt[i] = c; }
   void setExplored(const UInt_t i, const bool b) { _bExplored[i] = b; }
   void setParent(const UInt_t i, DrAstarNode* p) { _pParent[i] = p; }
+  void setDist2Tar(const UInt_t i, const Int_t d) { _dist2Tar[i] = d; }
   void addNeighbor(DrAstarNode* n) { _vpNeighbors.emplace_back(n); }
   void setNeighbors(const Vector_t<DrAstarNode*>& v) { _vpNeighbors = v; }
   void reset() {
@@ -65,6 +70,8 @@ class DrAstarNode {
     _bExplored[1] = false;
     _pParent[0] = nullptr;
     _pParent[1] = nullptr;
+    _dist2Tar[0] = MAX_INT;
+    _dist2Tar[1] = MAX_INT;
   }
   
  private:
@@ -74,6 +81,7 @@ class DrAstarNode {
   Int_t                   _bendCnt[2];
   bool                    _bExplored[2];
   DrAstarNode*            _pParent[2];
+  Int_t                   _dist2Tar[2];
   Vector_t<DrAstarNode*>  _vpNeighbors;
 
 };

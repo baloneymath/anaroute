@@ -21,11 +21,11 @@ class DrGridlessRoute {
   DrGridlessRoute(CirDB& c, DrMgr& dr, DrcMgr& drc)
     : _cir(c), _drMgr(dr), _drcMgr(drc) {}
   ~DrGridlessRoute() {
-    for (auto& v : _vAllAstarNodesMap) {
-      for (auto& m : v) {
-        delete m.second;
-      }
-    }
+    //for (auto& v : _vAllAstarNodesMap) {
+      //for (auto& m : v) {
+        //delete m.second;
+      //}
+    //}
   }
 
   void solve();
@@ -37,7 +37,7 @@ class DrGridlessRoute {
   
 
   // for Astar
-  Vector_t<DenseHashMap<Point<Int_t>, DrAstarNode*, Point<Int_t>::hasher>>  _vAllAstarNodesMap;
+  //Vector_t<DenseHashMap<Point<Int_t>, DrAstarNode*, Point<Int_t>::hasher>>  _vAllAstarNodesMap;
 
   /////////////////////////////////////////
   //    Private structs                  //

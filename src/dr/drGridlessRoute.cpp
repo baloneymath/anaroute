@@ -14,9 +14,9 @@ PROJECT_NAMESPACE_START
 
 void DrGridlessRoute::solve() {
   
-  _vAllAstarNodesMap.resize(_cir.lef().numLayers());
-  for (auto& m : _vAllAstarNodesMap)
-    m.set_empty_key(Point<Int_t>(-1, -1));
+  //_vAllAstarNodesMap.resize(_cir.lef().numLayers());
+  //for (auto& m : _vAllAstarNodesMap)
+    //m.set_empty_key(Point<Int_t>(-1, -1));
 
   PairingHeap<Net*, Net_Cmp> pq;
   UInt_t i;
