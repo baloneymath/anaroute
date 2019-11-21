@@ -58,7 +58,7 @@ class DrAstar {
     Int_t viaCost = 1000;
     Int_t factorG = 1;
     Int_t factorH = 1;
-    Int_t guideCost = -2000;
+    Int_t guideCost = -5000;
   } _param;
   
   enum class PathDir : Byte_t {
@@ -98,7 +98,7 @@ class DrAstar {
   /////////////////////////////////////////
   void    addAcsPts(const UInt_t idx, const Int_t z, const Box<Int_t>& box);
   void    neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbors);
-  bool    bViolateDRC(const DrAstarNode* pU, const DrAstarNode* pV) const;
+  bool    bViolateDRC(const DrAstarNode* pU, const DrAstarNode* pV);
   UInt_t  selectVia(const DrAstarNode* pU, const DrAstarNode* pV);
   UInt_t  selectVia(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   void    addWire2RoutedSpatial(const DrAstarNode* pU, const DrAstarNode* pV);

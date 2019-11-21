@@ -24,20 +24,22 @@ class DrcMgr {
       _vSpatialRoutedWires(c.vSpatialRoutedWires()) {}
   ~DrcMgr() {}
 
+  // return true: no violation ; false : violation
+
   /////////////////////////////////////////
   //    Wire level checking              //
   /////////////////////////////////////////
   // short
-  bool checkWireRoutingLayerShort(const UInt_t layerIdx, const Box<Int_t>& b) const;
-  bool checkWireCutLayerShort(const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireRoutingLayerShort(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireCutLayerShort(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   // min width
-  bool checkWireMinWidth(const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireMinWidth(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   // min area
-  bool checkWireMinArea(const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireMinArea(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   // spacing
-  bool checkWireRoutingLayerSpacing(const UInt_t layerIdx, const Box<Int_t>& b) const;
-  bool checkWireCutLayerSpacing(const UInt_t layerIdx, const Box<Int_t>& b) const;
-  bool checkWireEolSpacing(const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireCutLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireEolSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   
   /////////////////////////////////////////
   //    Net level checking               //

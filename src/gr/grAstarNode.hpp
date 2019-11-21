@@ -108,7 +108,7 @@ struct GrAstarNodeCmp1 {
     else if (n1.bendCnt(1) != n2.bendCnt(1))
       return n1.bendCnt(1) > n2.bendCnt(1);
     else if (n1.costG(1) != n2.costG(1))
-      return n1.costG(1) > n2.costG(1);
+      return n1.costG(1) < n2.costG(1);
     else
       return false;
   }
@@ -118,7 +118,7 @@ struct GrAstarNodeCmp1 {
     else if (pN1->bendCnt(1) != pN2->bendCnt(1))
       return pN1->bendCnt(1) > pN2->bendCnt(1);
     else if (pN1->costG(1) != pN2->costG(1))
-      return pN1->costG(1) > pN2->costG(1);
+      return pN1->costG(1) < pN2->costG(1);
     else
       return false;
   }

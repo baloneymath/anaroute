@@ -10,7 +10,7 @@
 
 PROJECT_NAMESPACE_START
 
-UInt_t DrViaSelector::selectViaIdx(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
+UInt_t DrViaSelector::selectViaIdx(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
   const Int_t zl = std::min(u.z(), v.z());
   const Int_t zc = zl + 1;
   const Int_t zh = std::max(u.z(), v.z());
@@ -26,15 +26,15 @@ UInt_t DrViaSelector::selectViaIdx(const Point3d<Int_t>& u, const Point3d<Int_t>
     for (j = 0; j < lefVia.numBotBoxes(); ++j) {
       Box<Int_t> box(lefVia.botBox(j));
       box.shift(x, y);
-      if (!_drcMgr.checkWireRoutingLayerShort(zl, box)) {
+      if (!_drcMgr.checkWireRoutingLayerShort(netIdx, zl, box)) {
         bViolate = true;
         break;
       }
-      if (!_drcMgr.checkWireRoutingLayerSpacing(zl, box)) {
+      if (!_drcMgr.checkWireRoutingLayerSpacing(netIdx, zl, box)) {
         bViolate = true;
         break;
       }
-      if (!_drcMgr.checkWireEolSpacing(zl, box)) {
+      if (!_drcMgr.checkWireEolSpacing(netIdx, zl, box)) {
         bViolate = true;
         break;
       }
@@ -44,11 +44,11 @@ UInt_t DrViaSelector::selectViaIdx(const Point3d<Int_t>& u, const Point3d<Int_t>
     for (j = 0; j < lefVia.numCutBoxes(); ++j) {
       Box<Int_t> box(lefVia.cutBox(j));
       box.shift(x, y);
-      if (!_drcMgr.checkWireCutLayerShort(zc, box)) {
+      if (!_drcMgr.checkWireCutLayerShort(netIdx, zc, box)) {
         bViolate = true;
         break;
       }
-      if (!_drcMgr.checkWireCutLayerSpacing(zc, box)) {
+      if (!_drcMgr.checkWireCutLayerSpacing(netIdx, zc, box)) {
         bViolate = true;
         break;
       }
@@ -58,15 +58,15 @@ UInt_t DrViaSelector::selectViaIdx(const Point3d<Int_t>& u, const Point3d<Int_t>
     for (j = 0; j < lefVia.numTopBoxes(); ++j) {
       Box<Int_t> box(lefVia.topBox(j));
       box.shift(x, y);
-      if (!_drcMgr.checkWireRoutingLayerShort(zh, box)) {
+      if (!_drcMgr.checkWireRoutingLayerShort(netIdx, zh, box)) {
         bViolate = true;
         break;
       }
-      if (!_drcMgr.checkWireRoutingLayerSpacing(zh, box)) {
+      if (!_drcMgr.checkWireRoutingLayerSpacing(netIdx, zh, box)) {
         bViolate = true;
         break;
       }
-      if (!_drcMgr.checkWireEolSpacing(zh, box)) {
+      if (!_drcMgr.checkWireEolSpacing(netIdx, zh, box)) {
         bViolate = true;
         break;
       }
