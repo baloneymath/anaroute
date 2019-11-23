@@ -51,7 +51,7 @@ void GdsReader::parse(const String_t& filename) {
 /////////////////////////////////////////
 //    Private functions                //
 /////////////////////////////////////////
-String_t GdsReader::topCell(GdsParser::GdsDB::GdsDB db) {
+String_t GdsReader::topCell(const GdsParser::GdsDB::GdsDB& db) {
   // Whether each cell is found as the subcell of the other
   UMap_t<String_t, bool> mNameFound;
   // Iterate all the cells and record their names

@@ -60,7 +60,7 @@ class GdsReader { // from limbo
 	/////////////////////////////////////////
 	//    Private functions                //
 	/////////////////////////////////////////
-	String_t  topCell(GdsParser::GdsDB::GdsDB db);
+	String_t  topCell(const GdsParser::GdsDB::GdsDB& db);
 	void      buildLayerMap();
   void      saveShapesAsBlockages();
 

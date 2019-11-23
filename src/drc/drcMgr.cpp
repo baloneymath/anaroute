@@ -45,12 +45,6 @@ bool DrcMgr::checkWireCutLayerShort(const UInt_t netIdx, const UInt_t layerIdx, 
   return true;
 }
 
-// min width
-bool DrcMgr::checkWireMinWidth(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const {
-
-  return true;
-}
-
 // min area
 bool DrcMgr::checkWireMinArea(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const {
 

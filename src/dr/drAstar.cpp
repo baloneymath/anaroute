@@ -590,8 +590,6 @@ bool DrAstar::bViolateDRC(const DrAstarNode* pU, const DrAstarNode* pV) {
     toWire(u, v, wire);
     if (!_drcMgr.checkWireRoutingLayerShort(_net.idx(), z, wire))
       return true;
-    if (!_drcMgr.checkWireMinWidth(_net.idx(), z, wire))
-      return true;
     if (!_drcMgr.checkWireMinArea(_net.idx(), z, wire))
       return true;
     if (!_drcMgr.checkWireRoutingLayerSpacing(_net.idx(), z, wire))
@@ -789,19 +787,19 @@ void DrAstar::add2Path(const Int_t i, const Point3d<Int_t>& u, List_t<Point3d<In
 
 bool DrAstar::bConnected2TarBox(const DrAstarNode* pU, const UInt_t tarIdx) {
   const Point3d<Int_t>& u = pU->coord();
-  const Point3d<Int_t>& v = (pU->pParent(0) == nullptr) ? u : pU->pParent(0)->coord();
-  if (u.z() != v.z()) {
-    Box<Int_t> wire;
-    toWire(u, u, wire);
-    return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
-  }
-  else {
-    Box<Int_t> wire;
-    toWire(u, v, wire);
-    return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
-  }
-  //const Point<Int_t> u2d(u.x(), u.y());
-  //return _vCompSpatialBoxes[tarIdx][u.z()].find(u2d, u2d);
+  //const Point3d<Int_t>& v = (pU->pParent(0) == nullptr) ? u : pU->pParent(0)->coord();
+  //if (u.z() != v.z()) {
+    //Box<Int_t> wire;
+    //toWire(u, u, wire);
+    //return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
+  //}
+  //else {
+    //Box<Int_t> wire;
+    //toWire(u, v, wire);
+    //return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
+  //}
+  const Point<Int_t> u2d(u.x(), u.y());
+  return _vCompSpatialBoxes[tarIdx][u.z()].find(u2d, u2d);
   //const Vector_t<Pair_t<Box<Int_t>, Int_t>>& vTarBoxes = _vCompBoxes[tarIdx];
   //for (const Pair_t<Box<Int_t>, Int_t>& pair : vTarBoxes) {
     //if (pair.second == u.z() and Box<Int_t>::bConnect(pair.first, wire)) {

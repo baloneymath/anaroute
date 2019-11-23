@@ -9,24 +9,33 @@
 #ifndef _WRITER_HPP_
 #define _WRITER_HPP_
 
-#include "wrGrGuide.hpp"
 #include "wrGds.hpp"
+#include "wrGrGuide.hpp"
+#include "wrLayout.hpp"
 
 PROJECT_NAMESPACE_START
 
 class Writer {
  public:
   Writer(const CirDB& c)
-    : _cir(c), _grGuidew(c) {}
+    : _cir(c),
+      _grGuidew(c),
+      _layoutw(c)
+    {}
   ~Writer() {}
 
+  // result
+  void writeLayoutGds(const String_t& placementFilename, const String_t& outputFilename);
+  
   // guide
-  void writeGrGuide(const String_t& filename) const { _grGuidew.write(filename); }
-  void writeGrGuideGds(const String_t& netName, const String_t& filename) const { _grGuidew.writeGds(netName, filename); }
+  void writeGrGuide(const String_t& filename) const;
+  void writeGrGuideGds(const String_t& netName, const String_t& filename) const;
     
  private:
   const CirDB&  _cir;
   GrGuideWriter _grGuidew;
+  LayoutWriter  _layoutw;
+
 };
 
 PROJECT_NAMESPACE_END

@@ -51,8 +51,8 @@ find_package(Boost 1.6 REQUIRED COMPONENTS system graph iostreams)
 # Find Zlib
 find_package(ZLIB REQUIRED)
 
-set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
 set(CMAKE_CXX_FLAGS "-g -std=c++14 -Wall -fPIC")
+set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
 
 
 ##################################################
@@ -87,6 +87,8 @@ add_executable(${PROJECT_NAME}
   src/dr/drAstar.cpp
   src/dr/drViaSelector.cpp
   src/drc/drcMgr.cpp
+  src/writer/writer.cpp
+  src/writer/wrLayout.cpp
   src/writer/wrGrGuide.cpp
   src/writer/wrGds.cpp
 )

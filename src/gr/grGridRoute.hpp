@@ -52,8 +52,8 @@ class GrGridRoute {
     Int_t w_fail_cnt = 1;
   };
   struct Grid_Param {
-    UInt_t grid_x_scale = 5;
-    UInt_t grid_y_scale = 5;
+    UInt_t grid_x_scale = 8;
+    UInt_t grid_y_scale = 8;
   } _param;
   // for rip up and reroute
   struct RR_Param {

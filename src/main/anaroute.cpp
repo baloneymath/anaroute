@@ -66,6 +66,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   Writer wr(cir);
   wr.writeGrGuide(_args.get<String_t>("out_guide"));
   //wr.writeGrGuideGds("", _args.get<String_t>("out_guide_gds"));
+  wr.writeLayoutGds(_args.get<String_t>("placement_layout"), _args.get<String_t>("out"));
 
   timer.showUsage("Anaroute", TimeUsage::FULL);
   printf("Peak Memory Usage: %.2f MB\n", util::getPeakMemoryUsage() / MEM_SCALE);
