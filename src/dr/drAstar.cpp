@@ -47,7 +47,7 @@ bool DrAstar::runKernel() {
     }
   }
   saveResult2Net();
-  visualize();
+  //visualize();
   return true;
 }
 

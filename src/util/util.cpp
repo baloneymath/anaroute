@@ -159,6 +159,10 @@ namespace util {
       }
     } while (*str++);
   }
+
+  void trimString(String_t& str) {
+    str.erase(str.find_last_not_of(" \n\r\t") + 1);
+  }
 }
 
 PROJECT_NAMESPACE_END

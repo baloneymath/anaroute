@@ -16,6 +16,7 @@
 #include "parIspd08.hpp"
 #include "parGds.hpp"
 #include "parSymNet.hpp"
+#include "parIOPin.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -23,7 +24,7 @@ class Parser {
 public:
   Parser(CirDB& c)
     : _cir(c), _lefr(c.lef()), _techr(c), _ispd08r(c),
-      _gdsr(c), _symNetr(c) {}
+      _gdsr(c), _symNetr(c), _ioPinr(c) {}
   ~Parser() {}
   
   void parseLef(const String_t& filename)       { _lefr.parse(filename); }
@@ -31,6 +32,7 @@ public:
   void parseIspd08(const String_t& filename)    { _ispd08r.parse(filename); }
   void parseGds(const String_t& filename)       { _gdsr.parse(filename); }
   void parseSymNet(const String_t& filename)    { _symNetr.parse(filename); }
+  void parseIOPin(const String_t& filename)     { _ioPinr.parse(filename); }
 
   // patch for the bug from placement
   void correctPinNBlkLoc();
@@ -42,6 +44,7 @@ private:
   Ispd08Reader     _ispd08r;
   GdsReader        _gdsr;
   SymNetReader     _symNetr;
+  IOPinReader      _ioPinr;
 };
 
 PROJECT_NAMESPACE_END

@@ -14,9 +14,9 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            --design_type a \
            --design_file $BENCH_DIR/magical/COMPARATOR_PRE_AMP_2018_Modify_test_flow/ROUTING_INPUT.gr \
            --placement_layout $BENCH_DIR/magical/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.wellgen.gds \
-           --iopin a \
+           --iopin $BENCH_DIR/magical/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.iopin \
            --symnet $BENCH_DIR/magical/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.symnet \
-           --out a \
+           --out $OUT_DIR/gds/COMPARATOR_PRE_AMP_2018_Modify_test_flow.route.gds \
            --out_guide $OUT_DIR/guide/COMPARATOR_PRE_AMP_2018_Modify_test_flow.guide
 
 # OTA_FF_2s_v3_nodummy
@@ -25,9 +25,9 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            #--design_type a \
            #--design_file $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/ROUTING_INPUT.gr \
            #--placement_layout $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.wellgen.gds \
-           #--iopin a \
+           #--iopin $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.iopin \
            #--symnet $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.symnet \
-           #--out a \
+           #--out $OUT_DIR/gds/OTA_FF_2s_v3_nodummy.route.gds \
            #--out_guide $OUT_DIR/guide/OTA_FF_2s_v3_nodummy.guide \
            #--out_guide_gds $OUT_DIR/guide/OTA_FF_2s_v3_nodummy.guide.gds
 
@@ -38,7 +38,7 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            #--design_type a \
            #--design_file $BENCH_DIR/Telescopic_Three_stage_flow/ROUTING_INPUT.gr \
            #--placement_layout $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.wellgen.gds  \
-           #--iopin a \
+           #--iopin $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.iopin \
            #--symnet $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.symnet \
            #--out $OUT_DIR/gds/Telescopic_Three_stage_flow.gds \
            #--out_guide $OUT_DIR/guide/Telescopic_Three_stage_flow.guide \

@@ -38,6 +38,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   par.parseIspd08(_args.get<String_t>("design_file"));
   par.parseGds(_args.get<String_t>("placement_layout"));
   par.parseSymNet(_args.get<String_t>("symnet"));
+  par.parseIOPin(_args.get<String_t>("iopin"));
   par.correctPinNBlkLoc(); // patch for placement bugs
   //cir.printInfo();
   //return;

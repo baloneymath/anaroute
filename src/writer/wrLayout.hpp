@@ -36,8 +36,8 @@ class LayoutWriter {
   bool      readPlacementGds(const String_t& filename, GdsParser::GdsDB::GdsDB& gdsDB);
   String_t  topCellName(const GdsDB& gdsDB);
   void      addRoutingLayout(GdsCell& gdsCell, const Float_t scale);
-  void      addBox2Cell(GdsCell& gdsCell, const Int_t layerIdx, const Box<Int_t>& box, const Float_t scale);
-  void      addTxt2Cell(GdsCell& gdsCell, const Int_t layerIdx, const Point<Int_t>& pt, const String_t& txt, const Int_t size, const Float_t scale);
+  void      addBox2Cell(GdsCell& gdsCell, const Int_t maskIdx, const Box<Int_t>& box, const Float_t scale, const Int_t dataType);
+  void      addTxt2Cell(GdsCell& gdsCell, const Int_t maskIdx, const Point<Int_t>& pt, const String_t& txt, const Int_t size, const Float_t scale);
 
 };
 

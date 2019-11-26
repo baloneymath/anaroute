@@ -52,8 +52,19 @@ void LayoutWriter::addRoutingLayout(GdsCell& gdsCell, const Float_t scale) {
     const Vector_t<Pair_t<Box<Int_t>, Int_t>>& vWires = cpNet->vWires();
     for (const Pair_t<Box<Int_t>, Int_t>& pair : vWires) {
       const Box<Int_t>& box = pair.first;
-      const Int_t techLayerIdx = _cir.layerIdx2MaskIdx(pair.second);
-      addBox2Cell(gdsCell, techLayerIdx, box, scale);
+      const Int_t layerIdx = pair.second;
+      const Int_t maskIdx = _cir.layerIdx2MaskIdx(pair.second);
+      if (layerIdx > (Int_t)_cir.lef().routingLayerIdx2LayerIdx(6))
+        addBox2Cell(gdsCell, maskIdx, box, scale, 40);
+      else
+        addBox2Cell(gdsCell, maskIdx, box, scale, 0);
+    }
+    if (cpNet->bIOPort()) {
+      const Pin& pin = _cir.pin(cpNet->pinIdx(0));
+      const Int_t layerIdx = pin.minLayerIdx();
+      const Box<Int_t>& box = pin.box(layerIdx, 0);
+      const Int_t maskIdx = _cir.layerIdx2MaskIdx(layerIdx);
+      addTxt2Cell(gdsCell, maskIdx, box.center(), cpNet->name(), 20, scale);
     }
   }
 }
@@ -81,7 +92,7 @@ String_t LayoutWriter::topCellName(const GdsDB& gdsDB) {
   return "";
 }
 
-void LayoutWriter::addBox2Cell(GdsCell& gdsCell, const Int_t layerIdx, const Box<Int_t>& box, const Float_t scale) {
+void LayoutWriter::addBox2Cell(GdsCell& gdsCell, const Int_t maskIdx, const Box<Int_t>& box, const Float_t scale, const Int_t dataType) {
   Vector_t<GdsPoint> vPts;
   auto scalePoint = [&] (GdsPoint& pt) {
     Int_t x = std::round(pt.x() * scale);
@@ -107,11 +118,11 @@ void LayoutWriter::addBox2Cell(GdsCell& gdsCell, const Int_t layerIdx, const Box
   vPts.emplace_back(pt3);
   vPts.emplace_back(pt4);
 
-  gdsCell.addPolygon(layerIdx, 0, vPts);
+  gdsCell.addPolygon(maskIdx, dataType, vPts);
 
 }
 
-void LayoutWriter::addTxt2Cell(GdsCell& gdsCell, const Int_t layerIdx, const Point<Int_t>& pt,  const String_t& txt, const Int_t size, const Float_t scale) {
+void LayoutWriter::addTxt2Cell(GdsCell& gdsCell, const Int_t maskIdx, const Point<Int_t>& pt,  const String_t& txt, const Int_t size, const Float_t scale) {
 
   auto scalePoint = [&] (GdsPoint& pt) {
     Int_t x = std::round(pt.x() * scale);
@@ -122,7 +133,7 @@ void LayoutWriter::addTxt2Cell(GdsCell& gdsCell, const Int_t layerIdx, const Poi
   GdsPoint gdsPt(pt.x(), pt.y());
   scalePoint(gdsPt);
 
-  gdsCell.addText(100 + layerIdx,
+  gdsCell.addText(100 + maskIdx,
                   std::numeric_limits<Int_t>::max(),
                   0,
                   txt,

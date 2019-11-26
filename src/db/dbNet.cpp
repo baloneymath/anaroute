@@ -18,6 +18,10 @@ void Net::setSelfSym() {
   _bSelfSym = true;
 }
 
+void Net::setIOPort() {
+  _bIOPort = true;
+}
+
 void Net::setSymNetIdx(const UInt_t i) {
   _symNetIdx = i;
 }

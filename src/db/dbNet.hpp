@@ -18,7 +18,8 @@ class Net {
  public:
   Net(const String_t& n = "", const UInt_t idx = MAX_UINT)
     : _name(n), _idx(idx), _symNetIdx(MAX_UINT),
-      _bSelfSym(false), _bRouted(false), _grFailCnt(0), _drFailCnt(0) {}
+      _bSelfSym(false), _bRouted(false), _bIOPort(false),
+      _grFailCnt(0), _drFailCnt(0) {}
   ~Net() {}
 
   
@@ -38,6 +39,7 @@ class Net {
   const Vector_t<NetNode>&    vNodes()                  const { return _vNodes; }
   bool                        hasSymNet()               const { return _symNetIdx != MAX_UINT; }
   bool                        bSelfSym()                const { return _bSelfSym; }
+  bool                        bIOPort()                 const { return _bIOPort; }
   
   // global routing
   Int_t                                       grFailCnt()    const { return _grFailCnt; }
@@ -55,6 +57,7 @@ class Net {
   //////////////////////////////////
   void setName(const String_t& n);
   void setSelfSym();
+  void setIOPort();
   void setSymNetIdx(const UInt_t i);
   void setRouted(const bool b = true);
   void addPinIdx(const UInt_t i);
@@ -71,6 +74,7 @@ class Net {
   UInt_t                              _symNetIdx; // MAX_UINT if no sym net
   bool                                _bSelfSym;
   bool                                _bRouted;
+  bool                                _bIOPort;
   Vector_t<UInt_t>                    _vPinIndices;
   Vector_t<NetNode>                   _vNodes;
   Int_t                               _grFailCnt;

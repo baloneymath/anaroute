@@ -32,6 +32,7 @@ namespace util {
   extern void       splitString(const char* str, const String_t& delims, Vector_t<String_t>& tokens);
   extern void       splitString(const String_t& s, const String_t& delims, Vector_t<String_t>& tokens);
   extern void       splitString(const char* str, const char c, Vector_t<String_t>& tokens);
+  extern void       trimString(String_t& str);
 }
 
 PROJECT_NAMESPACE_END
