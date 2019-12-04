@@ -102,6 +102,7 @@ class DrAstar {
   void    backTrack(const DrAstarNode* pNode, const UInt_t bigCompIdx, const UInt_t srcIdx, const UInt_t tarIdx);
   void    savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec);
   void    saveResult2Net();
+  void    ripup();
 
   /////////////////////////////////////////
   //    Helper functions                 //
@@ -119,7 +120,11 @@ class DrAstar {
   Int_t   scaledMDist(const Box<Int_t>& u, const Box<Int_t>& v);
   Int_t   scaledMDist(const Pair_t<Box<Int_t>, Int_t>& u, const Pair_t<Box<Int_t>, Int_t>& v);
   Int_t   scaledMDist(const Point3d<Int_t>& u, const Pair_t<Box<Int_t>, Int_t>& box);
-  Int_t   nearestTarBoxDist(const Point3d<Int_t>& u, const UInt_t tarIdx);
+  Int_t   MDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
+  Int_t   MDist(const Box<Int_t>& u, const Box<Int_t>& v);
+  Int_t   MDist(const Pair_t<Box<Int_t>, Int_t>& u, const Pair_t<Box<Int_t>, Int_t>& v);
+  Int_t   MDist(const Point3d<Int_t>& u, const Pair_t<Box<Int_t>, Int_t>& box);
+  void    nearestTarBoxDist(const Point3d<Int_t>& u, const UInt_t tarIdx, Int_t& scaledDist, Int_t& unscaledDist);
   bool    hasBend(const DrAstarNode* pU, const DrAstarNode* pV, const Int_t i);
   PathDir findDir(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   bool    bNeedUpdate(const DrAstarNode* pV, const Int_t i, const Int_t costG, const Int_t bendCnt);

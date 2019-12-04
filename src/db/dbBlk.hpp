@@ -18,14 +18,15 @@ class Blk {
   friend class Parser;
  public:
   Blk()
-    : _layerIdx(MAX_UINT) {}
-  Blk(const UInt_t i, const Box<Int_t>& b)
-    : _layerIdx(i), _box(b) {}
+    : _idx(MAX_UINT), _layerIdx(MAX_UINT) {}
+  Blk(const UInt_t i, const UInt_t l, const Box<Int_t>& b)
+    : _idx(i), _layerIdx(l), _box(b), _bDummy(false) {}
   ~Blk() {}
   
   ////////////////////////////////////////
   //   Getter                           //
   ////////////////////////////////////////
+  UInt_t                          idx()                     const { return _idx; }
   UInt_t                          layerIdx()                const { return _layerIdx; }
   const Box<Int_t>&               box()                     const { return _box; }
   Int_t                           xl()                      const { return _box.xl(); } 
@@ -36,14 +37,21 @@ class Blk {
   const Point<Int_t>&             tr()                      const { return _box.tr(); }
   const Point<Int_t>&             min_corner()              const { return _box.min_corner(); }
   const Point<Int_t>&             max_corner()              const { return _box.max_corner(); }
+  
+  // 
+  bool bDummy() const { return _bDummy; }
+  void setDummy() { _bDummy = true; }
 
  private:
+  UInt_t                _idx;
   UInt_t                _layerIdx;
   Box<Int_t>            _box;
+  bool                  _bDummy;
   
   ////////////////////////////////////////
   //   Setter                           //
   ////////////////////////////////////////
+  void setIdx(const UInt_t i) { _idx = i; }
   void setLayerIdx(const UInt_t i) { _layerIdx = i; }
   void setBox(const Box<Int_t>& b) { _box = b; }
 };

@@ -33,7 +33,7 @@ public:
   void  setXH(T r)                      { _tr.setX(r); }
   void  setYL(T b)                      { _bl.setY(b); }
   void  setYH(T t)                      { _tr.setY(t); }
-  void  setYLounds(T l, T b, T r, T t)  { setXL(l); setYL(b); setXH(r); setYH(t); }
+  void  setBounds(T l, T b, T r, T t)   { setXL(l); setYL(b); setXH(r); setYH(t); }
   // Basic access functions
   T          xl()               const { return _bl.x(); }
   T          yl()               const { return _bl.y(); }

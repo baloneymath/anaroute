@@ -3,7 +3,7 @@
 HAO="/home/local/eda06/haoc"
 HAO_WORKSPACE="$HAO/workspace"
 ANAROUTE_DIR="$HAO/projects/anaroute"
-BENCH_DIR="../bench"
+BENCH_DIR="../bench_new"
 OUT_DIR="./out"
 GDB="gdb --args"
 #GDB=""
@@ -12,24 +12,24 @@ GDB="gdb --args"
 $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
            --design_type a \
-           --design_file $BENCH_DIR/magical/COMPARATOR_PRE_AMP_2018_Modify_test_flow/ROUTING_INPUT.gr \
-           --placement_layout $BENCH_DIR/magical/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.wellgen.gds \
-           --iopin $BENCH_DIR/magical/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.iopin \
-           --symnet $BENCH_DIR/magical/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.symnet \
+           --design_file $BENCH_DIR/COMPARATOR_PRE_AMP_2018_Modify_test_flow/ROUTING_INPUT.gr \
+           --placement_layout $BENCH_DIR/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.wellgen.gds \
+           --iopin $BENCH_DIR/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.iopin \
+           --symnet $BENCH_DIR/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.symnet \
            --out $OUT_DIR/gds/COMPARATOR_PRE_AMP_2018_Modify_test_flow.route.gds \
            --out_guide $OUT_DIR/guide/COMPARATOR_PRE_AMP_2018_Modify_test_flow.guide
 
-# OTA_FF_2s_v3_nodummy
+# OTA_FF_2s_v3_org
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
            #--design_type a \
-           #--design_file $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/ROUTING_INPUT.gr \
-           #--placement_layout $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.wellgen.gds \
-           #--iopin $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.iopin \
-           #--symnet $BENCH_DIR/magical/OTA_FF_2s_v3_nodummy/OTA_FF_2s_v3_nodummy.symnet \
-           #--out $OUT_DIR/gds/OTA_FF_2s_v3_nodummy.route.gds \
-           #--out_guide $OUT_DIR/guide/OTA_FF_2s_v3_nodummy.guide \
-           #--out_guide_gds $OUT_DIR/guide/OTA_FF_2s_v3_nodummy.guide.gds
+           #--design_file $BENCH_DIR/OTA_FF_2s_v3_org/ROUTING_INPUT.gr \
+           #--placement_layout $BENCH_DIR/OTA_FF_2s_v3_org/OTA_FF_2s_v3_org.wellgen.gds \
+           #--iopin $BENCH_DIR/OTA_FF_2s_v3_org/OTA_FF_2s_v3_org.iopin \
+           #--symnet $BENCH_DIR/OTA_FF_2s_v3_org/OTA_FF_2s_v3_org.symnet \
+           #--out $OUT_DIR/gds/OTA_FF_2s_v3_org.route.gds \
+           #--out_guide $OUT_DIR/guide/OTA_FF_2s_v3_org.guide \
+           #--out_guide_gds $OUT_DIR/guide/OTA_FF_2s_v3_org.guide.gds
 
 
 # Telescopic_Three_stage_flow

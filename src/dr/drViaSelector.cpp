@@ -26,10 +26,10 @@ UInt_t DrViaSelector::selectViaIdx(const UInt_t netIdx, const Point3d<Int_t>& u,
     for (j = 0; j < lefVia.numBotBoxes(); ++j) {
       Box<Int_t> box(lefVia.botBox(j));
       box.shift(x, y);
-      if (!_drcMgr.checkWireRoutingLayerShort(netIdx, zl, box)) {
-        bViolate = true;
-        break;
-      }
+      //if (!_drcMgr.checkWireRoutingLayerShort(netIdx, zl, box)) {
+        //bViolate = true;
+        //break;
+      //}
       if (!_drcMgr.checkWireRoutingLayerSpacing(netIdx, zl, box)) {
         bViolate = true;
         break;
@@ -58,10 +58,10 @@ UInt_t DrViaSelector::selectViaIdx(const UInt_t netIdx, const Point3d<Int_t>& u,
     for (j = 0; j < lefVia.numTopBoxes(); ++j) {
       Box<Int_t> box(lefVia.topBox(j));
       box.shift(x, y);
-      if (!_drcMgr.checkWireRoutingLayerShort(netIdx, zh, box)) {
-        bViolate = true;
-        break;
-      }
+      //if (!_drcMgr.checkWireRoutingLayerShort(netIdx, zh, box)) {
+        //bViolate = true;
+        //break;
+      //}
       if (!_drcMgr.checkWireRoutingLayerSpacing(netIdx, zh, box)) {
         bViolate = true;
         break;

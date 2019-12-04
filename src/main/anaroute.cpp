@@ -35,14 +35,16 @@ Anaroute::Anaroute(int argc, char** argv) {
   Parser par(cir);
   par.parseLef(_args.get<String_t>("tech_lef"));
   par.parseTechfile(_args.get<String_t>("tech_file"));
-  par.parseIspd08(_args.get<String_t>("design_file"));
   par.parseGds(_args.get<String_t>("placement_layout"));
+  par.parseIspd08(_args.get<String_t>("design_file"));
   par.parseSymNet(_args.get<String_t>("symnet"));
   par.parseIOPin(_args.get<String_t>("iopin"));
   par.correctPinNBlkLoc(); // patch for placement bugs
+  cir.visualize();
+
   //cir.printInfo();
-  //return;
   cir.buildSpatial();
+  cir.adjust();
   timer.showUsage("Circuit database construction", TimeUsage::PARTIAL);
   
   // global routing

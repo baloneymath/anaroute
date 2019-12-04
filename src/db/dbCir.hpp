@@ -109,9 +109,13 @@ class CirDB {
   bool existSpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box);
   bool existSpatialRoutedWireNet(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, const UInt_t netIdx);
   bool existSpatialRoutedWireNet(const UInt_t layerIdx, const Box<Int_t>& box, const UInt_t netIdx);
-  
+ 
+  // fix
+  void adjust();
+
   // for debug
   void printInfo() const;
+  void visualize() const;
  
  private:
   String_t                       _name;
@@ -199,10 +203,10 @@ class CirDB {
 
 // blks
 #define Cir_ForEachBlk(cir, pBlk_, i) \
-  for (i = 0; i < cir.numBlks() and (pBlk_ = &_cir.blk(i)); ++i)
+  for (i = 0; i < cir.numBlks() and (pBlk_ = &cir.blk(i)); ++i)
 // const blks
 #define Cir_ForEachBlkC(cir, cpBlk_, i) \
-  for (i = 0; i < cir.numBlks() and (cpBlk_ = &_cir.blk(i)); ++i)
+  for (i = 0; i < cir.numBlks() and (cpBlk_ = &cir.blk(i)); ++i)
 // layer blks
 #define Cir_ForEachLayerBlk(cir, layerIdx, pBlk_, i) \
   for (i = 0; i < cir.numLayerBlks(layerIdx) and (pBlk = &cir.blk(layerIdx, i)); ++i)

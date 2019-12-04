@@ -7,6 +7,7 @@
  **/
 
 #include "dbCir.hpp"
+#include "src/writer/wrGds.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -46,7 +47,7 @@ void CirDB::buildSpatialBlks() {
   const Blk* cpBlk;
   Cir_ForEachLayerIdx((*this), layerIdx) {
     Cir_ForEachLayerBlkC((*this), layerIdx, cpBlk, i) {
-      vvShapes[layerIdx].emplace_back(spatial::b_box<Int_t>(cpBlk->bl(), cpBlk->tr()), i);
+      vvShapes[layerIdx].emplace_back(spatial::b_box<Int_t>(cpBlk->bl(), cpBlk->tr()), cpBlk->idx());
     }
     _vSpatialBlks[layerIdx] = SpatialMap<Int_t, UInt_t>(vvShapes[layerIdx]);
   }
@@ -254,6 +255,29 @@ bool CirDB::existSpatialRoutedWireNet(const UInt_t layerIdx, const Box<Int_t>& b
   return false;
 }
 
+void CirDB::adjust() {
+  UInt_t i, j, layerIdx;
+  Pin* pPin;
+  Box<Int_t>* pBox;
+  Cir_ForEachPin((*this), pPin, i) {
+    Pin_ForEachLayerIdx((*pPin), layerIdx) {
+      Pin_ForEachLayerBox((*pPin), layerIdx, pBox, j) {
+        const Box<Int_t>& box = *pBox;
+        Vector_t<UInt_t> vBlkIndices;
+        querySpatialBlk(layerIdx, box, vBlkIndices);
+        for (const UInt_t idx : vBlkIndices) {
+          Blk& blk = _vBlks[idx];
+          const Box<Int_t>& blkBox = blk.box();
+          if (Box<Int_t>::bCover(box, blkBox)) {
+            blk.setDummy();
+          }
+        }
+      }
+    }
+  }
+}
+
+
 //////////////////////////////////
 //  Private Setter              //
 //////////////////////////////////
@@ -369,6 +393,36 @@ void CirDB::printInfo() const {
                                                   blk.xh(),
                                                   blk.yh());
   }
+}
+
+void CirDB::visualize() const {
+  GdsWriter gw("init.gds");
+  gw.initWriter();
+  gw.createLib("TOP", 2000, 1e-6/2000);
+  gw.writeCellBgn("INTERCONNECTION");
+
+  UInt_t i, j, k, pinIdx, netIdx, layerIdx;
+  const Net* cpNet;
+  const Blk* cpBlk;
+  const Box<Int_t>* cpBox;
+  
+  Cir_ForEachNet((*this), cpNet, i) {
+    Net_ForEachPinIdx((*cpNet), pinIdx, j) {
+      const Pin& pin = this->pin(pinIdx);
+      Pin_ForEachLayerIdx(pin, layerIdx) {
+        Pin_ForEachLayerBoxC(pin, layerIdx, cpBox, k) {
+          gw.writeRectangle(*cpBox, layerIdx + 100 * (i + 1), 0);
+        }
+      }
+    }
+  }
+  
+  Cir_ForEachBlk((*this), cpBlk, i) {
+    gw.writeRectangle(cpBlk->box(), cpBlk->layerIdx() + 10000, 0);
+  }
+
+  gw.writeCellEnd();
+  gw.endLib();
 }
 
 PROJECT_NAMESPACE_END

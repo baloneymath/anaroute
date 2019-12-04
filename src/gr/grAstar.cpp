@@ -589,6 +589,7 @@ void GrAstar::neighbors(const GrAstarNode* pNode, Vector_t<GrAstarNode*>& vpNeig
   // upper layer
   if (p.z() < (Int_t)_grGridRoute._gridMap.numGridCellsZ() - 1)
     vpNeighbors.emplace_back(&_vvvAstarNodes[p.z() + 1][p.x()][p.y()]);
+  
   if (p.x() > 0)
     vpNeighbors.emplace_back(&_vvvAstarNodes[p.z()][p.x() - 1][p.y()]);
   if (p.x() < (Int_t)_grGridRoute._gridMap.numGridCellsX() - 1)

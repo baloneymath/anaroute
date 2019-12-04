@@ -119,7 +119,7 @@ namespace limbo {
             rect.setXH(value);
             break;
           case TOP:
-            rect.YH(value);
+            rect.setYH(value);
             break;
           default:
             assert(false);

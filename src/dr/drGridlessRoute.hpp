@@ -67,6 +67,8 @@ class DrGridlessRoute {
   //    Private functions                //
   /////////////////////////////////////////
   bool routeSingleNet(Net& n);
+  void ripupSingleNet(Net& n);
+  void visualize();
   
 };
 

@@ -76,7 +76,9 @@ class LefRoutingLayer {
   Int_t                   spacing(const UInt_t i)     const { return _vSpacings[i]; }
   UInt_t                  numSpacings()               const { return _vSpacings.size(); }
   UInt_t                  numEolSpacings()            const { return _vEolSpacings.size(); }
-  const LefEolSpacing&    eolSpacing(const UInt_t i)  const { return _vEolSpacings[i]; }
+  Int_t                   eolSpacing(const UInt_t i)  const { return _vEolSpacings[i].eolSpacing(); }
+  Int_t                   eolWidth(const UInt_t i)    const { return _vEolSpacings[i].eolWidth(); }
+  Int_t                   eolWithin(const UInt_t i)   const { return _vEolSpacings[i].eolWithin(); }
   const LefSpacingTable&  spacingTable()              const { return _spacingTable; }
 
   // for debug

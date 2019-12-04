@@ -36,7 +36,7 @@ void GdsReader::parse(const String_t& filename) {
 	// scale the design
   const Int_t gds_unit = std::round(1e-6 / unflatenDB.precision());
   const Int_t db_unit = _cir.lef().units().databaseNumber();
-  const Int_t sc = db_unit / gds_unit;
+  const Float_t sc = db_unit / gds_unit;
 
   for (auto& polygon : _vPolygonLayers) {
     polygon.scale(sc, sc);
@@ -93,11 +93,12 @@ void GdsReader::saveShapesAsBlockages() {
   }
   _cir.resizeVVBlkIndices(_cir.lef().numLayers());
   Vector_t<Box<Int_t>> vBoxes;
+  UInt_t cnt = 0;
   for (const auto& poly : _vPolygonLayers) {
     geo::polygon2Box(poly.pts, vBoxes);
     for (const auto& box : vBoxes) {
-      auto __addBlk = [&] (const UInt_t layerIdx, const auto& box) {
-        Blk b(layerIdx, box);
+      auto __addBlk = [&] (const UInt_t idx, const UInt_t layerIdx, const auto& box) {
+        Blk b(idx, layerIdx, box);
         _cir.addBlk(layerIdx, b);
         if (b.xl() < _cir.xl()) {
           _cir.setXL(b.xl());
@@ -116,12 +117,13 @@ void GdsReader::saveShapesAsBlockages() {
         // dummy blks
         for (const auto& blk : vBlks) {
           if (Box<Int_t>::bCover(blk, box)) {
-            __addBlk(poly.layer, box);
+            for (UInt_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx)
+              __addBlk(cnt++, layerIdx, box);
           }
         }
       }
       else {
-        __addBlk(poly.layer, box);
+        __addBlk(cnt++, poly.layer, box);
       }
     }
     vBoxes.clear();
