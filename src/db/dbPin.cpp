@@ -37,11 +37,15 @@ void Pin::setMaxLayerIdx(const UInt_t i) {
 void Pin::addBox(const UInt_t layerIdx, const Box<Int_t>& box) {
   assert(layerIdx >= 0 and layerIdx < _vvBoxes.size());
   _vvBoxes[layerIdx].emplace_back(box);
+  _minLayerIdx = std::min(_minLayerIdx, layerIdx);
+  _maxLayerIdx = std::max(_maxLayerIdx, layerIdx);
 }
 
 void Pin::setLayerBoxes(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes) {
   assert(layerIdx >= 0 and layerIdx < _vvBoxes.size());
   _vvBoxes[layerIdx] = vBoxes;
+  _minLayerIdx = std::min(_minLayerIdx, layerIdx);
+  _maxLayerIdx = std::max(_maxLayerIdx, layerIdx);
 }
 
 void Pin::resizeLayerBoxes(const UInt_t i) {

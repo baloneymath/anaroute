@@ -43,3 +43,28 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            #--out $OUT_DIR/gds/Telescopic_Three_stage_flow.gds \
            #--out_guide $OUT_DIR/guide/Telescopic_Three_stage_flow.guide \
            #--out_guide_gds $OUT_DIR/guide/Telescopic_Three_stage_flow.guide.gds \
+
+# Core_test_flow
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_type a \
+           #--design_file $BENCH_DIR/Core_test_flow/ROUTING_INPUT.gr \
+           #--placement_layout $BENCH_DIR/Core_test_flow/Core_test_flow.wellgen.gds  \
+           #--iopin $BENCH_DIR/Core_test_flow/Core_test_flow.iopin \
+           #--symnet $BENCH_DIR/Core_test_flow/Core_test_flow.symnet \
+           #--out $OUT_DIR/gds/Core_test_flow.gds \
+           #--out_guide $OUT_DIR/guide/Core_test_flow.guide \
+           #--out_guide_gds $OUT_DIR/guide/Core_test_flow.guide.gds \
+
+# OTA_4
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+					 #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+					 #--design_type a \
+					 #--design_file $BENCH_DIR/OTA_4/ROUTING_INPUT.gr \
+					 #--placement_layout $BENCH_DIR/OTA_4/OTA_4.wellgen.gds  \
+					 #--iopin $BENCH_DIR/OTA_4/OTA_4.iopin \
+					 #--symnet $BENCH_DIR/OTA_4/OTA_4.symnet \
+					 #--out $OUT_DIR/gds/OTA_4.gds \
+					 #--out_guide $OUT_DIR/guide/OTA_4.guide \
+					 #--out_guide_gds $OUT_DIR/guide/OTA_4.guide.gds \
+

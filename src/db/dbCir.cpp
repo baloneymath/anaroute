@@ -255,7 +255,7 @@ bool CirDB::existSpatialRoutedWireNet(const UInt_t layerIdx, const Box<Int_t>& b
   return false;
 }
 
-void CirDB::adjust() {
+void CirDB::markBlks() {
   UInt_t i, j, layerIdx;
   Pin* pPin;
   Box<Int_t>* pBox;
@@ -271,11 +271,13 @@ void CirDB::adjust() {
           if (Box<Int_t>::bCover(box, blkBox)) {
             blk.setDummy();
           }
+          blk.setPinIdx(pPin->idx());
         }
       }
     }
   }
 }
+
 
 
 //////////////////////////////////

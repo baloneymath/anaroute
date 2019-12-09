@@ -19,10 +19,14 @@ UInt_t DrViaSelector::selectViaIdx(const UInt_t netIdx, const Point3d<Int_t>& u,
   const Int_t x = u.x();
   const Int_t y = u.y();
   UInt_t i, j, ret = MAX_INT;
+  //UInt_t viaIdx;
+  //Lef_ForEachLayerViaIdx(_cir.lef(), zc, viaIdx, i) {
   UInt_t maxIdx = _cir.lef().numVias();
   for (i = 0; i < maxIdx; ++i) {
     bool bViolate = false;
     const LefVia& lefVia = _cir.lef().via(i);
+    if ((Int_t)_cir.lef().str2LayerIdx(lefVia.cutLayerName()) != zc)
+      continue;
     for (j = 0; j < lefVia.numBotBoxes(); ++j) {
       Box<Int_t> box(lefVia.botBox(j));
       box.shift(x, y);

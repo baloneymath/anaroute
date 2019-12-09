@@ -28,7 +28,7 @@ void DrGridlessRoute::solve() {
       //if (pNet->hasSymNet() and pNet->idx() > pNet->symNetIdx()) {
         //continue;
       //}
-      //if (pNet->name() == "CROSSN")
+      //if (pNet->name() == "net050")
       pq.push(pNet);
     }
   }

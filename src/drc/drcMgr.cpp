@@ -71,7 +71,7 @@ bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t laye
   //const Int_t eolWithin = layer.numEolSpacings() ? layer.eolWithin(0) : 0;
   
   Box<Int_t> checkBox(b);
-  //checkBox.expand(prlSpacing);
+  checkBox.expand(prlSpacing - 1);
   
   // check pin
   Vector_t<UInt_t> vPinIndices;
@@ -93,7 +93,12 @@ bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t laye
   _cir.querySpatialBlk(layerIdx, checkBox, vBlkIndices);
   for (const UInt_t idx : vBlkIndices) {
     const Blk& blk = _cir.blk(idx);
-    if (!blk.bDummy())
+    //if (!blk.bDummy()) {
+      //return false;
+    //}
+    if (blk.pinIdx() == MAX_UINT)
+      return false;
+    else if (netIdx != _cir.pin(blk.pinIdx()).netIdx())
       return false;
   }
   return true;

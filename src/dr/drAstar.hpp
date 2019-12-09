@@ -63,7 +63,7 @@ class DrAstar {
   struct Param {
     Int_t horCost = 1;
     Int_t verCost = 1;
-    Int_t viaCost = 1000;
+    Int_t viaCost = 800;
     Int_t factorG = 1;
     Int_t factorH = 1;
     Int_t guideCost = -5000;

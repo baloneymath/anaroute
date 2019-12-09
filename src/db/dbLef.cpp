@@ -81,6 +81,10 @@ void LefDB::addOverlapLayer(const LefOverlapLayer& l) {
 
 void LefDB::addVia(const LefVia& v) {
   _mStr2ViaIdx[v.name()] = _vVias.size();
+  if (v.cutLayerIdx() >= _vvViaIndices.size()) {
+    _vvViaIndices.resize(v.cutLayerIdx() + 1);
+  }
+  _vvViaIndices[v.cutLayerIdx()].emplace_back(_vVias.size());
   _vVias.emplace_back(v);
 }
 

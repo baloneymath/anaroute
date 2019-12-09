@@ -16,6 +16,7 @@ PROJECT_NAMESPACE_START
 
 class Pin {
   friend class Parser;
+  friend class CirDB;
   friend class Ispd08Reader;
  public:
   Pin()

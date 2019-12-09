@@ -48,8 +48,8 @@ void Ispd08Reader::parse(const String_t& filename) {
       pin.setIdx(_cir.numPins());
       pin.resizeLayerBoxes(_cir.lef().numLayers());
       const UInt_t layerIdx = map2RoutingLayer(std::stoi(vTokens[0]));
-      pin.setMinLayerIdx(std::min(pin.minLayerIdx(), layerIdx));
-      pin.setMaxLayerIdx(std::max(pin.maxLayerIdx(), layerIdx));
+      //pin.setMinLayerIdx(std::min(pin.minLayerIdx(), layerIdx));
+      //pin.setMaxLayerIdx(std::max(pin.maxLayerIdx(), layerIdx));
       Vector_t<Point<Int_t>> vPts;
       for (UInt_t k = 1; k + 1 < vTokens.size(); k += 2) {
         Int_t x = std::stoi(vTokens[k]);

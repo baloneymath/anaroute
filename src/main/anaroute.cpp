@@ -44,7 +44,7 @@ Anaroute::Anaroute(int argc, char** argv) {
 
   //cir.printInfo();
   cir.buildSpatial();
-  cir.adjust();
+  cir.markBlks();
   timer.showUsage("Circuit database construction", TimeUsage::PARTIAL);
   
   // global routing

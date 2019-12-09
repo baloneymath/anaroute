@@ -100,9 +100,11 @@ class LefDB {
   ////////////////////////////////////////
   //   Vias                             //
   ////////////////////////////////////////
-  const LefVia&                   via(const UInt_t i) const { return _vVias[i]; }
-  const Vector_t<LefVia>&         vVias()             const { return _vVias; }
-  UInt_t                          numVias()           const { return _vVias.size(); }
+  const LefVia&                   via(const UInt_t i)                     const { return _vVias[i]; }
+  const Vector_t<LefVia>&         vVias()                                 const { return _vVias; }
+  UInt_t                          numVias()                               const { return _vVias.size(); }
+  UInt_t                          numLayerVias(const UInt_t l)            const { return _vvViaIndices[l].size(); }
+  UInt_t                          viaIdx(const UInt_t l, const UInt_t i)  const { return _vvViaIndices[l][i]; }
 
   // for debug
   void logInfo() const;
@@ -144,6 +146,7 @@ class LefDB {
   
   // Via
   Vector_t<LefVia>              _vVias;
+  Vector_t<Vector_t<UInt_t>>    _vvViaIndices;
   UMap_t<String_t, UInt_t>      _mStr2ViaIdx;
 
   ////////////////////////////////////////
@@ -199,6 +202,10 @@ class LefDB {
 // vias
 #define Lef_ForEachViaC(lef, cpVia_, i) \
   for (i = 0; i < lef.numVias() and (cpVia_ = &lef.via(i)); ++i)
+#define Lef_ForEachLayerViaIdx(lef, layerIdx, viaIdx, i) \
+  for (i = 0; i < lef.numLayerVias(layerIdx) and (viaIdx = lef.viaIdx(layerIdx, i)); ++i)
+#define Lef_ForEachLayerViaC(lef, layerIdx, cpVia_, i) \
+  for (i = 0; i < lef.numLayerVias(layerIdx) and (cpVia_ = lef.via(lef.viaIdx(layerIdx, i))); ++i)
 
 PROJECT_NAMESPACE_END
 

@@ -111,7 +111,8 @@ class CirDB {
   bool existSpatialRoutedWireNet(const UInt_t layerIdx, const Box<Int_t>& box, const UInt_t netIdx);
  
   // fix
-  void adjust();
+  void markBlks();
+  void addBlk2ConnectedPin();
 
   // for debug
   void printInfo() const;
