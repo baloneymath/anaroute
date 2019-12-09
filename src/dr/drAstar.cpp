@@ -18,7 +18,7 @@ using namespace std;
 PROJECT_NAMESPACE_START
 
 bool DrAstar::runKernel() {
-  
+  fprintf(stdout, "DrAstar::%s Route net \"%s\"\n", __func__, _net.name().c_str());
   _vAllAstarNodesMap.resize(_cir.lef().numLayers());
   for (auto& m : _vAllAstarNodesMap)
     m.set_empty_key(Point<Int_t>(-1, -1));
@@ -534,8 +534,8 @@ void DrAstar::neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbo
     step *= _param.factorStep_1;
   else if (pU->dist2Tar(0) > 4 * minSpacing)
     step *= _param.factorStep_2;
-  //else if (pU->dist2Tar(0) < minSpacing)
-    //step = 10;
+  else if (pU->dist2Tar(0) < minSpacing)
+    step = 10;
   
   if (p.z() > 0) {
     Point<Int_t> p2d(p.x(), p.y());
@@ -852,19 +852,19 @@ void DrAstar::add2Path(const Int_t i, const Point3d<Int_t>& u, List_t<Point3d<In
 
 bool DrAstar::bConnected2TarBox(const DrAstarNode* pU, const UInt_t tarIdx) {
   const Point3d<Int_t>& u = pU->coord();
-  const Point3d<Int_t>& v = (pU->pParent(0) == nullptr) ? u : pU->pParent(0)->coord();
-  if (u.z() != v.z()) {
-    Box<Int_t> wire;
-    toWire(u, u, wire);
-    return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
-  }
-  else {
-    Box<Int_t> wire;
-    toWire(u, v, wire);
-    return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
-  }
-  //const Point<Int_t> u2d(u.x(), u.y());
-  //return _vCompSpatialBoxes[tarIdx][u.z()].find(u2d, u2d);
+  //const Point3d<Int_t>& v = (pU->pParent(0) == nullptr) ? u : pU->pParent(0)->coord();
+  //if (u.z() != v.z()) {
+    //Box<Int_t> wire;
+    //toWire(u, u, wire);
+    //return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
+  //}
+  //else {
+    //Box<Int_t> wire;
+    //toWire(u, v, wire);
+    //return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
+  //}
+  const Point<Int_t> u2d(u.x(), u.y());
+  return _vCompSpatialBoxes[tarIdx][u.z()].find(u2d, u2d);
   //const Vector_t<Pair_t<Box<Int_t>, Int_t>>& vTarBoxes = _vCompBoxes[tarIdx];
   //for (const Pair_t<Box<Int_t>, Int_t>& pair : vTarBoxes) {
     //if (pair.second == u.z() and Box<Int_t>::bConnect(pair.first, wire)) {

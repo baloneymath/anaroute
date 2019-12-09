@@ -44,7 +44,6 @@ void DrGridlessRoute::solve() {
       qFrozenNet.pop();
     }
     pNet = pq.top();
-    std::cerr << pNet->name() << std::endl;
     pq.pop();
     if (!routeSingleNet(*pNet)) {
       pNet->addDrFail();

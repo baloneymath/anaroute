@@ -17,7 +17,7 @@
 PROJECT_NAMESPACE_START
 
 bool GrAstar::runKernel() {
-  
+  fprintf(stdout, "GrAstar::%s Route net \"%s\"\n", __func__, _net.name().c_str());
   if (_net.bSelfSym()) {
     if (!bSatisfySelfSymCondition()) {
       fprintf(stderr, "GrAstar::%s WARNING: Net %s does not satisfy self symmetric condition!\n", __func__, _net.name().c_str());

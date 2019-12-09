@@ -48,10 +48,10 @@ UInt_t DrViaSelector::selectViaIdx(const UInt_t netIdx, const Point3d<Int_t>& u,
     for (j = 0; j < lefVia.numCutBoxes(); ++j) {
       Box<Int_t> box(lefVia.cutBox(j));
       box.shift(x, y);
-      if (!_drcMgr.checkWireCutLayerShort(netIdx, zc, box)) {
-        bViolate = true;
-        break;
-      }
+      //if (!_drcMgr.checkWireCutLayerShort(netIdx, zc, box)) {
+        //bViolate = true;
+        //break;
+      //}
       if (!_drcMgr.checkWireCutLayerSpacing(netIdx, zc, box)) {
         bViolate = true;
         break;

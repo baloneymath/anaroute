@@ -55,7 +55,7 @@ bool DrcMgr::checkWireCutLayerShort(const UInt_t netIdx, const UInt_t layerIdx, 
 
 // min area
 bool DrcMgr::checkWireMinArea(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const {
-
+  // TODO
   return true;
 }
 
@@ -111,7 +111,7 @@ bool DrcMgr::checkWireCutLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx
   const Int_t spacing = layer.spacing();
   
   Box<Int_t> checkBox(b);
-  checkBox.expand(spacing);
+  checkBox.expand(spacing - 1);
   
   // no pin in cut layers
   // check other net's wire (via)
