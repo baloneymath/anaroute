@@ -22,6 +22,7 @@ class DrViaSelector {
   ~DrViaSelector() {}
 
   UInt_t selectViaIdx(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
+  UInt_t selectViaIdxSym(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v, const Int_t symAxisX);
 
  private:
   CirDB&    _cir;

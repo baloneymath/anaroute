@@ -82,9 +82,11 @@ class DrAstar {
 
   // for self sym
   Int_t _selfSymAxisX = 0;
+  bool  _bSatisfySelfSym = false;
 
   // for sym
   Int_t _symAxisX = 0;
+  bool  _bSatisfySym = false;
 
   /////////////////////////////////////////
   //    Private functions                //
@@ -102,6 +104,7 @@ class DrAstar {
   void    backTrack(const DrAstarNode* pNode, const UInt_t bigCompIdx, const UInt_t srcIdx, const UInt_t tarIdx);
   void    savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec);
   void    saveResult2Net();
+  void    saveResult2SymNet();
   void    ripup();
 
   /////////////////////////////////////////
@@ -110,12 +113,17 @@ class DrAstar {
   void    addAcsPts(const UInt_t idx, const Int_t z, const Box<Int_t>& box);
   void    neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbors);
   bool    bViolateDRC(const DrAstarNode* pU, const DrAstarNode* pV);
+  bool    bViolateDRC(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
+  bool    bViolateSymDRC(const DrAstarNode* pU, const DrAstarNode* pV);
+  bool    bViolateSymDRC(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   UInt_t  selectVia(const DrAstarNode* pU, const DrAstarNode* pV);
   UInt_t  selectVia(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
-  void    addWire2RoutedSpatial(const DrAstarNode* pU, const DrAstarNode* pV);
-  void    addWire2RoutedSpatial(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
-  void    addVia2RoutedSpatial(const DrAstarNode* pU, const DrAstarNode* pV, const UInt_t viaIdx);
-  void    addVia2RoutedSpatial(const Point3d<Int_t>& u, const Point3d<Int_t>& v, const UInt_t viaIdx);
+  UInt_t  selectViaSym(const DrAstarNode* pU, const DrAstarNode* pV);
+  UInt_t  selectViaSym(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
+  void    addWire2RoutedSpatial(const UInt_t netIdx, const DrAstarNode* pU, const DrAstarNode* pV);
+  void    addWire2RoutedSpatial(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
+  void    addVia2RoutedSpatial(const UInt_t netIdx, const DrAstarNode* pU, const DrAstarNode* pV, const UInt_t viaIdx);
+  void    addVia2RoutedSpatial(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v, const UInt_t viaIdx);
   Int_t   scaledMDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   Int_t   scaledMDist(const Box<Int_t>& u, const Box<Int_t>& v);
   Int_t   scaledMDist(const Pair_t<Box<Int_t>, Int_t>& u, const Pair_t<Box<Int_t>, Int_t>& v);
