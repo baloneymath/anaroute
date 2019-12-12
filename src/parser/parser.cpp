@@ -10,6 +10,37 @@
 
 PROJECT_NAMESPACE_START
 
+void Parser::parseLef(const String_t& filename) {
+  fprintf(stdout, "Parsing LEF file %s\n", filename.c_str());
+  _lefr.parse(filename);
+}
+
+void Parser::parseTechfile(const String_t& filename) {
+  fprintf(stdout, "Parsing Tech file %s\n", filename.c_str());
+  _techr.parse(filename);
+}
+
+void Parser::parseIspd08(const String_t& filename) {
+  fprintf(stdout, "Parsing netlist file %s\n", filename.c_str());
+  _ispd08r.parse(filename);
+}
+
+void Parser::parseGds(const String_t& filename) {
+  fprintf(stdout, "Parsing placement GDS layout file %s\n", filename.c_str());
+  _gdsr.parse(filename);
+}
+
+void Parser::parseSymNet(const String_t& filename) {
+  fprintf(stdout, "Parsing symnet file %s\n", filename.c_str());
+  _symNetr.parse(filename);
+}
+
+void Parser::parseIOPin(const String_t& filename) {
+  fprintf(stdout, "Parsing IO pin file %s\n", filename.c_str());
+  _ioPinr.parse(filename);
+}
+
+
 // patch for placement bugs .... orz
 void Parser::correctPinNBlkLoc() {
   UInt_t i, j, layerIdx;

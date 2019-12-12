@@ -403,7 +403,7 @@ void CirDB::visualize() const {
   gw.createLib("TOP", 2000, 1e-6/2000);
   gw.writeCellBgn("INTERCONNECTION");
 
-  UInt_t i, j, k, pinIdx, netIdx, layerIdx;
+  UInt_t i, j, k, pinIdx, layerIdx;
   const Net* cpNet;
   const Blk* cpBlk;
   const Box<Int_t>* cpBox;

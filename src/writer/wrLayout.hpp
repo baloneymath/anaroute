@@ -22,7 +22,7 @@ class LayoutWriter {
     : _cir(c) {}
   ~LayoutWriter() {}
 
-  void writeGds(const String_t& placementFilename, const String_t& outputFilename);
+  void writeGds(const String_t& placementFilename, const String_t& outputFilename, const bool bFlatten);
 
  private:
   const CirDB& _cir;

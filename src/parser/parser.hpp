@@ -27,12 +27,12 @@ public:
       _gdsr(c), _symNetr(c), _ioPinr(c) {}
   ~Parser() {}
   
-  void parseLef(const String_t& filename)       { _lefr.parse(filename); }
-  void parseTechfile(const String_t& filename)  { _techr.parse(filename); }
-  void parseIspd08(const String_t& filename)    { _ispd08r.parse(filename); }
-  void parseGds(const String_t& filename)       { _gdsr.parse(filename); }
-  void parseSymNet(const String_t& filename)    { _symNetr.parse(filename); }
-  void parseIOPin(const String_t& filename)     { _ioPinr.parse(filename); }
+  void parseLef(const String_t& filename);    
+  void parseTechfile(const String_t& filename);
+  void parseIspd08(const String_t& filename);
+  void parseGds(const String_t& filename); 
+  void parseSymNet(const String_t& filename);
+  void parseIOPin(const String_t& filename);
 
   // patch for the bug from placement
   void correctPinNBlkLoc();

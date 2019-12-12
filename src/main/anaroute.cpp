@@ -30,17 +30,32 @@ Anaroute::Anaroute(int argc, char** argv) {
   
   CirDB cir;
 
+  // args
+  const String_t lefFile          = _args.get<String_t>("tech_lef");
+  const String_t techFile         = _args.get<String_t>("tech_file");
+  const String_t placeFile        = _args.get<String_t>("placement_layout");
+  const String_t designFile       = _args.get<String_t>("design_file");
+  const String_t symnetFile       = _args.get<String_t>("symnet");
+  const String_t iopinFile        = _args.get<String_t>("iopin");
+  const String_t outFile          = _args.get<String_t>("out");
+  const String_t outGuideFile     = _args.get<String_t>("out_guide");
+  //const String_t outGuideGdsFile  = _args.get<String_t>("out_guide_gds");
+  const String_t dumbFile         = _args.get<String_t>("fuck");
+  const bool     bFlatten         = _args.exist("flatten");
+
   // parse files
   timer.start(TimeUsage::PARTIAL);
   Parser par(cir);
-  par.parseLef(_args.get<String_t>("tech_lef"));
-  par.parseTechfile(_args.get<String_t>("tech_file"));
-  par.parseGds(_args.get<String_t>("placement_layout"));
-  par.parseIspd08(_args.get<String_t>("design_file"));
-  par.parseSymNet(_args.get<String_t>("symnet"));
-  par.parseIOPin(_args.get<String_t>("iopin"));
+  par.parseLef(lefFile);
+  par.parseTechfile(techFile);
+  par.parseGds(placeFile);
+  par.parseIspd08(designFile);
+  if (symnetFile != "")
+    par.parseSymNet(symnetFile);
+  if (iopinFile != "")
+    par.parseIOPin(iopinFile);
   par.correctPinNBlkLoc(); // patch for placement bugs
-  cir.visualize();
+  //cir.visualize();
 
   //cir.printInfo();
   cir.buildSpatial();
@@ -67,9 +82,13 @@ Anaroute::Anaroute(int argc, char** argv) {
 
   // write files
   Writer wr(cir);
-  wr.writeGrGuide(_args.get<String_t>("out_guide"));
-  //wr.writeGrGuideGds("", _args.get<String_t>("out_guide_gds"));
-  wr.writeLayoutGds(_args.get<String_t>("placement_layout"), _args.get<String_t>("out"));
+  wr.writeLayoutGds(_args.get<String_t>("placement_layout"), _args.get<String_t>("out"), bFlatten);
+  if (outGuideFile != "")
+    wr.writeGrGuide(_args.get<String_t>("out_guide"));
+  //if (outGuideGdsFile != "")
+    //wr.writeGrGuideGds("", _args.get<String_t>("out_guide_gds"));
+  if (dumbFile != "")
+    wr.writeDumb(_args.get<String_t>("placement_layout"), _args.get<String_t>("fuck"));
 
   timer.showUsage("Anaroute", TimeUsage::FULL);
   printf("Peak Memory Usage: %.2f MB\n", util::getPeakMemoryUsage() / MEM_SCALE);
@@ -79,16 +98,17 @@ void Anaroute::parseArgs(int argc, char** argv) {
   // mandatory
   _args.add<String_t>("tech_lef", '\0', "technology lef file");
   _args.add<String_t>("tech_file", '\0', "technology layer file");
-  _args.add<String_t>("design_type", '\0', "design type");
   _args.add<String_t>("design_file", '\0', "design file");
   _args.add<String_t>("placement_layout", '\0', "placement layout file");
-  _args.add<String_t>("iopin", '\0', "IO-Pin file");
-  _args.add<String_t>("symnet", '\0', "symmetric nets file");
   _args.add<String_t>("out", 'o', "output file");
   // non-mandatory
+  _args.add<String_t>("symnet", '\0', "symmetric nets file", false);
+  _args.add<String_t>("iopin", '\0', "IO-Pin file", false);
+  _args.add<String_t>("fuck", '\0', "fuck file", false);
   _args.add<String_t>("out_guide", '\0', "output global routing guide file", false);
-  _args.add<String_t>("out_guide_gds", '\0', "output global routing guide file (gds)", false);
-  // check
+  //_args.add<String_t>("out_guide_gds", '\0', "output global routing guide file (gds)", false);
+  _args.add("flatten", '\0', "flatten output GDS");
+
   _args.parse_check(argc, argv);
 }
 

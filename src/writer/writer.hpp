@@ -12,6 +12,7 @@
 #include "wrGds.hpp"
 #include "wrGrGuide.hpp"
 #include "wrLayout.hpp"
+#include "wrDumb.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -20,21 +21,26 @@ class Writer {
   Writer(const CirDB& c)
     : _cir(c),
       _grGuidew(c),
-      _layoutw(c)
+      _layoutw(c),
+      _dumbw(c)
     {}
   ~Writer() {}
 
   // result
-  void writeLayoutGds(const String_t& placementFilename, const String_t& outputFilename);
-  
+  void writeLayoutGds(const String_t& placementFilename, const String_t& outputFilename, const bool bFlatten);
+
   // guide
   void writeGrGuide(const String_t& filename) const;
   void writeGrGuideGds(const String_t& netName, const String_t& filename) const;
+  
+  // ....
+  void writeDumb(const String_t& placementFilename, const String_t& outputFilename);
     
  private:
   const CirDB&  _cir;
   GrGuideWriter _grGuidew;
   LayoutWriter  _layoutw;
+  DumbWriter    _dumbw;
 
 };
 

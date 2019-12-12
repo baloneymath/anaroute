@@ -92,6 +92,7 @@ add_executable(${PROJECT_NAME}
   src/writer/wrLayout.cpp
   src/writer/wrGrGuide.cpp
   src/writer/wrGds.cpp
+  src/writer/wrDumb.cpp
 )
 
 ##################################################

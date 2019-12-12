@@ -11,7 +11,7 @@ using namespace std;
 
 PROJECT_NAMESPACE_START
 
-void LayoutWriter::writeGds(const String_t& placementFilename, const String_t& outputFilename) {
+void LayoutWriter::writeGds(const String_t& placementFilename, const String_t& outputFilename, const bool bFlatten) {
   GdsDB gdsDB;
 
   if (!readPlacementGds(placementFilename, gdsDB)) {
@@ -26,6 +26,13 @@ void LayoutWriter::writeGds(const String_t& placementFilename, const String_t& o
   GdsCell& gdsCell = *gdsDB.getCell(topCellName);
 
   addRoutingLayout(gdsCell, scale);
+
+  if (bFlatten) { 
+    auto flatCell = gdsDB.extractCell(topCellName);
+    flatCell.setName(flatCell.name() + "_flat");
+    gdsDB.cells().clear();
+    gdsDB.addCell(flatCell);
+  }
 
   GdsParser::GdsDB::GdsWriter gw(gdsDB);
   gw(outputFilename.c_str());

@@ -53,7 +53,7 @@ void DrGridlessRoute::solve() {
   }
 
   // debug
-  visualize();
+  //visualize();
 }
 
 bool DrGridlessRoute::routeSingleNet(Net& n) {
