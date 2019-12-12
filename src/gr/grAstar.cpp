@@ -250,14 +250,22 @@ void GrAstar::makeSym() {
   Net& symNet = _cir.net(_net.symNetIdx());
   Vector_t<Point3d<Int_t>>& vSymPinLocs = _grGridRoute._vvNetPinLocs[symNet.idx()];
   for (const auto& p : _vPinLocs) {
-    const Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+    Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+    if (symX >= (Int_t)_grGridRoute._gridMap.numGridCellsX())
+      symX = _grGridRoute._gridMap.numGridCellsX() - 1;
+    else if (symX < 0)
+      symX = 0;
     const Point3d<Int_t> symPt(symX, p.y(), p.z());
     if (!std::binary_search(vSymPinLocs.begin(), vSymPinLocs.end(), symPt)) {
       vSymPinLocs.emplace_back(symPt);
     }
   }
   for (const auto& p : vSymPinLocs) {
-    const Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+    Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+    if (symX >= (Int_t)_grGridRoute._gridMap.numGridCellsX())
+      symX = _grGridRoute._gridMap.numGridCellsX() - 1;
+    else if (symX < 0)
+      symX = 0;
     const Point3d<Int_t> symPt(symX, p.y(), p.z());
     if (!std::binary_search(_vPinLocs.begin(), _vPinLocs.end(), symPt)) {
       _vPinLocs.emplace_back(symPt);

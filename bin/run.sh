@@ -30,15 +30,14 @@ GDB="gdb --args"
 
 
 # Telescopic_Three_stage_flow
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           --design_file $BENCH_DIR/Telescopic_Three_stage_flow/ROUTING_INPUT.gr \
-           --placement_layout $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.wellgen.gds  \
-           --iopin $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.iopin \
-           --symnet $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.symnet \
-           --out $OUT_DIR/gds/Telescopic_Three_stage_flow.gds \
-           --out_guide $OUT_DIR/guide/Telescopic_Three_stage_flow.guide \
-           --flatten
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_file $BENCH_DIR/Telescopic_Three_stage_flow/ROUTING_INPUT.gr \
+           #--placement_layout $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.wellgen.gds  \
+           #--iopin $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.iopin \
+           #--symnet $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.symnet \
+           #--out $OUT_DIR/gds/Telescopic_Three_stage_flow.gds \
+           #--out_guide $OUT_DIR/guide/Telescopic_Three_stage_flow.guide \
 
 # Core_test_flow
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -80,4 +79,13 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            #--out $OUT_DIR/gds/SW_VCM.gds \
            #--iopin $BENCH_DIR/SW_VCM/SW_VCM.iopin \
            #--out_guide $OUT_DIR/guide/SW_VCM.guide \
+
+# SR_Latch_LVT
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           --design_file $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.ROUTING_INPUT.gr \
+           --placement_layout $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.wellgen.gds  \
+           --symnet $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.symnet \
+           --out $OUT_DIR/gds/SR_Latch_LVT.gds \
+           --out_guide $OUT_DIR/guide/SR_Latch_LVT.guide \
 

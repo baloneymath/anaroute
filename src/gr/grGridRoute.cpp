@@ -152,8 +152,14 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
         UInt_t xhIdx = xh / stepX;
         UInt_t ylIdx = yl / stepY;
         UInt_t yhIdx = yh / stepY;
+        if (xlIdx == _gridMap.numGridCellsX()) {
+          --xlIdx;
+        }
         if (xhIdx == _gridMap.numGridCellsX()) {
           --xhIdx;
+        }
+        if (ylIdx == _gridMap.numGridCellsY()) {
+          --ylIdx;
         }
         if (yhIdx == _gridMap.numGridCellsY()) {
           --yhIdx;
