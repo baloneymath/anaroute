@@ -51,7 +51,6 @@ void DumbWriter::write(const String_t& placementFilename, const String_t& output
         maxArea = MIN_INT;
       }
       const Box<Int_t>* cpBox;
-       
       Pin_ForEachLayerBoxC(pin, layerIdx, cpBox, k) {
         if (cpBox->area() > maxArea) {
           maxArea = cpBox->area();
@@ -63,12 +62,12 @@ void DumbWriter::write(const String_t& placementFilename, const String_t& output
     for (const auto& pair : vWires) {
       if (pair.second > maxLayerIdx) {
         maxLayerIdx = pair.second;
-        tarBox.setBounds(0, 0, 0, 0);
-        maxArea = MIN_INT;
-      }
-      if (pair.first.area() > maxArea) {
-        maxArea = pair.first.area();
         tarBox = pair.first;
+        maxArea = pair.first.area();
+      }
+      else if (pair.second == maxLayerIdx and pair.first.area() > maxArea) {
+        tarBox = pair.first;
+        maxArea = pair.first.area();
       }
     }
     const Int_t routingLayer = _cir.lef().layerPair(maxLayerIdx).second + 1;

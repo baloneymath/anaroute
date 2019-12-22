@@ -87,7 +87,7 @@ bool GrAstar::runKernel() {
   updateGridEdges();
   saveGuide2Net();
 
-  assert(bConnected());
+  //assert(bConnected());
   return true;
 }
 
@@ -574,11 +574,11 @@ bool GrAstar::bConnected() {
     }
     return ds.nSets() == 1;
   };
-  if (_net.hasSymNet()) {
-    if (!__bConnected(_grGridRoute._vvNetPinLocs[_net.symNetIdx()], _vvSymGuidePaths)) {
-      return false;
-    }
-  }
+  //if (_net.hasSymNet()) {
+    //if (!__bConnected(_grGridRoute._vvNetPinLocs[_net.symNetIdx()], _vvSymGuidePaths)) {
+      //return false;
+    //}
+  //}
   return __bConnected(_vPinLocs, _vvGuidePaths);
 }
 

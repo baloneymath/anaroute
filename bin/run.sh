@@ -81,11 +81,28 @@ GDB="gdb --args"
            #--out_guide $OUT_DIR/guide/SW_VCM.guide \
 
 # SR_Latch_LVT
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_file $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.ROUTING_INPUT.gr \
+           #--placement_layout $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.wellgen.gds  \
+           #--symnet $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.symnet \
+           #--out $OUT_DIR/gds/SR_Latch_LVT.gds \
+           #--out_guide $OUT_DIR/guide/SR_Latch_LVT.guide \
+
+# Comparator
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_file $BENCH_DIR/COMPARATOR/COMPARATOR_schematic.ROUTING_INPUT.gr \
+           #--placement_layout $BENCH_DIR/COMPARATOR/COMPARATOR_schematic.wellgen.gds \
+           #--symnet $BENCH_DIR/COMPARATOR/COMPARATOR_schematic.symnet \
+           #--out $OUT_DIR/gds/COMPARATOR.route.gds \
+           #--out_guide $OUT_DIR/guide/COMPARATOR.guide
+
+# CTDSM
 $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           --design_file $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.ROUTING_INPUT.gr \
-           --placement_layout $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.wellgen.gds  \
-           --symnet $BENCH_DIR/SR_Latch_LVT/SR_Latch_LVT.symnet \
-           --out $OUT_DIR/gds/SR_Latch_LVT.gds \
-           --out_guide $OUT_DIR/guide/SR_Latch_LVT.guide \
-
+           --design_file $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.ROUTING_INPUT.gr \
+           --placement_layout $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.wellgen.gds \
+           --symnet $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.symnet \
+           --out $OUT_DIR/gds/CTDSM_TOP.route.gds \
+           --out_guide $OUT_DIR/guide/CTDSM_TOP.guide

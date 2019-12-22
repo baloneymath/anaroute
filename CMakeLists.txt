@@ -51,16 +51,23 @@ find_package(Boost 1.6 REQUIRED COMPONENTS system graph iostreams)
 # Find Zlib
 find_package(ZLIB REQUIRED)
 
+# Find pybind11
+if (PYBIND11_DIR)
+  set(PYBIND11_ROOT_DIR ${PYBIND11_DIR})
+else()
+  set(PYBIND11_ROOT_DIR $ENV{PYBIND11_DIR})
+endif()
+message(STATUS "Find Pybind11: ${PYBIND11_ROOT_DIR}")
+add_subdirectory(build/pybind11)
+set(PYBIND11_CPP_STANDARD -std=c++14)
+
 set(CMAKE_CXX_FLAGS "-g -std=c++14 -Wall -fPIC")
 set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
-
 
 ##################################################
 #        Source Code                             #
 ##################################################
-add_executable(${PROJECT_NAME}
-  src/main/main.cpp
-  src/main/anaroute.cpp
+set(SRC
   src/util/util.cpp
   src/util/timeUsage.cpp
   src/db/lef/layer/lefCutLayer.cpp
@@ -95,6 +102,18 @@ add_executable(${PROJECT_NAME}
   src/writer/wrDumb.cpp
 )
 
+set(SRC_EXE
+  src/main/main.cpp
+  src/main/anaroute.cpp
+)
+
+set(SRC_API
+  src/api/apiPy.cpp  
+)
+
+add_executable(${PROJECT_NAME} ${SRC} ${SRC_EXE})
+pybind11_add_module(${PROJECT_NAME}Py ${SRC} ${SRC_API})
+
 ##################################################
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -102,6 +121,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   ${Boost_INCLUDE_DIR}
   ${SPARSEHASH_ROOT_DIR}/include
   ${LIMBO_ROOT_DIR}/include
+  ${PYBIND11_ROOT_DIR}/include
 )
 
 file(GLOB LIMBO_LIB 
@@ -123,6 +143,7 @@ file(GLOB LIMBO_LIB
 )
 
 target_link_libraries(${PROJECT_NAME} ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}Py PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #Install
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX_DIR}/bin)

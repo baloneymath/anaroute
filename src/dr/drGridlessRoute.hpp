@@ -56,7 +56,7 @@ class DrGridlessRoute {
       return c1 < c2;
     }
     Int_t w_pin_cnt = 1;
-    Int_t w_sym = 1;
+    Int_t w_sym = 100;
     Int_t w_selfSym = 1;
     Int_t w_fail_cnt = 1;
   };
