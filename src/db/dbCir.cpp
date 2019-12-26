@@ -301,6 +301,7 @@ void CirDB::setYH(const Int_t y) {
 
 void CirDB::addPin(const Pin& p) {
   assert(_vvPinIndices.size() > 0);
+  _mStr2PinIdx[p.name()] = _vPins.size();
   UInt_t layerIdx;
   Pin_ForEachLayerIdx(p, layerIdx) {
     _vvPinIndices[layerIdx].emplace_back(_vPins.size());

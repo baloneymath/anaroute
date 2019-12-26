@@ -53,6 +53,9 @@ class CirDB {
   // Pin
   UInt_t            numPins()                             const  { return _vPins.size(); }
   UInt_t            numLayerPins(const UInt_t i)          const  { return _vvPinIndices[i].size(); }
+  UInt_t            str2PinIdx(const String_t& n)         const  { return _mStr2PinIdx.at(n); }
+  Pin&              pin(const String_t& n)                       { return _vPins[str2PinIdx(n)]; }
+  const Pin&        pin(const String_t& n)                const  { return _vPins[str2PinIdx(n)]; }
   Pin&              pin(const UInt_t i)                          { return _vPins[i]; }
   const Pin&        pin(const UInt_t i)                   const  { return _vPins[i]; }
   Pin&              pin(const UInt_t i, const UInt_t j)          { return _vPins[_vvPinIndices[i][j]]; }
@@ -79,6 +82,17 @@ class CirDB {
   //////////////////////////////////
   //  Funcs                       //
   //////////////////////////////////
+  void setXL(const Int_t x);
+  void setYL(const Int_t y);
+  void setXH(const Int_t x);
+  void setYH(const Int_t y);
+  
+  void addPin(const Pin& p);
+  void addBlk(const UInt_t i, const Blk& b);
+  void addNet(const Net& n);
+  void resizeVVPinIndices(const UInt_t i);
+  void resizeVVBlkIndices(const UInt_t i);
+  
   // Spatial
   const Vector_t<SpatialMap<Int_t, UInt_t>>& vSpatialPins()        const { return _vSpatialPins; }
   const Vector_t<SpatialMap<Int_t, UInt_t>>& vSpatialBlks()        const { return _vSpatialBlks; }
@@ -135,6 +149,7 @@ class CirDB {
   Vector_t<Vector_t<UInt_t>>     _vvBlkIndices; // blocks in each layer
  
   UMap_t<String_t, UInt_t>       _mStr2NetIdx;
+  UMap_t<String_t, UInt_t>       _mStr2PinIdx;
  
   Vector_t<SpatialMap<Int_t, UInt_t>>  _vSpatialPins;
   Vector_t<SpatialMap<Int_t, UInt_t>>  _vSpatialBlks;
@@ -146,15 +161,6 @@ class CirDB {
   //////////////////////////////////
   //  Private Setter              //
   //////////////////////////////////
-  void setXL(const Int_t x);
-  void setYL(const Int_t y);
-  void setXH(const Int_t x);
-  void setYH(const Int_t y);
-  void addPin(const Pin& p);
-  void addBlk(const UInt_t i, const Blk& b);
-  void addNet(const Net& n);
-  void resizeVVPinIndices(const UInt_t i);
-  void resizeVVBlkIndices(const UInt_t i);
 };
 
 ////////////////////////////////////////

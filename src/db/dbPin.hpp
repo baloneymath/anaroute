@@ -39,18 +39,6 @@ class Pin {
   const Vector_t<Box<Int_t>>&             vBoxes(const UInt_t layerIdx)                 const { return _vvBoxes[layerIdx]; }
   const Vector_t<Vector_t<Box<Int_t>>>&   vvBoxes()                                     const { return _vvBoxes; }
 
-  // for debug
-  void printInfo() const;
-
- private:
-  String_t                        _name;
-  String_t                        _netName;
-  UInt_t                          _netIdx;
-  UInt_t                          _idx;
-  UInt_t                          _minLayerIdx;
-  UInt_t                          _maxLayerIdx;
-  Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
-  
   ////////////////////////////////////////
   //   Setter                           //
   ////////////////////////////////////////
@@ -63,6 +51,19 @@ class Pin {
   void addBox(const UInt_t layerIdx, const Box<Int_t>& box);
   void setLayerBoxes(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes);
   void resizeLayerBoxes(const UInt_t i);
+  
+  // for debug
+  void printInfo() const;
+
+ private:
+  String_t                        _name;
+  String_t                        _netName;
+  UInt_t                          _netIdx;
+  UInt_t                          _idx;
+  UInt_t                          _minLayerIdx;
+  UInt_t                          _maxLayerIdx;
+  Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
+  
 };
 
 ////////////////////////////////////////

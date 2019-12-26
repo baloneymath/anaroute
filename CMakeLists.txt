@@ -25,6 +25,14 @@ endif()
 message(STATUS "Find Limbo: ${LIMBO_ROOT_DIR}")
 unset(LIMBO_DIR CACHE)
 
+# Find Lemon
+if (LEMON_DIR)
+  set(LEMON_ROOT_DIR ${LEMON_DIR})
+else()
+  set(LEMON_ROOT_DIR $ENV{LEMON_DIR})
+endif()
+message(STATUS "Find Lemon: ${LEMON_ROOT_DIR}")
+unset(LEMON_DIR CACHE)
 
 
 # Find SparseHash
@@ -34,6 +42,7 @@ else()
   set(SPARSEHASH_ROOT_DIR $ENV{SPARSE_HASH_DIR})
 endif()
 message(STATUS "Find SparseHash: ${SPARSEHASH_ROOT_DIR}")
+unset(SPARSE_HASH_DIR CACHE)
 
 # Find Boost
 #if (BOOST_DIR)
@@ -58,9 +67,11 @@ else()
   set(PYBIND11_ROOT_DIR $ENV{PYBIND11_DIR})
 endif()
 message(STATUS "Find Pybind11: ${PYBIND11_ROOT_DIR}")
-add_subdirectory(build/pybind11)
+unset(PYBIND11_DIR)
+add_subdirectory(${PYBIND11_ROOT_DIR} "./pybind11")
 set(PYBIND11_CPP_STANDARD -std=c++14)
 
+# CXX flags
 set(CMAKE_CXX_FLAGS "-g -std=c++14 -Wall -fPIC")
 set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
 
@@ -122,6 +133,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   ${SPARSEHASH_ROOT_DIR}/include
   ${LIMBO_ROOT_DIR}/include
   ${PYBIND11_ROOT_DIR}/include
+  ${LEMON_ROOT_DIR}/include
 )
 
 file(GLOB LIMBO_LIB 
