@@ -53,6 +53,7 @@ namespace apiPy {
       pin.setName(pinName);
       pin.setIdx(_cir.numPins());
       pin.resizeLayerBoxes(_cir.lef().numLayers());
+      _cir.addPin(pin);
     }
     void addPin2Net(const String_t& pinName, const String_t& netName) {
       Net& net = _cir.net(netName);
