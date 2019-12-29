@@ -47,8 +47,13 @@ void DrGridlessRoute::solve() {
     pq.pop();
     if (!routeSingleNet(*pNet)) {
       pNet->addDrFail();
-      qFrozenNet.push(pNet);
+      //qFrozenNet.push(pNet);
       //ripupSingleNet(*pNet);
+      ripupAllNets();
+      pq.clear();
+      Cir_ForEachNet(_cir, pNet, i) {
+        pq.push(pNet);
+      }
     }
   }
 
@@ -63,13 +68,21 @@ bool DrGridlessRoute::routeSingleNet(Net& n) {
 
 void DrGridlessRoute::ripupSingleNet(Net& n) {
   auto& vWires = n.vWires();
-  assert(vWires.size() > 0);
+  //assert(vWires.size() > 0);
   for (const auto& pair : vWires) {
     const Box<Int_t>& wire = pair.first;
     const Int_t layerIdx = pair.second;
     _cir.removeSpatialRoutedWire(n.idx(), layerIdx, wire);
   }
   vWires.clear();
+}
+
+void DrGridlessRoute::ripupAllNets() {
+  UInt_t i;
+  Net* pNet;
+  Cir_ForEachNet(_cir, pNet, i) {
+    ripupSingleNet(*pNet);
+  }
 }
 
 void DrGridlessRoute::visualize() {

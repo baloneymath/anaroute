@@ -417,7 +417,10 @@ bool DrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
       }
       return false;
     };
-    if (__pathSearch(0))
+    if (pq.size() > _param.maxExplore) {
+      return false;
+    }
+    else if (__pathSearch(0))
       return true;
   }
   return false;

@@ -58,7 +58,7 @@ class DrGridlessRoute {
     Int_t w_pin_cnt = 1;
     Int_t w_sym = 100;
     Int_t w_selfSym = 1;
-    Int_t w_fail_cnt = 1;
+    Int_t w_fail_cnt = 100;
   };
   struct RR_Param {
     UInt_t numFrozen;
@@ -68,6 +68,7 @@ class DrGridlessRoute {
   /////////////////////////////////////////
   bool routeSingleNet(Net& n);
   void ripupSingleNet(Net& n);
+  void ripupAllNets();
   void visualize();
   
 };

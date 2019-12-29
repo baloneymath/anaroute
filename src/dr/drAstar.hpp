@@ -69,6 +69,7 @@ class DrAstar {
     Int_t guideCost = -5000;
     Int_t factorStep_1 = 4;
     Int_t factorStep_2 = 2;
+    UInt_t maxExplore = 30000;
   } _param;
   
   enum class PathDir : Byte_t {
