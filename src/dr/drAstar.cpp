@@ -31,7 +31,7 @@ bool DrAstar::runKernel() {
   init();
   splitSubNetMST();
   
-  if (_net.hasSymNet()) {
+  if (_net.hasSymNet() and _net.drFailCnt() < (Int_t)_param.maxSymTry) {
     computeSymAxisX();
     if (!bSatisfySymCondition()) {
       fprintf(stderr, "DrAstar::%s WARNING: Net %s %s does not satisfy symmetric net condition!\n", __func__, _net.name().c_str(), _cir.net(_net.symNetIdx()).name().c_str());

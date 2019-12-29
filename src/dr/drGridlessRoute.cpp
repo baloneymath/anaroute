@@ -52,7 +52,9 @@ void DrGridlessRoute::solve() {
       ripupAllNets();
       pq.clear();
       Cir_ForEachNet(_cir, pNet, i) {
-        pq.push(pNet);
+        if (pNet->numPins() > 1) {
+          pq.push(pNet);
+        }
       }
     }
   }
@@ -75,6 +77,7 @@ void DrGridlessRoute::ripupSingleNet(Net& n) {
     _cir.removeSpatialRoutedWire(n.idx(), layerIdx, wire);
   }
   vWires.clear();
+  n.setRouted(false);
 }
 
 void DrGridlessRoute::ripupAllNets() {
