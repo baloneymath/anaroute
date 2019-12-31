@@ -67,7 +67,6 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            #--symnet $BENCH_DIR/Core_hao/Core_test_flow.symnet \
            #--out $OUT_DIR/gds/Core_test_flow.gds \
            #--iopin $BENCH_DIR/Core_test_flow/Core_test_flow.iopin \
-           #--fuck a \
            #--out_guide $OUT_DIR/guide/Core_test_flow.guide \
 
 # OTA_4

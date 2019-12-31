@@ -21,15 +21,15 @@ bool GrAstar::runKernel() {
   if (_net.bSelfSym()) {
     if (!bSatisfySelfSymCondition()) {
       fprintf(stderr, "GrAstar::%s WARNING: Net %s does not satisfy self symmetric condition!\n", __func__, _net.name().c_str());
-      fprintf(stderr, "GrAstar::%s Make Self Sym %s\n", __func__, _net.name().c_str());
-      makeSelfSym();
+      //fprintf(stderr, "GrAstar::%s Make Self Sym %s\n", __func__, _net.name().c_str());
+      //makeSelfSym();
     }
   }
   else if (_net.hasSymNet()) {
     if (!bSatisfySymCondition()) {
       fprintf(stderr, "GrAstar::%s WARNING: Net %s does not satisfy symmetric net condition!\n", __func__, _net.name().c_str());
-      fprintf(stderr, "GrAstar::%s Make Sym %s %s\n", __func__, _net.name().c_str(), _cir.net(_net.symNetIdx()).name().c_str());
-      makeSym();
+      //fprintf(stderr, "GrAstar::%s Make Sym %s %s\n", __func__, _net.name().c_str(), _cir.net(_net.symNetIdx()).name().c_str());
+      //makeSym();
     }
   }
 
@@ -554,7 +554,8 @@ void GrAstar::genSymNetGuidesFromGuides() {
   for (const Vector_t<Point3d<Int_t>>& v : _vvGuidePaths) {
     _vvSymGuidePaths.emplace_back();
     for (const Point3d<Int_t>& p : v) {
-      const Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+      Int_t symX = (Int_t)(2 * _symAxisX - p.x());
+      boundSymX(symX);
       _vvSymGuidePaths.back().emplace_back(symX, p.y(), p.z());
     }
   }
