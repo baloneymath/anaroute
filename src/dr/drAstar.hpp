@@ -33,7 +33,7 @@ class DrAstar {
                              M1.spacing(0);
     const Int_t xc = _cir.width() / minSpacing;
     const Int_t yc = _cir.height() / minSpacing;
-    _param.maxExplore = xc * yc * 5;
+    _param.maxExplore = xc * yc * 2;
   }
   ~DrAstar() {
     for (auto& v : _vAllAstarNodesMap) {

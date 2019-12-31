@@ -210,7 +210,12 @@ bool GrAstar::bSatisfySelfSymCondition() {
 void GrAstar::makeSelfSym() {
   Vector_t<Point3d<Int_t>> vNewPinLocs;
   for (const Point3d<Int_t>& p : _vPinLocs) {
-    const Int_t symX = (Int_t)(2 * _selfSymAxisX - p.x());
+    Int_t symX = (Int_t)(2 * _selfSymAxisX - p.x());
+    //if (symX >= (Int_t)_grGridRoute._gridMap.numGridCellsX())
+      //symX = _grGridRoute._gridMap.numGridCellsX() - 1;
+    //else if (symX < 0)
+      //symX = 0;
+    boundSymX(symX);
     const Point3d<Int_t> symPt(symX, p.y(), p.z());
     if (!std::binary_search(_vPinLocs.begin(), _vPinLocs.end(), symPt)) {
       vNewPinLocs.emplace_back(symPt);
@@ -251,10 +256,11 @@ void GrAstar::makeSym() {
   Vector_t<Point3d<Int_t>>& vSymPinLocs = _grGridRoute._vvNetPinLocs[symNet.idx()];
   for (const auto& p : _vPinLocs) {
     Int_t symX = (Int_t)(2 * _symAxisX - p.x());
-    if (symX >= (Int_t)_grGridRoute._gridMap.numGridCellsX())
-      symX = _grGridRoute._gridMap.numGridCellsX() - 1;
-    else if (symX < 0)
-      symX = 0;
+    //if (symX >= (Int_t)_grGridRoute._gridMap.numGridCellsX())
+      //symX = _grGridRoute._gridMap.numGridCellsX() - 1;
+    //else if (symX < 0)
+      //symX = 0;
+    boundSymX(symX);
     const Point3d<Int_t> symPt(symX, p.y(), p.z());
     if (!std::binary_search(vSymPinLocs.begin(), vSymPinLocs.end(), symPt)) {
       vSymPinLocs.emplace_back(symPt);
@@ -262,10 +268,11 @@ void GrAstar::makeSym() {
   }
   for (const auto& p : vSymPinLocs) {
     Int_t symX = (Int_t)(2 * _symAxisX - p.x());
-    if (symX >= (Int_t)_grGridRoute._gridMap.numGridCellsX())
-      symX = _grGridRoute._gridMap.numGridCellsX() - 1;
-    else if (symX < 0)
-      symX = 0;
+    //if (symX >= (Int_t)_grGridRoute._gridMap.numGridCellsX())
+      //symX = _grGridRoute._gridMap.numGridCellsX() - 1;
+    //else if (symX < 0)
+      //symX = 0;
+    boundSymX(symX);
     const Point3d<Int_t> symPt(symX, p.y(), p.z());
     if (!std::binary_search(_vPinLocs.begin(), _vPinLocs.end(), symPt)) {
       _vPinLocs.emplace_back(symPt);
@@ -379,19 +386,25 @@ bool GrAstar::routeSubNet(UInt_t srcIdx, UInt_t tarIdx) {
           Int_t costF = (costG * _param.factorG + dist_nearest * _param.factorH) *
                         (bOverflow(pU, pV) ? _param.overflowCost : 1);
           if (_net.bSelfSym()) {
-            const Int_t symX_U = (Int_t)(2 * _selfSymAxisX - pU->coord().x());
-            const Int_t symX_V = (Int_t)(2 * _selfSymAxisX - pV->coord().x());
+            Int_t symX_U = (Int_t)(2 * _selfSymAxisX - pU->coord().x());
+            Int_t symX_V = (Int_t)(2 * _selfSymAxisX - pV->coord().x());
+            boundSymX(symX_U);
+            boundSymX(symX_V);
             const GrAstarNode* pU_sym = &_vvvAstarNodes[pU->coord().z()][symX_U][pU->coord().y()];
             const GrAstarNode* pV_sym = &_vvvAstarNodes[pV->coord().z()][symX_V][pV->coord().y()];
-            costF *= bOverflow(pU_sym, pV_sym) ? _param.overflowCost : 1;
+            if (bOverflow(pU_sym, pV_sym))
+              costF *= _param.overflowCost;
             costF *= std::abs(pV->coord().x() - _selfSymAxisX);
           }
           if (_net.hasSymNet()) {
-            const Int_t symX_U = (Int_t)(2 * _symAxisX - pU->coord().x());
-            const Int_t symX_V = (Int_t)(2 * _symAxisX - pV->coord().x());
+            Int_t symX_U = (Int_t)(2 * _symAxisX - pU->coord().x());
+            Int_t symX_V = (Int_t)(2 * _symAxisX - pV->coord().x());
+            boundSymX(symX_U);
+            boundSymX(symX_V);
             const GrAstarNode* pU_sym = &_vvvAstarNodes[pU->coord().z()][symX_U][pU->coord().y()];
             const GrAstarNode* pV_sym = &_vvvAstarNodes[pV->coord().z()][symX_V][pV->coord().y()];
-            costF *= bOverflow(pU_sym, pV_sym) ? _param.overflowCost : 1;
+            if (bOverflow(pU_sym, pV_sym))
+              costF *= _param.overflowCost;
           }
           pV->setCostG(i, costG);
           pV->setCostF(i, costF);
@@ -683,6 +696,8 @@ void GrAstar::add2Path(const Int_t i, const Point3d<Int_t>& u, List_t<Point3d<In
 }
 
 bool GrAstar::bOverflow(const GrAstarNode* pU, const GrAstarNode* pV) {
+  if (pU->coord() == pV->coord())
+    return false;
   assert(bNeighbor(pU->coord(), pV->coord()));
   const Point3d<Int_t>& u = pU->coord();
   const Point3d<Int_t>& v = pV->coord();
@@ -709,6 +724,13 @@ bool GrAstar::bOverflow(const GrAstarNode* pU, const GrAstarNode* pV) {
       assert(false);
       return false;
   }
+}
+
+void GrAstar::boundSymX(Int_t& symX) {
+  if (symX >= (Int_t)_grGridRoute._gridMap.numGridCellsX())
+    symX = _grGridRoute._gridMap.numGridCellsX() - 1;
+  else if (symX < 0)
+    symX = 0;
 }
 
 

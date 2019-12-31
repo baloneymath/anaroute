@@ -94,6 +94,7 @@ class GrAstar {
   bool    bNeedUpdate(const GrAstarNode* pV, const Int_t i, const Int_t costG, const Int_t bendCnt);
   void    add2Path(const Int_t i, const Point3d<Int_t>& u, List_t<Point3d<Int_t>>& lPathPts);
   bool    bOverflow(const GrAstarNode* pU, const GrAstarNode* pV);
+  void    boundSymX(Int_t& symX);
 };
 
 PROJECT_NAMESPACE_END
