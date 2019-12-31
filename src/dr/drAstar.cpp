@@ -594,10 +594,13 @@ void DrAstar::neighbors(const DrAstarNode* pU, Vector_t<DrAstarNode*>& vpNeighbo
   const Int_t minWidth = layer.minWidth();
   const Int_t minBorderDist = minSpacing + minWidth;
   Int_t step = minSpacing;
-  if (pU->dist2Tar(0) > 8 * minSpacing)
-    step *= _param.factorStep_1;
+  
+  if (pU->dist2Tar(0) > 16 * minSpacing)
+    step *= 8;
+  else if (pU->dist2Tar(0) > 8 * minSpacing)
+    step *= 4;
   else if (pU->dist2Tar(0) > 4 * minSpacing)
-    step *= _param.factorStep_2;
+    step *= 2;
   else if (pU->dist2Tar(0) < minSpacing)
     step = 10;
   
