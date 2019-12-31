@@ -30,14 +30,14 @@ GDB="gdb --args"
 
 
 # Telescopic_Three_stage_flow
-#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           #--design_file $BENCH_DIR/Telescopic_Three_stage_flow/ROUTING_INPUT.gr \
-           #--placement_layout $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.wellgen.gds  \
-           #--iopin $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.iopin \
-           #--symnet $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.symnet \
-           #--out $OUT_DIR/gds/Telescopic_Three_stage_flow.gds \
-           #--out_guide $OUT_DIR/guide/Telescopic_Three_stage_flow.guide \
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           --design_file $BENCH_DIR/Telescopic_Three_stage_flow/ROUTING_INPUT.gr \
+           --placement_layout $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.wellgen.gds  \
+           --iopin $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.iopin \
+           --symnet $BENCH_DIR/Telescopic_Three_stage_flow/Telescopic_Three_stage_flow.symnet \
+           --out $OUT_DIR/gds/Telescopic_Three_stage_flow.gds \
+           --out_guide $OUT_DIR/guide/Telescopic_Three_stage_flow.guide \
 
 # Telescopic_Three_stage_flow_2
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -109,13 +109,13 @@ GDB="gdb --args"
            #--out_guide $OUT_DIR/guide/COMPARATOR.guide
 
 # CTDSM
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           --design_file $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.ROUTING_INPUT.gr \
-           --placement_layout $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.wellgen.gds \
-           --symnet $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.symnet \
-           --out $OUT_DIR/gds/CTDSM_TOP.route.gds \
-           --out_guide $OUT_DIR/guide/CTDSM_TOP.guide
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_file $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.ROUTING_INPUT.gr \
+           #--placement_layout $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.wellgen.gds \
+           #--symnet $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.symnet \
+           #--out $OUT_DIR/gds/CTDSM_TOP.route.gds \
+           #--out_guide $OUT_DIR/guide/CTDSM_TOP.guide
 
 # CTDSM2
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -125,6 +125,15 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            #--symnet $BENCH_DIR/CTDSM_TOP_hao_2/COMPARATOR_schematic.symnet \
            #--out $OUT_DIR/gds/CTDSM_TOP_2.route.gds \
            #--out_guide $OUT_DIR/guide/CTDSM_TOP_2.guide
+
+# CTDSM3
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_file $BENCH_DIR/CTDSM_TOP_hao_3/BUFFD4BWP_LVT_schematic.gr \
+           #--placement_layout $BENCH_DIR/CTDSM_TOP_hao_3/BUFFD4BWP_LVT_schematic.place.gds \
+           #--symnet $BENCH_DIR/CTDSM_TOP_hao_3/BUFFD4BWP_LVT_schematic.symnet \
+           #--out $OUT_DIR/gds/CTDSM_TOP_3.route.gds \
+           #--out_guide $OUT_DIR/guide/CTDSM_TOP_3.guide
 
 # COMPARATOR_TEST_FLOW
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
