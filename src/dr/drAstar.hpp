@@ -75,8 +75,6 @@ class DrAstar {
     Int_t factorG = 1;
     Int_t factorH = 1;
     Int_t guideCost = -5000;
-    Int_t factorStep_1 = 4;
-    Int_t factorStep_2 = 2;
     UInt_t maxExplore;
     UInt_t maxSymTry = 5;
   } _param;
