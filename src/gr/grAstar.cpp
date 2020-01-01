@@ -492,6 +492,9 @@ void GrAstar::updateGridEdges() {
       for (j = 0; j + 1 < vvGuides[i].size(); ++j) {
         const Point3d<Int_t>& u = vvGuides[i][j];
         const Point3d<Int_t>& v = vvGuides[i][j + 1];
+        if (u == v) {
+          continue;
+        }
         switch (findDir(u, v)) {
           case PathDir::LEFT:
           case PathDir::RIGHT:
@@ -659,7 +662,12 @@ Int_t GrAstar::scaledMDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
 
 bool GrAstar::hasBend(const GrAstarNode* pU, const GrAstarNode* pV, const Int_t i) {
   if (pU->pParent(i) != nullptr) {
-    return findDir(pU->pParent(i)->coord(), pU->coord()) != findDir(pU->coord(), pV->coord());
+    if (pU->coord() == pV->coord()) {
+      return false;
+    }
+    else {
+      return findDir(pU->pParent(i)->coord(), pU->coord()) != findDir(pU->coord(), pV->coord());
+    }
   }
   return false;
 }
