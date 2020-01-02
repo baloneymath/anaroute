@@ -59,11 +59,11 @@ void LayoutWriter::addRoutingLayout(GdsCell& gdsCell, const Float_t scale) {
     const Vector_t<Pair_t<Box<Int_t>, Int_t>>& vWires = cpNet->vWires();
     for (const Pair_t<Box<Int_t>, Int_t>& pair : vWires) {
       const Box<Int_t>& box = pair.first;
-      //const Int_t layerIdx = pair.second;
+      const Int_t layerIdx = pair.second;
       const Int_t maskIdx = _cir.layerIdx2MaskIdx(pair.second);
-      //if (layerIdx > (Int_t)_cir.lef().routingLayerIdx2LayerIdx(6))
-        //addBox2Cell(gdsCell, maskIdx, box, scale, 40);
-      //else
+      if (layerIdx > (Int_t)_cir.lef().routingLayerIdx2LayerIdx(6))
+        addBox2Cell(gdsCell, maskIdx, box, scale, 40);
+      else
         addBox2Cell(gdsCell, maskIdx, box, scale, 0);
     }
     if (cpNet->bIOPort()) {
