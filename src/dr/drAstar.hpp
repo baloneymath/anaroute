@@ -27,13 +27,14 @@ class DrAstar {
       //_vSpatialRoutedWires(c.v)
   {
     
-    const LefRoutingLayer& M1 = _cir.lef().routingLayer(1);
-    const Int_t minSpacing = M1.spacingTable().table.size() ?
-                             M1.spacingTable().table[0].second[0] :
-                             M1.spacing(0);
-    const Int_t xc = _cir.width() / minSpacing;
-    const Int_t yc = _cir.height() / minSpacing;
-    _param.maxExplore = xc * yc;
+    //const LefRoutingLayer& M1 = _cir.lef().routingLayer(1);
+    //const Int_t minSpacing = M1.spacingTable().table.size() ?
+                             //M1.spacingTable().table[0].second[0] :
+                             //M1.spacing(0);
+    //const Int_t xc = _cir.width() / minSpacing;
+    //const Int_t yc = _cir.height() / minSpacing;
+    //_param.maxExplore = xc * yc;
+    _param.maxExplore = 200000;
   }
   ~DrAstar() {
     for (auto& v : _vAllAstarNodesMap) {
