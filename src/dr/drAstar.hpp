@@ -77,7 +77,7 @@ class DrAstar {
     Int_t factorH = 1;
     Int_t guideCost = -5000;
     UInt_t maxExplore;
-    UInt_t maxSymTry = 5;
+    UInt_t maxSymTry = 3;
   } _param;
   
   enum class PathDir : Byte_t {
