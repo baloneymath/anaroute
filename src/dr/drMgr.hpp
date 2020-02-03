@@ -23,6 +23,7 @@ class DrMgr {
 
   void solve();
   void runGridlessRoute();
+  void runGridRoute();
 
  private:
   CirDB&  _cir;

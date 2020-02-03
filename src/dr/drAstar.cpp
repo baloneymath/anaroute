@@ -36,7 +36,7 @@ bool DrAstar::runKernel() {
       _cir.net(_net.symNetIdx()).drFailCnt() < (Int_t)_param.maxSymTry) {
     computeSymAxisX();
     if (!bSatisfySymCondition()) {
-      fprintf(stderr, "DrAstar::%s WARNING: Net %s %s does not satisfy symmetric net condition!\n", __func__, _net.name().c_str(), _cir.net(_net.symNetIdx()).name().c_str());
+      fprintf(stderr, "DrAstar::%s WARNING: Net %s %s does not satisfy symmetric net requirements!\n", __func__, _net.name().c_str(), _cir.net(_net.symNetIdx()).name().c_str());
     }
     else {
       _bSatisfySym = true;
@@ -45,7 +45,7 @@ bool DrAstar::runKernel() {
   else if (_net.bSelfSym()) {
     computeSelfSymAxisX();
     if (!bSatisfySelfSymCondition()) {
-      fprintf(stderr, "DrAstar::%s WARNING: Net %s does not satisfy self symmetric condition!\n", __func__, _net.name().c_str());
+      fprintf(stderr, "DrAstar::%s WARNING: Net %s does not satisfy self symmetric requirements!\n", __func__, _net.name().c_str());
     }
     else {
       _bSatisfySelfSym = true;

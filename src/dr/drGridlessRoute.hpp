@@ -15,6 +15,7 @@
 
 PROJECT_NAMESPACE_START
 
+
 class DrGridlessRoute {
   friend class DrAstar;
  public:

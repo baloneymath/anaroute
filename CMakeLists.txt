@@ -103,6 +103,7 @@ set(SRC
   src/ta/taMgr.cpp
   src/dr/drMgr.cpp
   src/dr/drGridlessRoute.cpp
+  src/dr/drGridRoute.cpp
   src/dr/drAstar.cpp
   src/dr/drViaSelector.cpp
   src/drc/drcMgr.cpp
@@ -123,7 +124,7 @@ set(SRC_API
 )
 
 add_executable(${PROJECT_NAME} ${SRC} ${SRC_EXE})
-pybind11_add_module(${PROJECT_NAME}Py ${SRC} ${SRC_API})
+#pybind11_add_module(${PROJECT_NAME}Py ${SRC} ${SRC_API})
 
 ##################################################
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
@@ -155,7 +156,7 @@ file(GLOB LIMBO_LIB
 )
 
 target_link_libraries(${PROJECT_NAME} ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
-target_link_libraries(${PROJECT_NAME}Py PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
+#target_link_libraries(${PROJECT_NAME}Py PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #Install
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX_DIR}/bin)

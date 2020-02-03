@@ -52,6 +52,10 @@ void Pin::resizeLayerBoxes(const UInt_t i) {
   _vvBoxes.resize(i);
 }
 
+void Pin::addAcsPt(const Point3d<Int_t>& p) {
+  _vAcsPts.emplace_back(p);
+}
+
 void Pin::printInfo() const {
 
 }

@@ -8,6 +8,7 @@
 
 #include "drMgr.hpp"
 #include "drGridlessRoute.hpp"
+#include "drGridRoute.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -18,6 +19,11 @@ void DrMgr::solve() {
 
 void DrMgr::runGridlessRoute() {
   DrGridlessRoute kernel(_cir, *this, _drcMgr);
+  kernel.solve();
+}
+
+void DrMgr::runGridRoute() {
+  DrGridRoute kernel(_cir, *this, _drcMgr);
   kernel.solve();
 }
 

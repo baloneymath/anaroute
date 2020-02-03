@@ -108,13 +108,13 @@ GDB=""
            #--out_guide $OUT_DIR/guide/COMPARATOR.guide
 
 # CTDSM
-#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           #--design_file $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.ROUTING_INPUT.gr \
-           #--placement_layout $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.wellgen.gds \
-           #--symnet $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.symnet \
-           #--out $OUT_DIR/gds/CTDSM_TOP.route.gds \
-           #--out_guide $OUT_DIR/guide/CTDSM_TOP.guide
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           --design_file $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.ROUTING_INPUT.gr \
+           --placement_layout $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.wellgen.gds \
+           --symnet $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.symnet \
+           --out $OUT_DIR/gds/CTDSM_TOP.route.gds \
+           --out_guide $OUT_DIR/guide/CTDSM_TOP.guide
 
 # CTDSM2
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -135,13 +135,13 @@ GDB=""
            #--out_guide $OUT_DIR/guide/CTDSM_TOP_3.guide
 
 # CTDSM4
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           --design_file $BENCH_DIR/CTDSM_TOP_hao_4/CTDSM_TOP.gr \
-           --placement_layout $BENCH_DIR/CTDSM_TOP_hao_4/CTDSM_TOP.place.gds \
-           --symnet $BENCH_DIR/CTDSM_TOP_hao_4/CTDSM_TOP.symnet \
-           --out $OUT_DIR/gds/CTDSM_TOP_4.route.gds \
-           --out_guide $OUT_DIR/guide/CTDSM_TOP_4.guide
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_file $BENCH_DIR/CTDSM_TOP_hao_4/CTDSM_TOP.gr \
+           #--placement_layout $BENCH_DIR/CTDSM_TOP_hao_4/CTDSM_TOP.place.gds \
+           #--symnet $BENCH_DIR/CTDSM_TOP_hao_4/CTDSM_TOP.symnet \
+           #--out $OUT_DIR/gds/CTDSM_TOP_4.route.gds \
+           #--out_guide $OUT_DIR/guide/CTDSM_TOP_4.guide
 
 # COMPARATOR_TEST_FLOW
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \

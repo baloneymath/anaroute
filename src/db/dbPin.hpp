@@ -10,6 +10,7 @@
 #define _DB_PIN_HPP_
 
 #include "src/global/global.hpp"
+#include "src/geo/point3d.hpp"
 #include "src/geo/box.hpp"
 
 PROJECT_NAMESPACE_START
@@ -38,6 +39,11 @@ class Pin {
   const Box<Int_t>&                       box(const UInt_t layerIdx, const UInt_t j)    const { return _vvBoxes[layerIdx][j]; }
   const Vector_t<Box<Int_t>>&             vBoxes(const UInt_t layerIdx)                 const { return _vvBoxes[layerIdx]; }
   const Vector_t<Vector_t<Box<Int_t>>>&   vvBoxes()                                     const { return _vvBoxes; }
+  UInt_t                                  numAcsPts()                                   const { return _vAcsPts.size(); }
+  Point3d<Int_t>&                         acsPt(const UInt_t i)                               { return _vAcsPts[i]; }
+  const Point3d<Int_t>&                   acsPt(const UInt_t i)                         const { return _vAcsPts[i]; }
+  Vector_t<Point3d<Int_t>>&               vAcsPts()                                           { return _vAcsPts; }
+  const Vector_t<Point3d<Int_t>>&         vAcsPts()                                     const { return _vAcsPts; }
 
   ////////////////////////////////////////
   //   Setter                           //
@@ -51,6 +57,7 @@ class Pin {
   void addBox(const UInt_t layerIdx, const Box<Int_t>& box);
   void setLayerBoxes(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes);
   void resizeLayerBoxes(const UInt_t i);
+  void addAcsPt(const Point3d<Int_t>& p);
   
   // for debug
   void printInfo() const;
@@ -63,7 +70,7 @@ class Pin {
   UInt_t                          _minLayerIdx;
   UInt_t                          _maxLayerIdx;
   Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
-  
+  Vector_t<Point3d<Int_t>>        _vAcsPts; 
 };
 
 ////////////////////////////////////////
@@ -78,6 +85,12 @@ class Pin {
 // const box
 #define Pin_ForEachLayerBoxC(pin, layerIdx, cpBox_, i) \
   for (i = 0; i < pin.numBoxes(layerIdx) and (cpBox_ = &pin.box(layerIdx, i)); ++i)
+// acsPt
+#define Pin_ForEachAcsPt(pin, pAcsPt_, i) \
+  for (i = 0; i < pin.numAcsPts() and (pAcsPt_ = &pin.acsPt(i)); ++i)
+// const acsPt
+#define Pin_ForEachAcsPtC(pin, cpAcsPt_, i) \
+  for (i = 0; i < pin.numAcsPts() and (cpAcsPt_ = &pin.acsPt(i)); ++i)
 
 PROJECT_NAMESPACE_END
 

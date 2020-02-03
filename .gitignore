@@ -5,4 +5,5 @@ bin/ARouter
 build/
 bench/
 bench_new/
+bench_manual/
 tags
