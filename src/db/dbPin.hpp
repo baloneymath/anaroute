@@ -80,7 +80,7 @@ class Pin {
   UInt_t                          _minLayerIdx;
   UInt_t                          _maxLayerIdx;
   Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
-  Vector_t<Point3d<Int_t>>        _vAcsPts; 
+  Vector_t<Point3d<Int_t>>        _vAcsPts;  ///< Access points
   // for grid-based DR
   Int_t                           _xGrid;
   Int_t                           _yGrid;
