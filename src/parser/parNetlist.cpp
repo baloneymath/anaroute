@@ -25,18 +25,23 @@ void NetlistReader::parse(const String_t& filename) {
 
   _cir.resizeVVPinIndices(_cir.lef().numLayers());
   
+  String_t buf;
   String_t netName;
   Int_t routingLayerIdx;
   Int_t xl, yl, xh, yh;
   Int_t gridStep, symAxisX, xGrid, yGrid;
+  Int_t gridOffsetX, gridOffsetY;
   Int_t netIdx;
 
-  ifs >> gridStep;
-  ifs >> symAxisX;
+  ifs >> buf; ifs >> gridStep;
+  ifs >> buf; ifs >> gridOffsetX >> gridOffsetY;
+  ifs >> buf; ifs >> symAxisX;
 
   gridStep = to_db_unit(gridStep);
   symAxisX = to_db_unit(symAxisX);
   _cir.setGridStep(gridStep);
+  _cir.setGridOffsetX(gridOffsetX);
+  _cir.setGridOffsetY(gridOffsetY);
   _cir.setSymAxisX(symAxisX);
   
   while (true) {

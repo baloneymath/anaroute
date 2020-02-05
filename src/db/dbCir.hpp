@@ -52,8 +52,9 @@ class CirDB {
   Int_t             height() const { return _yh - _yl; }
 
   // GridStep
-  Int_t             gridStep()   const { return _gridStep; }
-  Int_t             gridOffset() const { return _gridOffset; }
+  Int_t             gridStep()    const { return _gridStep; }
+  Int_t             gridOffsetX() const { return _gridOffsetX; }
+  Int_t             gridOffsetY() const { return _gridOffsetY; }
 
   // SymAxis
   Int_t             symAxisX() const { return _symAxisX; }
@@ -96,6 +97,8 @@ class CirDB {
   void setYH(const Int_t y);
   
   void setGridStep(const Int_t s);
+  void setGridOffsetX(const Int_t x);
+  void setGridOffsetY(const Int_t y);
   void setSymAxisX(const Int_t x);
 
   void addPin(const Pin& p);
@@ -154,7 +157,8 @@ class CirDB {
   Int_t                          _yh;
  
   Int_t                          _gridStep;
-  Int_t                          _gridOffset = 0; ///< The offset of the routing grid
+  Int_t                          _gridOffsetX; ///< The offset of the routing grid X
+  Int_t                          _gridOffsetY; ///< The offset of the routing grid Y
   Int_t                          _symAxisX;
 
   Vector_t<Pin>                  _vPins;
