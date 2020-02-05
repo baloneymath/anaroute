@@ -303,6 +303,14 @@ void CirDB::setGridStep(const Int_t s) {
   _gridStep = s;
 }
 
+void CirDB::setGridOffsetX(const Int_t x) {
+  _gridOffsetX = x;
+}
+
+void CirDB::setGridOffsetY(const Int_t y) {
+  _gridOffsetY = y;
+}
+
 void CirDB::setSymAxisX(const Int_t x) {
   _symAxisX = x;
 }
