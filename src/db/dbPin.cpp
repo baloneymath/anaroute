@@ -56,6 +56,14 @@ void Pin::addAcsPt(const Point3d<Int_t>& p) {
   _vAcsPts.emplace_back(p);
 }
 
+void Pin::setXGrid(const Int_t x) {
+  _xGrid = x;
+}
+
+void Pin::setYGrid(const Int_t y) {
+  _yGrid = y;
+}
+
 void Pin::printInfo() const {
 
 }

@@ -6,7 +6,7 @@ ANAROUTE_DIR="$HAO/projects/anaroute"
 BENCH_DIR="../bench_new"
 OUT_DIR="./out"
 GDB="gdb --args"
-GDB=""
+#GDB=""
 
 # Comparator
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -108,13 +108,13 @@ GDB=""
            #--out_guide $OUT_DIR/guide/COMPARATOR.guide
 
 # CTDSM
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           --design_file $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.ROUTING_INPUT.gr \
-           --placement_layout $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.wellgen.gds \
-           --symnet $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.symnet \
-           --out $OUT_DIR/gds/CTDSM_TOP.route.gds \
-           --out_guide $OUT_DIR/guide/CTDSM_TOP.guide
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_file $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.ROUTING_INPUT.gr \
+           #--placement_layout $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.wellgen.gds \
+           #--symnet $BENCH_DIR/CTDSM_TOP_hao/CTDSM_TOP.symnet \
+           #--out $OUT_DIR/gds/CTDSM_TOP.route.gds \
+           #--out_guide $OUT_DIR/guide/CTDSM_TOP.guide
 
 # CTDSM2
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -151,3 +151,12 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            #--symnet $BENCH_DIR/COMPARATOR_PRE_AMP_test_flow/COMPARATOR_PRE_AMP.symnet \
            #--out $OUT_DIR/gds/COMPARATOR_PRE_AMP.route.gds \
            #--out_guide $OUT_DIR/guide/COMPARATOR_PRE_AMP.guide
+
+# comp2 manual
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           --design_file ../bench_manual/comp2/comp2_grid_v1.pin \
+           --placement_layout ../bench_manual/comp2/comp2_grid_v1.place.gds \
+           --symnet ../bench_manual/comp2/comp2.symnet \
+           --out $OUT_DIR/gds/comp2.route.gds 
+

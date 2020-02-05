@@ -49,13 +49,14 @@ Anaroute::Anaroute(int argc, char** argv) {
   par.parseLef(lefFile);
   par.parseTechfile(techFile);
   par.parseGds(placeFile);
-  par.parseIspd08(designFile);
+  //par.parseIspd08(designFile);
+  par.parseNetlist(designFile);
   if (symnetFile != "")
     par.parseSymNet(symnetFile);
   if (iopinFile != "")
     par.parseIOPin(iopinFile);
-  par.correctPinNBlkLoc(); // patch for placement bugs
-  //cir.visualize();
+  //par.correctPinNBlkLoc(); // patch for placement bugs
+  cir.visualize();
 
   //cir.printInfo();
   cir.buildSpatial();
@@ -63,15 +64,15 @@ Anaroute::Anaroute(int argc, char** argv) {
   timer.showUsage("Circuit database construction", TimeUsage::PARTIAL);
   
   // global routing
-  timer.start(TimeUsage::PARTIAL);
-  GrMgr gr(cir);
-  gr.solve();
+  //timer.start(TimeUsage::PARTIAL);
+  //GrMgr gr(cir);
+  //gr.solve();
   cir.buildSpatialNetGuides();
-  timer.showUsage("Global Routing", TimeUsage::PARTIAL);
+  //timer.showUsage("Global Routing", TimeUsage::PARTIAL);
 
   // track assignment
-  TaMgr ta(cir);
-  ta.solve();
+  //TaMgr ta(cir);
+  //ta.solve();
 
   // detailed routing
   timer.start(TimeUsage::PARTIAL);

@@ -29,11 +29,17 @@ void GdsReader::parse(const String_t& filename) {
   
   // Build the mapping between the gds layer and the router layers
   buildLayerMap();
+  
   // Process the shapes in gds
   for (const auto& obj : flatCell.objects()) {
     GdsParser::GdsDB::GdsObjectHelpers()(obj.first, obj.second, ExtractShapeLayerAction(_vMaskId2Layers, _vPolygonLayers));
   }
-	// scale the design
+	// Read in poblk
+  for (const auto& obj : flatCell.objects()) {
+    GdsParser::GdsDB::GdsObjectHelpers()(obj.first, obj.second, ExtractPoBlkAction(_vMaskId2Layers, _vPoblks));
+  }
+	
+  // scale the design
   const Int_t gds_unit = std::round(1e-6 / unflatenDB.precision());
   const Int_t db_unit = _cir.lef().units().databaseNumber();
   const Float_t sc = db_unit / gds_unit;

@@ -301,6 +301,20 @@ bool DrAstar::bSatisfySymCondition() const {
       }
     }
   }
+  //if (_net.name() == "INTERN") {
+    //std::cerr << std::endl;;
+    //Net& net = _cir.net("INTERP");
+    //UInt_t i, pinIdx, layerIdx, j;
+    //Box<Int_t>* pBox;
+    //Net_ForEachPinIdx(net, pinIdx, i) {
+      //Pin& pin = _cir.pin(pinIdx);
+      //Pin_ForEachLayerIdx(pin, layerIdx) {
+        //Pin_ForEachLayerBox(pin, layerIdx, pBox, j) {
+          //std::cerr << *pBox << std::endl;
+        //}
+      //}
+    //}
+  //}
   return true;
 }
 

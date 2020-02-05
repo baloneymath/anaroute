@@ -22,7 +22,9 @@ class Pin {
  public:
   Pin()
     : _name(""), _netName(""), _netIdx(MAX_UINT), _idx(MAX_UINT),
-      _minLayerIdx(MAX_UINT), _maxLayerIdx(0) {}
+      _minLayerIdx(MAX_UINT), _maxLayerIdx(0),
+      _xGrid(-1), _yGrid(-1)
+  {}
   ~Pin() {}
 
   ////////////////////////////////////////
@@ -45,6 +47,10 @@ class Pin {
   Vector_t<Point3d<Int_t>>&               vAcsPts()                                           { return _vAcsPts; }
   const Vector_t<Point3d<Int_t>>&         vAcsPts()                                     const { return _vAcsPts; }
 
+  // for grid-based DR
+  Int_t                                   xGrid()                                       const { return _xGrid; }
+  Int_t                                   yGrid()                                       const { return _yGrid; }
+
   ////////////////////////////////////////
   //   Setter                           //
   ////////////////////////////////////////
@@ -58,7 +64,11 @@ class Pin {
   void setLayerBoxes(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes);
   void resizeLayerBoxes(const UInt_t i);
   void addAcsPt(const Point3d<Int_t>& p);
-  
+ 
+  // for grid-based DR
+  void setXGrid(const Int_t x);
+  void setYGrid(const Int_t y);
+
   // for debug
   void printInfo() const;
 
@@ -71,6 +81,9 @@ class Pin {
   UInt_t                          _maxLayerIdx;
   Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
   Vector_t<Point3d<Int_t>>        _vAcsPts; 
+  // for grid-based DR
+  Int_t                           _xGrid;
+  Int_t                           _yGrid;
 };
 
 ////////////////////////////////////////

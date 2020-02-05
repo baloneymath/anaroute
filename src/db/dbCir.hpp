@@ -22,6 +22,7 @@ PROJECT_NAMESPACE_START
 class CirDB {
   friend class Parser;
   friend class Ispd08Reader;
+  friend class NetlistReader;
   friend class TechfileReader;
   friend class GdsReader;
  public:
@@ -49,6 +50,12 @@ class CirDB {
   Int_t             yh()     const { return _yh; }
   Int_t             width()  const { return _xh - _xl; }
   Int_t             height() const { return _yh - _yl; }
+
+  // GridStep
+  Int_t             gridStep() const { return _gridStep; }
+
+  // SymAxis
+  Int_t             symAxisX() const { return _symAxisX; }
 
   // Pin
   UInt_t            numPins()                             const  { return _vPins.size(); }
@@ -87,6 +94,9 @@ class CirDB {
   void setXH(const Int_t x);
   void setYH(const Int_t y);
   
+  void setGridStep(const Int_t s);
+  void setSymAxisX(const Int_t x);
+
   void addPin(const Pin& p);
   void addBlk(const UInt_t i, const Blk& b);
   void addNet(const Net& n);
@@ -141,7 +151,10 @@ class CirDB {
   Int_t                          _yl;
   Int_t                          _xh;
   Int_t                          _yh;
-  
+ 
+  Int_t                          _gridStep;
+  Int_t                          _symAxisX;
+
   Vector_t<Pin>                  _vPins;
   Vector_t<Net>                  _vNets;
   Vector_t<Blk>                  _vBlks;

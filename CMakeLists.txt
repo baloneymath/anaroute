@@ -94,6 +94,7 @@ set(SRC
   src/parser/parLef.cpp
   src/parser/parTech.cpp
   src/parser/parIspd08.cpp
+  src/parser/parNetlist.cpp
   src/parser/parGds.cpp
   src/parser/parSymNet.cpp
   src/parser/parIOPin.cpp

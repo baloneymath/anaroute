@@ -299,6 +299,14 @@ void CirDB::setYH(const Int_t y) {
   _yh = y;
 }
 
+void CirDB::setGridStep(const Int_t s) {
+  _gridStep = s;
+}
+
+void CirDB::setSymAxisX(const Int_t x) {
+  _symAxisX = x;
+}
+
 void CirDB::addPin(const Pin& p) {
   assert(_vvPinIndices.size() > 0);
   _mStr2PinIdx[p.name()] = _vPins.size();

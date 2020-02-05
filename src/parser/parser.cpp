@@ -7,37 +7,56 @@
  **/
 
 #include "parser.hpp"
+#include "parLef.hpp"
+#include "parTech.hpp"
+#include "parIspd08.hpp"
+#include "parGds.hpp"
+#include "parSymNet.hpp"
+#include "parIOPin.hpp"
+#include "parNetlist.hpp"
 
 PROJECT_NAMESPACE_START
 
 void Parser::parseLef(const String_t& filename) {
   fprintf(stdout, "Parsing LEF file %s\n", filename.c_str());
-  _lefr.parse(filename);
+  LefReader lefr(_cir.lef());
+  lefr.parse(filename);
 }
 
 void Parser::parseTechfile(const String_t& filename) {
   fprintf(stdout, "Parsing Tech file %s\n", filename.c_str());
-  _techr.parse(filename);
+  TechfileReader techr(_cir);
+  techr.parse(filename);
 }
 
 void Parser::parseIspd08(const String_t& filename) {
   fprintf(stdout, "Parsing netlist file %s\n", filename.c_str());
-  _ispd08r.parse(filename);
+  Ispd08Reader ispd08r(_cir);
+  ispd08r.parse(filename);
 }
 
 void Parser::parseGds(const String_t& filename) {
   fprintf(stdout, "Parsing placement GDS layout file %s\n", filename.c_str());
-  _gdsr.parse(filename);
+  GdsReader gdsr(_cir);
+  gdsr.parse(filename);
 }
 
 void Parser::parseSymNet(const String_t& filename) {
   fprintf(stdout, "Parsing symnet file %s\n", filename.c_str());
-  _symNetr.parse(filename);
+  SymNetReader symNetr(_cir);
+  symNetr.parse(filename);
 }
 
 void Parser::parseIOPin(const String_t& filename) {
   fprintf(stdout, "Parsing IO pin file %s\n", filename.c_str());
-  _ioPinr.parse(filename);
+  IOPinReader ioPinr(_cir);
+  ioPinr.parse(filename);
+}
+
+void Parser::parseNetlist(const String_t& filename) {
+  fprintf(stdout, "Parsing Netlist file %s\n", filename.c_str());
+  NetlistReader netlistr(_cir);
+  netlistr.parse(filename);
 }
 
 

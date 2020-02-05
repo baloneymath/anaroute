@@ -14,6 +14,21 @@
 
 PROJECT_NAMESPACE_START
 
+class NetlistReader {
+ public:
+  NetlistReader(CirDB& c)
+    : _cir(c), _scale(0) {}
+  ~NetlistReader() {}
+
+  void parse(const String_t& filename);
+
+ private:
+  CirDB& _cir;
+  Int_t  _scale;
+
+  void setScale();
+  Int_t to_db_unit(const Int_t n) const;
+};
 
 PROJECT_NAMESPACE_END
 

@@ -54,7 +54,7 @@ class GdsReader { // from limbo
 
  private:
 	CirDB&                            _cir;
-	Vector_t<Pair_t<Int_t, UInt_t>>  _vMaskId2Layers;
+	Vector_t<Pair_t<Int_t, UInt_t>>   _vMaskId2Layers;
 	Vector_t<PolygonLayer>            _vPolygonLayers;
 	Vector_t<PolygonLayer>            _vPoblks;
 	/////////////////////////////////////////
