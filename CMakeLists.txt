@@ -102,6 +102,7 @@ set(SRC
   src/gr/grGridRoute.cpp
   src/gr/grAstar.cpp
   src/ta/taMgr.cpp
+  src/acs/acsMgr.cpp
   src/dr/drMgr.cpp
   src/dr/drGridlessRoute.cpp
   src/dr/drGridRoute.cpp

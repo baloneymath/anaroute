@@ -16,6 +16,7 @@
 #include "src/dr/drMgr.hpp"
 #include "src/drc/drcMgr.hpp"
 #include "src/writer/writer.hpp"
+#include "src/acs/acsMgr.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -74,6 +75,9 @@ Anaroute::Anaroute(int argc, char** argv) {
   //TaMgr ta(cir);
   //ta.solve();
 
+  // Generate access points
+  AcsMgr acs(cir);
+  acs.computeAcs();
   // detailed routing
   timer.start(TimeUsage::PARTIAL);
   DrcMgr drc(cir);
