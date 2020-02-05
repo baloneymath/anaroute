@@ -105,6 +105,7 @@ set(SRC
   src/dr/drMgr.cpp
   src/dr/drGridlessRoute.cpp
   src/dr/drGridRoute.cpp
+  src/dr/drGridAstar.cpp
   src/dr/drAstar.cpp
   src/dr/drViaSelector.cpp
   src/drc/drcMgr.cpp
