@@ -55,6 +55,14 @@ class CirDB {
   Int_t             gridStep()    const { return _gridStep; }
   Int_t             gridOffsetX() const { return _gridOffsetX; }
   Int_t             gridOffsetY() const { return _gridOffsetY; }
+  /// @brief compute the center x coordinate for a grid
+  /// @param the index of the grid
+  /// @return the center x coordinate for the grid
+  Int_t             gridCenterX(UInt_t gridIdx) const { return _gridStep * gridIdx + _gridOffsetX; }
+  /// @brief compute the center y coordinate for a grid
+  /// @param the index of the grid
+  /// @return the center y coordinate for the grid
+  Int_t             gridCenterY(UInt_t gridIdx) const { return _gridStep * gridIdx + _gridOffsetY; }
 
   // SymAxis
   Int_t             symAxisX() const { return _symAxisX; }
