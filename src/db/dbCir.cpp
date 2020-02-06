@@ -424,7 +424,8 @@ void CirDB::visualize() const {
   const Net* cpNet;
   const Blk* cpBlk;
   const Box<Int_t>* cpBox;
-  
+  const Point3d<Int_t>* cpPt;
+
   Cir_ForEachNet((*this), cpNet, i) {
     Net_ForEachPinIdx((*cpNet), pinIdx, j) {
       const Pin& pin = this->pin(pinIdx);
@@ -433,12 +434,19 @@ void CirDB::visualize() const {
           gw.writeRectangle(*cpBox, layerIdx + 100 * (i + 1), 0);
         }
       }
+
+      Pin_ForEachAcsPt(pin, cpPt, k) {
+        Box<Int_t> box(_gridOffsetX + cpPt->x() * _gridStep - 5, _gridOffsetY + cpPt->y() * _gridStep - 5,
+                       _gridOffsetX + cpPt->x() * _gridStep + 5, _gridOffsetY + cpPt->y() * _gridStep + 5);
+        gw.writeRectangle(box, 20000, 0);
+      }
     }
   }
   
   Cir_ForEachBlk((*this), cpBlk, i) {
     gw.writeRectangle(cpBlk->box(), cpBlk->layerIdx() + 10000, 0);
   }
+
 
   gw.writeCellEnd();
   gw.endLib();

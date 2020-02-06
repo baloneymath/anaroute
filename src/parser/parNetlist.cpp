@@ -44,14 +44,11 @@ void NetlistReader::parse(const String_t& filename) {
   _cir.setGridOffsetY(gridOffsetY);
   _cir.setSymAxisX(symAxisX);
   
-  while (true) {
+  while (ifs.good()) {
     ifs >> netName;
     ifs >> routingLayerIdx;
     ifs >> xl >> yl >> xh >> yh;
     ifs >> xGrid >> yGrid;
-    if (!ifs.good()) {
-      break;
-    }
     assert(xl < xh and yl < yh);
     //if (xl >= xh or yl >= yh) {
       //std::cerr << netName << " " << xl << " " << yl << " " << xh << " " << yh << std::endl;

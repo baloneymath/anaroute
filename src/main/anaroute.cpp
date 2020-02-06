@@ -57,7 +57,6 @@ Anaroute::Anaroute(int argc, char** argv) {
   if (iopinFile != "")
     par.parseIOPin(iopinFile);
   //par.correctPinNBlkLoc(); // patch for placement bugs
-  cir.visualize();
 
   //cir.printInfo();
   cir.buildSpatial();
@@ -76,8 +75,13 @@ Anaroute::Anaroute(int argc, char** argv) {
   //ta.solve();
 
   // Generate access points
+  timer.start(TimeUsage::PARTIAL);
   AcsMgr acs(cir);
   acs.computeAcs();
+  timer.showUsage("Access Points Generation", TimeUsage::PARTIAL);
+  
+  cir.visualize();
+  
   // detailed routing
   timer.start(TimeUsage::PARTIAL);
   DrcMgr drc(cir);
