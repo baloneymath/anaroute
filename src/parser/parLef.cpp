@@ -113,7 +113,17 @@ void LefReader::lef_via_cbk(lefiVia const &v) {
   }
 }
 
-void LefReader::lef_viarule_cbk(lefiViaRule const &v) {}
+void LefReader::lef_viarule_cbk(lefiViaRule const &v) {
+    bool foundTemplate = false;
+    // Try all the templates
+    LefViaRuleTemplate1 temp1;
+    if (temp1.constructFromLefParser(v))
+    {
+        foundTemplate = true;
+        _lef.vViaRuleTemplate1().emplace_back(temp1);
+    }
+    assert(foundTemplate);
+}
 void LefReader::lef_spacing_cbk(lefiSpacing const &v) {}
 void LefReader::lef_irdrop_cbk(lefiIRDrop const &v) {}
 void LefReader::lef_minfeature_cbk(lefiMinFeature const &v) {}

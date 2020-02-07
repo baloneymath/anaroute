@@ -85,6 +85,7 @@ set(SRC
   src/db/lef/layer/lefRoutingLayer.cpp
   src/db/lef/lefSite.cpp
   src/db/lef/lefVia.cpp
+  src/db/lef/lefViaRule.cpp
   src/db/dbLef.cpp
   src/db/dbTechfile.cpp
   src/db/dbPin.cpp
