@@ -298,7 +298,7 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
     DrGridAstarNode* pU = pq.top();
     if (tar.find(pU->coord()) != tar.end()) { // u \in tar
       const UInt_t bigCompIdx = mergeComp(srcIdx, tarIdx);
-      backTrack(pU, bigCompIdx, srcIdx, tarIdx);
+      backTrack(pU, bigCompIdx, srcIdx, tarIdx, bSym);
       return true;
     }
     pq.pop();
@@ -313,7 +313,7 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
         // TODO: generate vias
       }
       if (bViolateDRC(pU, pV, bSym, bSelfSym)) {
-        // 
+        continue;
       }
       const Int_t costG = pU->costG() + scaledMDist(pU->coord(), pV->coord());
       const Int_t bendCnt = pU->bendCnt() + hasBend(pU, pV);
@@ -358,7 +358,7 @@ Int_t DrGridAstar::mergeComp(const Int_t srcIdx, const Int_t tarIdx) {
   return bigCompIdx;
 }
 
-void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, const Int_t srcIdx, const Int_t tarIdx) {
+void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, const Int_t srcIdx, const Int_t tarIdx, const bool bSym) {
   List_t<Point3d<Int_t>> lPathPts;
   add2Path(pU, lPathPts);
   const DrGridAstarNode* pParent = pU->pParent();
@@ -375,8 +375,10 @@ void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, c
   List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>> lPathVec;
   mergePath(lPathPts, lPathVec);
   
-  savePath(lPathVec);
+  savePath(lPathVec, bSym);
+  
 
+  // add to comp box
   for (const auto& pair : _vCompBoxes[childIdx]) {
     _vCompBoxes[rootIdx].emplace_back(pair);
     _vCompSpatialBoxes[rootIdx][pair.second].insert(pair.first);
@@ -429,7 +431,7 @@ bool DrGridAstar::bNeedMergePath(const Point3d<Int_t>& u1, const Point3d<Int_t>&
   return findDir(u1, v1) == findDir(u2, v2);
 }
 
-void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec) {
+void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec, const bool bSym) {
   _vvRoutePaths.resize(_vvRoutePaths.size() + 1);
   _vvRoutePaths.back().reserve(lPathVec.size());
   _vvRoutedWires.resize(_vvRoutedWires.size() + 1);
@@ -440,7 +442,25 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
   // add exact shapes to spatial
   const auto& vPathVec = _vvRoutePaths.back();
   auto& vRoutedWires = _vvRoutedWires.back();
-  // TODO
+  for (const auto& pair : vPathVec) {
+    const auto& u = pair.first;
+    const auto& v = pair.second;
+    if (u.z() == v.z()) {
+      Box<Int_t> wire;
+      toWire(u, v, wire);
+      vRoutedWires.emplace_back(wire, u.z());
+      _cir.addSpatialRoutedWire(_net.idx(), u.z(), wire);
+      //add symmetric wire to spatial routed wire, for DRC
+      if (bSym) {
+        Box<Int_t> symWire(wire);
+        symWire.flipX(_cir.symAxisX());
+        _cir.addSpatialRoutedWire(_net.symNetIdx(), u.z(), symWire);
+      }
+    }
+    else {
+      // TODO: choose via
+    }
+  }
 }
 
 
@@ -527,6 +547,36 @@ void DrGridAstar::findNeighbors(DrGridAstarNode* pU) {
 }
 
 bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* pV, const bool bSym, const bool bSelfSym) {
+  const auto& u = pU->coord();
+  const auto& v = pV->coord();
+  if (u.z() == v.z()) {
+    assert(u.x() == v.x() or u.y() == v.y());
+    const Int_t z = u.z();
+    Box<Int_t> wire;
+    toWire(u, v, wire);
+    //if (!_drcMgr.checkWireRoutingLayerShort(_net.idx(), z, wire))
+      //return true;
+    if (!_drc.checkWireMinArea(_net.idx(), z, wire))
+      return true;
+    if (!_drc.checkWireRoutingLayerSpacing(_net.idx(), z, wire))
+      return true;
+    if (!_drc.checkWireEolSpacing(_net.idx(), z, wire))
+      return true;
+    
+    // check symmetric DRC
+    if (bSym) {
+      Box<Int_t> symWire(wire);
+      symWire.flipX(_cir.symAxisX());
+      if (!_drc.checkWireMinArea(_net.idx(), z, wire))
+        return true;
+      if (!_drc.checkWireRoutingLayerSpacing(_net.idx(), z, wire))
+        return true;
+      if (!_drc.checkWireEolSpacing(_net.idx(), z, wire))
+        return true;
+    }
+  }
+  else {
+  }
   return false;
 }
 
@@ -548,7 +598,13 @@ void DrGridAstar::resetAllNodes() {
 }
 
 void DrGridAstar::ripup() {
-
+  for (const auto& vRoutedWires : _vvRoutedWires) {
+    for (const auto& pair : vRoutedWires) {
+      const Box<Int_t>& wire = pair.first;
+      const Int_t layerIdx = pair.second;
+      _cir.removeSpatialRoutedWire(_net.idx(), layerIdx, wire);
+    }
+  }
 }
 
 void DrGridAstar::saveResult2Net(const bool bSym) {
@@ -568,6 +624,7 @@ void DrGridAstar::saveResult2Net(const bool bSym) {
         symNet.vWires().emplace_back(symWire, layerIdx);
       }
     }
+    symNet.setRouted(true);
   }
 }
 
@@ -641,6 +698,7 @@ bool DrGridAstar::bInsideGuide(const DrGridAstarNode* pU) {
 }
 
 void DrGridAstar::toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, Box<Int_t>& wire) {
+  // change wire width here
   assert(u.z() == v.z());
   const Int_t z = u.z();
   const Pair_t<LefLayerType, UInt_t>& layerPair = _cir.lef().layerPair(z);

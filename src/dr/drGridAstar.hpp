@@ -90,7 +90,7 @@ class DrGridAstar {
   bool  routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const bool bSelfSym);
   bool  pathSearch(const Int_t srcIdx, const Int_t tarIdx, const bool bSym, const bool bSelfSym);
   Int_t mergeComp(const Int_t srcIdx, const Int_t tarIdx);
-  void  backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, const Int_t srcIdx, const Int_t tarIdx);
+  void  backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, const Int_t srcIdx, const Int_t tarIdx, const bool bSym);
   void  add2Path(const DrGridAstarNode* pU, List_t<Point3d<Int_t>>& lPathPts);
   void  mergePath(const List_t<Point3d<Int_t>>& lPathPts, List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec);
   bool  bNeedMergePath(const Point3d<Int_t>& u1, const Point3d<Int_t>& v1, const Point3d<Int_t>& u2, const Point3d<Int_t>& v2);
@@ -100,7 +100,7 @@ class DrGridAstar {
   bool  bNeedUpdate(const DrGridAstarNode* pV, const Int_t costG, const Int_t bendCnt);
   void  resetAllNodes();
   void  ripup();
-  void  savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec);
+  void  savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec, const bool bSym);
   void  saveResult2Net(const bool bSym);
 
   Int_t   scaledMDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
