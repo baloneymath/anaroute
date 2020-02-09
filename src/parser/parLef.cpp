@@ -113,7 +113,22 @@ void LefReader::lef_via_cbk(lefiVia const &v) {
   }
 }
 
-void LefReader::lef_viarule_cbk(lefiViaRule const &v) {}
+void LefReader::lef_viarule_cbk(lefiViaRule const &v) {
+    // Lambda function to convert the lef unit to db unit
+    auto lefUnitToDbUnitCnvter = [&](Float_t n)
+    {
+        return to_lef_unit_1d(n);
+    };
+    bool foundTemplate = false;
+    // Try all the templates
+    LefViaRuleTemplate1 temp1;
+    if (temp1.constructFromLefParser(v, lefUnitToDbUnitCnvter))
+    {
+        foundTemplate = true;
+        _lef.vViaRuleTemplate1().emplace_back(temp1);
+    }
+    assert(foundTemplate);
+}
 void LefReader::lef_spacing_cbk(lefiSpacing const &v) {}
 void LefReader::lef_irdrop_cbk(lefiIRDrop const &v) {}
 void LefReader::lef_minfeature_cbk(lefiMinFeature const &v) {}
@@ -290,7 +305,7 @@ void LefReader::parseOverlapLayer(const lefiLayer& v) {
 
 void LefReader::parseDefaultVia(const lefiVia& v) {
   LefVia via;
-  via.setDefault();
+  via.setDefault(true);
   via.setName(v.name());
   if (v.hasResistance()) {
     via.setResistance(to_lef_unit_resistance(v.resistance()));
@@ -316,6 +331,7 @@ void LefReader::parseDefaultVia(const lefiVia& v) {
       via.addBox(i, Box<Int_t>(xl, yl, xh, yh));
     }
   }
+  via.setValid(true);
   _lef.addVia(via);
 }
 

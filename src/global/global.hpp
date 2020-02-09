@@ -36,6 +36,16 @@
 #include "namespace.hpp"
 #include "type.hpp"
 #include "param.hpp"
+#include "src/util/MsgPrinter.h"
 
+PROJECT_NAMESPACE_START
+
+// Function aliases
+static const auto &INF = MsgPrinter::inf;
+static const auto &WRN = MsgPrinter::wrn;
+static const auto &ERR = MsgPrinter::err;
+static const auto &DBG = MsgPrinter::dbg;
+
+PROJECT_NAMESPACE_END
 
 #endif /// ANAROUTE_GLOBAL_HPP_
