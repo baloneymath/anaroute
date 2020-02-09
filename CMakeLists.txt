@@ -81,10 +81,12 @@ set(CMAKE_CXX_FLAGS "-g -std=c++14 -Wall -fPIC")
 set(SRC
   src/util/util.cpp
   src/util/timeUsage.cpp
+  src/util/MsgPrinter.cpp
   src/db/lef/layer/lefCutLayer.cpp
   src/db/lef/layer/lefRoutingLayer.cpp
   src/db/lef/lefSite.cpp
   src/db/lef/lefVia.cpp
+  src/db/lef/lefViaRule.cpp
   src/db/dbLef.cpp
   src/db/dbTechfile.cpp
   src/db/dbPin.cpp

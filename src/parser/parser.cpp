@@ -21,6 +21,7 @@ void Parser::parseLef(const String_t& filename) {
   fprintf(stdout, "Parsing LEF file %s\n", filename.c_str());
   LefReader lefr(_cir.lef());
   lefr.parse(filename);
+  _cir.lef().constructViaTableFromViaRule();
 }
 
 void Parser::parseTechfile(const String_t& filename) {
