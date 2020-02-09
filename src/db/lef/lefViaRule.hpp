@@ -23,6 +23,7 @@ PROJECT_NAMESPACE_START
 /// Standard ViaRule
 class LefViaRule
 {
+    friend class LefReader;
     public:
         explicit LefViaRule() = default;
     public:
@@ -38,7 +39,7 @@ class LefViaRuleTemplate1 : public LefViaRule
         /// @brief construct the object with lefiViaRule. 
         /// @param a lefiViaRule class from LEF parser
         /// @return true: if fitted into the template. false: not fitted into the template
-        bool constructFromLefParser(const LefDefParser::lefiViaRule &v);
+        bool constructFromLefParser(const LefDefParser::lefiViaRule &v,  std::function<Int_t(Float_t)> lefToDbUnitCnvter);
         /// @brief swap two metal layers
         void swapMetalLayers()
         {
@@ -51,17 +52,17 @@ class LefViaRuleTemplate1 : public LefViaRule
         std::string str() const;
     public:
         std::array<std::string, 2> metalLayerNames;
-        std::array<Float_t, 2> enclosureOverhang1;
-        std::array<Float_t, 2> enclosureOverhang2;
-        std::array<Float_t, 2> widthLo;
-        std::array<Float_t, 2> widthHi;
+        std::array<Int_t, 2> enclosureOverhang1;
+        std::array<Int_t, 2> enclosureOverhang2;
+        std::array<Int_t, 2> widthLo;
+        std::array<Int_t, 2> widthHi;
         std::string viaLayerName = "";
-        Float_t rectXLo = 0.0;
-        Float_t rectYLo = 0.0;
-        Float_t rectXHi = 0.0;
-        Float_t rectYHi = 0.0;
-        Float_t spacingX = 0.0;
-        Float_t spacingY = 0.0;
+        Int_t rectXLo = 0.0;
+        Int_t rectYLo = 0.0;
+        Int_t rectXHi = 0.0;
+        Int_t rectYHi = 0.0;
+        Int_t spacingStepX = 0.0;
+        Int_t spacingStepY = 0.0;
 };
 
 PROJECT_NAMESPACE_END

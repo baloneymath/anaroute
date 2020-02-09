@@ -81,6 +81,7 @@ set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
 set(SRC
   src/util/util.cpp
   src/util/timeUsage.cpp
+  src/util/MsgPrinter.cpp
   src/db/lef/layer/lefCutLayer.cpp
   src/db/lef/layer/lefRoutingLayer.cpp
   src/db/lef/lefSite.cpp

@@ -8,4 +8,4 @@ bench_new/
 bench_manual/
 tags
 .ycm_extra_conf.py
-bin/init.gds
+bin/*.gds

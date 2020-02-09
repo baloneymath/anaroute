@@ -108,6 +108,11 @@ class LefDB {
   UInt_t                          viaIdx(const UInt_t l, const UInt_t i)  const { return _vvViaIndices[l][i]; }
   const Vector_t<LefViaRuleTemplate1>& vViaRuleTemplate1() const { return _vViaRuleTemplate1; } 
   Vector_t<LefViaRuleTemplate1>& vViaRuleTemplate1() { return _vViaRuleTemplate1; } 
+  void constructViaTableFromViaRule()
+  {
+      _viaTable = LefViaTable(_vRoutingLayers.size() + _vMastersliceLayers.size());
+      _viaTable.generateVias(*this);
+  }
 
   // for debug
   void logInfo() const;
@@ -151,6 +156,7 @@ class LefDB {
   Vector_t<LefVia>              _vVias;
   Vector_t<Vector_t<UInt_t>>    _vvViaIndices;
   UMap_t<String_t, UInt_t>      _mStr2ViaIdx;
+  LefViaTable _viaTable;
 
   // Viarule
   Vector_t<LefViaRuleTemplate1> _vViaRuleTemplate1; ///< ViaRule template 1.  No special Via property. enclosure and width in metals. rect and spacing in via Based on tsmc40 lef.

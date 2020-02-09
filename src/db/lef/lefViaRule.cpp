@@ -81,7 +81,7 @@ bool isRectSpacingViaRule(lefiViaRuleLayer &l)
     return true;
 }
 
-bool LefViaRuleTemplate1::constructFromLefParser(const LefDefParser::lefiViaRule &v)
+bool LefViaRuleTemplate1::constructFromLefParser(const LefDefParser::lefiViaRule &v, std::function<Int_t(Float_t)> lefToDbUnitCnvter)
 {
     if (v.hasGenerate() == 0)
     {
@@ -118,20 +118,20 @@ bool LefViaRuleTemplate1::constructFromLefParser(const LefDefParser::lefiViaRule
                 // layer 1
                 numMetalLayers = 1;
                 metalLayerNames.at(0) = std::string(layerPtr->name());
-                enclosureOverhang1.at(0) = layerPtr->enclosureOverhang1();
-                enclosureOverhang2.at(0) = layerPtr->enclosureOverhang2();
-                widthLo.at(0) = layerPtr->widthMin();
-                widthHi.at(0) = layerPtr->widthMax();
+                enclosureOverhang1.at(0) = lefToDbUnitCnvter(layerPtr->enclosureOverhang1());
+                enclosureOverhang2.at(0) = lefToDbUnitCnvter(layerPtr->enclosureOverhang2());
+                widthLo.at(0) = lefToDbUnitCnvter(layerPtr->widthMin());
+                widthHi.at(0) = lefToDbUnitCnvter(layerPtr->widthMax());
             }
             else if (numMetalLayers == 1)
             {
                 // layer 2
                 numMetalLayers = 2;
                 metalLayerNames.at(1) = std::string(layerPtr->name());
-                enclosureOverhang1.at(1) = layerPtr->enclosureOverhang1();
-                enclosureOverhang2.at(1) = layerPtr->enclosureOverhang2();
-                widthLo.at(1) = layerPtr->widthMin();
-                widthHi.at(1) = layerPtr->widthMax();
+                enclosureOverhang1.at(1) = lefToDbUnitCnvter(layerPtr->enclosureOverhang1());
+                enclosureOverhang2.at(1) = lefToDbUnitCnvter(layerPtr->enclosureOverhang2());
+                widthLo.at(1) = lefToDbUnitCnvter(layerPtr->widthMin());
+                widthHi.at(1) = lefToDbUnitCnvter(layerPtr->widthMax());
             }
             else
             {
@@ -146,12 +146,12 @@ bool LefViaRuleTemplate1::constructFromLefParser(const LefDefParser::lefiViaRule
                 // layer 3
                 numViaLayers = 1;
                 viaLayerName = std::string(layerPtr->name());
-                rectXLo = layerPtr->xl();
-                rectYLo = layerPtr->yl();
-                rectXHi = layerPtr->xh();
-                rectYHi = layerPtr->yh();
-                spacingX = layerPtr->spacingStepX();
-                spacingY = layerPtr->spacingStepY();
+                rectXLo = lefToDbUnitCnvter(layerPtr->xl());
+                rectYLo = lefToDbUnitCnvter(layerPtr->yl());
+                rectXHi = lefToDbUnitCnvter(layerPtr->xh());
+                rectYHi = lefToDbUnitCnvter(layerPtr->yh());
+                spacingStepX = lefToDbUnitCnvter(layerPtr->spacingStepX());
+                spacingStepY = lefToDbUnitCnvter(layerPtr->spacingStepY());
             }
             else
             {
@@ -179,7 +179,7 @@ std::string LefViaRuleTemplate1::str() const
     ss << " Width "<< widthLo[1] << " "<< widthHi[1] << "\n";
     ss << "Layer " << viaLayerName << "\n";
     ss << "rect " << rectXLo << " " << rectYLo << " " << rectXHi << " "<< rectYHi << "\n";
-    ss << "spacing " <<  spacingX << " " << spacingY << "\n";
+    ss << "spacing " <<  spacingStepX << " " << spacingStepY << "\n";
     return ss.str();
 }
 
