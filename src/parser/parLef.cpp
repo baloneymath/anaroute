@@ -292,6 +292,34 @@ void LefReader::parseRoutingLayer(const lefiLayer& v) {
     layer.setOffsetX(to_lef_unit_1d(v.offsetX()));
     layer.setOffsetY(to_lef_unit_1d(v.offsetY()));
   }
+  // property
+  if (v.numProps()) {
+    for (Int_t i = 0; i < v.numProps(); ++i) {
+      if (v.propIsNumber(i))
+      {
+        // ignore for now
+      }
+      if (v.propIsString(i))
+      {
+        // ignore for now
+        String_t val = v.propValue(i);
+        if (strcmp(v.propName(i), "LEF58_SPACING") == 0) {
+
+        }
+        else if (strcmp(v.propName(i), "LEF58_AREA") == 0) {
+
+        }
+      }
+    }
+  }
+  // minstep maxedge
+  if (v.hasMinstep()) {
+    for (Int_t i = 0; i < v.numMinstep(); ++i) {
+      layer.addMinStep(v.minstep(i));
+      if (v.hasMinstepMaxedges(i))
+        layer.addMaxEdges(v.minstepMaxedges(i));
+    }
+  }
   // add to LefDB
   _lef.addRoutingLayer(layer);
 }

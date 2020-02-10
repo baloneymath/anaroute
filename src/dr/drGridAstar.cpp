@@ -309,9 +309,6 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
     for (auto pV : pU->vpNeighbors()) {
       if (pV->bExplored())
         continue;
-      if (pU->coord().z() != pV->coord().z()) {
-        // TODO: generate vias
-      }
       if (bViolateDRC(pU, pV, bSym, bSelfSym)) {
         continue;
       }
@@ -325,8 +322,7 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
         Point3d<Int_t> scaledNearestP;
         Int_t scaledNearestDist;
         tarKD.nearestSearch(scaledP, scaledNearestP, scaledNearestDist);
-        Int_t costF = (costG * _param.factorG +
-                             scaledNearestDist * _param.factorH);
+        Int_t costF = (costG * _param.factorG + scaledNearestDist * _param.factorH);
         if (bInsideGuide(pV)) {
           costF += _param.guideCost;
         }
@@ -450,7 +446,7 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       toWire(u, v, wire);
       vRoutedWires.emplace_back(wire, u.z());
       _cir.addSpatialRoutedWire(_net.idx(), u.z(), wire);
-      //add symmetric wire to spatial routed wire, for DRC
+      // add symmetric wire to spatial routed wire, for DRC
       if (bSym) {
         Box<Int_t> symWire(wire);
         symWire.flipX(_cir.symAxisX());
@@ -458,11 +454,37 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       }
     }
     else {
-      // TODO: choose via
+      // choose via
+      assert(u.x() == v.x() and u.y() == v.y());
+      const Int_t x = u.x();
+      const Int_t y = u.y();
+      const Int_t botLayerIdx = std::min(u.z(), v.z());
+      const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1);
+      via2LayerBoxes(x, y, via, vRoutedWires);     
+      _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
+      // add symmetric via to spatial routed wire, for DRC
+      if (bSym) {
+        const Int_t symX = 2 * _cir.symAxisX() - x;
+        _cir.addSpatialRoutedVia(_net.idx(), symX, y, via);
+      }
     }
   }
 }
 
+void DrGridAstar::via2LayerBoxes(const Int_t x, const Int_t y, const LefVia& via, Vector_t<Pair_t<Box<Int_t>, Int_t>>& vLayerBoxes) {
+  for (auto box : via.vBotBoxes()) {
+    box.shift(x, y);
+    vLayerBoxes.emplace_back(box, via.botLayerIdx());
+  }
+  for (auto box : via.vCutBoxes()) {
+    box.shift(x, y);
+    vLayerBoxes.emplace_back(box, via.cutLayerIdx());
+  }
+  for (auto box : via.vTopBoxes()) {
+    box.shift(x, y);
+    vLayerBoxes.emplace_back(box, via.topLayerIdx());
+  }
+}
 
 void DrGridAstar::addAcsPts(const Int_t idx, const Int_t z, const Box<Int_t>& box) {
   Vector_t<Point3d<Int_t>> vAcs;
@@ -554,28 +576,47 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     const Int_t z = u.z();
     Box<Int_t> wire;
     toWire(u, v, wire);
-    //if (!_drcMgr.checkWireRoutingLayerShort(_net.idx(), z, wire))
-      //return true;
-    if (!_drc.checkWireMinArea(_net.idx(), z, wire))
-      return true;
+    // check DRC
     if (!_drc.checkWireRoutingLayerSpacing(_net.idx(), z, wire))
       return true;
     if (!_drc.checkWireEolSpacing(_net.idx(), z, wire))
       return true;
-    
+   
     // check symmetric DRC
     if (bSym) {
       Box<Int_t> symWire(wire);
       symWire.flipX(_cir.symAxisX());
-      if (!_drc.checkWireMinArea(_net.idx(), z, wire))
+      if (!_drc.checkWireRoutingLayerSpacing(_net.symNetIdx(), z, symWire))
         return true;
-      if (!_drc.checkWireRoutingLayerSpacing(_net.idx(), z, wire))
-        return true;
-      if (!_drc.checkWireEolSpacing(_net.idx(), z, wire))
+      if (!_drc.checkWireEolSpacing(_net.symNetIdx(), z, symWire))
         return true;
     }
   }
   else {
+    // generate via and check min area and adj edges
+    assert(u.x() == v.x() and u.y() == v.y());
+    const Int_t x = u.x();
+    const Int_t y = u.y();
+    const Int_t botLayerIdx = std::min(u.z(), v.z());
+    const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1);
+    if (!_drc.checkViaSpaing(_net.idx(), x, y, via))
+      return true;
+    // TODO: minarea, minstep
+    // check min area
+    //const DrGridAstarNode* pN = pU;
+    //Vector_t<Box<Int_t>> vPrePath;
+    //Int_t numBends = 0;
+    //Int_t totalArea = 0;
+    //while (pN->pParent() and pN->pParent()->coord().z() == u.z()) {
+      //Box<Int_t> wire;
+      //toWire(u, pN->pParent()->coord(), wire);
+      //totalArea += wire.area();
+      //if (hasBend(pN->pParent(), pN)) {
+        //numBends += 1;
+      //}
+      //pN = pN->pParent();
+    //}
+    //totalArea -= 
   }
   return false;
 }

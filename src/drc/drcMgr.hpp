@@ -38,7 +38,8 @@ class DrcMgr {
   bool checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   bool checkWireCutLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   bool checkWireEolSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
-  
+  bool checkViaSpaing(const UInt_t netIdx, const Int_t x, const Int_t y, const LefVia& via) const;
+
   /////////////////////////////////////////
   //    Net level checking               //
   /////////////////////////////////////////

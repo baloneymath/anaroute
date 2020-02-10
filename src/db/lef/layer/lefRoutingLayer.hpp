@@ -81,6 +81,13 @@ class LefRoutingLayer {
   Int_t                   eolWithin(const UInt_t i)   const { return _vEolSpacings[i].eolWithin(); }
   const LefSpacingTable&  spacingTable()              const { return _spacingTable; }
 
+  // minstep maxedge
+  Int_t                   numMinSteps()               const { return _vMinSteps.size(); }
+  Int_t                   numMaxedges()               const { return _vMaxEdges.size(); }
+  Int_t                   minStep(const Int_t i)      const { return _vMinSteps[i]; }
+  Int_t                   maxEdges(const Int_t i)     const { return _vMaxEdges[i]; }
+
+
   // for debug
   void logInfo() const;
 
@@ -104,6 +111,8 @@ class LefRoutingLayer {
   Vector_t<Int_t>           _vSpacings;
   Vector_t<LefEolSpacing>   _vEolSpacings;
   LefSpacingTable           _spacingTable;
+  Vector_t<Int_t>           _vMinSteps;
+  Vector_t<Int_t>           _vMaxEdges;
 
   //////////////////////////////////////
   //    Setter                        //
@@ -126,6 +135,9 @@ class LefRoutingLayer {
   void addParallelRunLength(const Int_t p);
   void addSpacingTableWidth(const Int_t w);
   void addSpacingTableWidthSpacing(const UInt_t idx, const Int_t s);
+
+  void addMinStep(const Int_t s);
+  void addMaxEdges(const Int_t e);
 };
 
 PROJECT_NAMESPACE_END

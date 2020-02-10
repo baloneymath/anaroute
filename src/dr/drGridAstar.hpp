@@ -61,7 +61,7 @@ class DrGridAstar {
   struct Param {
     Int_t horCost = 1;
     Int_t verCost = 1;
-    Int_t viaCost = 800;
+    Int_t viaCost = 500;
     Int_t factorG = 1;
     Int_t factorH = 1;
     Int_t guideCost = -5000;
@@ -101,6 +101,7 @@ class DrGridAstar {
   void  resetAllNodes();
   void  ripup();
   void  savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec, const bool bSym);
+  void  via2LayerBoxes(const Int_t x, const Int_t y, const LefVia& via, Vector_t<Pair_t<Box<Int_t>, Int_t>>& vLayerBoxes);
   void  saveResult2Net(const bool bSym);
 
   Int_t   scaledMDist(const Point3d<Int_t>& u, const Point3d<Int_t>& v);

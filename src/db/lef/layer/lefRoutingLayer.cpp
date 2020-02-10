@@ -81,6 +81,14 @@ void LefRoutingLayer::addSpacingTableWidthSpacing(const UInt_t idx, const Int_t 
   _spacingTable.table[idx].second.emplace_back(s);
 }
 
+void LefRoutingLayer::addMinStep(const Int_t s) {
+  _vMinSteps.emplace_back(s);
+}
+
+void LefRoutingLayer::addMaxEdges(const Int_t e) {
+  _vMaxEdges.emplace_back(e);
+}
+
 void LefRoutingLayer::logInfo() const {
   FILE* fout = stderr;
   fprintf(fout,"LAYER %s\n", _name.c_str());

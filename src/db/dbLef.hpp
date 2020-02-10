@@ -25,9 +25,9 @@ class LefDB {
  public:
   LefDB()
     : _version(0), _versionStr(""), _dividerChar(""), _manufacturingGrid(0),
-      _clearanceMeasure(""), _busbitChars("") {}
+    _clearanceMeasure(""), _busbitChars("") {}
   ~LefDB() {}
-  
+
   ////////////////////////////////////////
   //   Basics                           //
   ////////////////////////////////////////
@@ -42,7 +42,7 @@ class LefDB {
   //   Units                            //
   ////////////////////////////////////////
   const LefUnits&                  units()              const { return _units; }
-  
+
   ////////////////////////////////////////
   //   Sites                            //
   ////////////////////////////////////////
@@ -106,13 +106,20 @@ class LefDB {
   UInt_t                          numVias()                               const { return _vVias.size(); }
   UInt_t                          numLayerVias(const UInt_t l)            const { return _vvViaIndices[l].size(); }
   UInt_t                          viaIdx(const UInt_t l, const UInt_t i)  const { return _vvViaIndices[l][i]; }
+  
+  
+  ////////////////////////////////////////
+  //   Via Rules                        //
+  ////////////////////////////////////////
   const Vector_t<LefViaRuleTemplate1>& vViaRuleTemplate1() const { return _vViaRuleTemplate1; } 
   Vector_t<LefViaRuleTemplate1>& vViaRuleTemplate1() { return _vViaRuleTemplate1; } 
-  void constructViaTableFromViaRule()
-  {
-      _viaTable = LefViaTable(_vRoutingLayers.size() + _vMastersliceLayers.size());
-      _viaTable.generateVias(*this);
+  void constructViaTableFromViaRule() {
+    _viaTable = LefViaTable(_vRoutingLayers.size() + _vMastersliceLayers.size());
+    _viaTable.generateVias(*this);
   }
+  // lowerLayerIdx: M1 -> 2
+  LefVia&         via(const Int_t botLayerIdx, const Int_t row, const Int_t col)        { return _viaTable.via(layerPair(botLayerIdx).second, row, col); }
+  const LefVia&   via(const Int_t botLayerIdx, const Int_t row, const Int_t col)  const { return _viaTable.via(layerPair(botLayerIdx).second, row, col); }
 
   // for debug
   void logInfo() const;
@@ -125,10 +132,10 @@ class LefDB {
   Float_t                         _manufacturingGrid;
   String_t                        _clearanceMeasure;
   String_t                        _busbitChars;
-  
+
   // unit
   LefUnits                        _units;
-  
+
   // site
   Vector_t<LefSite>              _vSites;
   UMap_t<String_t, UInt_t>       _mStr2SiteIdx;
@@ -151,7 +158,7 @@ class LefDB {
   Vector_t<UInt_t>                        _vCutLayerIdx2AllLayerIdx;
   Vector_t<UInt_t>                        _vRoutingLayerIdx2AllLayerIdx;
   Vector_t<UInt_t>                        _vOverlapLayerIdx2AllLayerIdx;
-  
+
   // Via
   Vector_t<LefVia>              _vVias;
   Vector_t<Vector_t<UInt_t>>    _vvViaIndices;
@@ -170,7 +177,7 @@ class LefDB {
   void setManufacturingGrid(const Float_t v);
   void setClearanceMeasure(const String_t& v);
   void setBusbitChars(const String_t& v);
-  
+
   void addSite(const LefSite& s);
 
   void addImplantLayer(const LefImplantLayer& l);
