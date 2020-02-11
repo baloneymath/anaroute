@@ -72,8 +72,8 @@ add_subdirectory(${PYBIND11_ROOT_DIR} "./pybind11")
 set(PYBIND11_CPP_STANDARD -std=c++14)
 
 # CXX flags
-set(CMAKE_CXX_FLAGS "-g -std=c++14 -Wall -fPIC")
 set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
+set(CMAKE_CXX_FLAGS "-g -std=c++14 -Wall -fPIC")
 
 ##################################################
 #        Source Code                             #

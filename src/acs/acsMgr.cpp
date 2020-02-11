@@ -31,20 +31,28 @@ void AcsMgr::computePinAcs(const UInt_t pinIdx) {
   for (UInt_t layerIdx = pin.minLayerIdx(); layerIdx <= pin.maxLayerIdx(); ++layerIdx) {
     for (UInt_t i = 0; i < pin.numBoxes(layerIdx); ++i) {
       const auto& box = pin.box(layerIdx, i);
-      const Int_t lowerGridIdxX = (box.xl() - _cir.gridOffsetX() + _cir.gridStep() - 1) / _cir.gridStep(); // round up 
-      const Int_t lowerGridIdxY = (box.yl() - _cir.gridOffsetY() + _cir.gridStep() - 1) / _cir.gridStep(); // round up
-      const Int_t higherGridIdxX = (box.xh() - _cir.gridOffsetX()) / _cir.gridStep(); // round down
-      const Int_t higherGridIdxY = (box.yh() - _cir.gridOffsetY()) / _cir.gridStep(); // round down
-      for (Int_t x = lowerGridIdxX; x <= higherGridIdxX; ++x) {
-        for (Int_t y = lowerGridIdxY; y <= higherGridIdxY; ++y) {
-          candidates.emplace_back(CandidateAcs(x, y, layerIdx, i));
-        }
+      Vector_t<Point3d<Int_t>> vAcs;
+      computeBoxAcs(box, layerIdx, vAcs);
+      for (const auto& p : vAcs) {
+        candidates.emplace_back(CandidateAcs(p.x(), p.y(), p.z(), i));
       }
     }
   }
   for (const auto& candidate : candidates) {
     if (checkAc(pinIdx, candidate.pt, candidate.boxIdx)) {
       pin.addAcsPt(candidate.pt);
+    }
+  }
+}
+
+void AcsMgr::computeBoxAcs(const Box<Int_t>& box, const Int_t layerIdx, Vector_t<Point3d<Int_t>>& vAcs) {
+  const Int_t lowerGridIdxX = (box.xl() - _cir.gridOffsetX() + _cir.gridStep() - 1) / _cir.gridStep(); // round up 
+  const Int_t lowerGridIdxY = (box.yl() - _cir.gridOffsetY() + _cir.gridStep() - 1) / _cir.gridStep(); // round up
+  const Int_t higherGridIdxX = (box.xh() - _cir.gridOffsetX()) / _cir.gridStep(); // round down
+  const Int_t higherGridIdxY = (box.yh() - _cir.gridOffsetY()) / _cir.gridStep(); // round down
+  for (Int_t x = lowerGridIdxX; x <= higherGridIdxX; ++x) {
+    for (Int_t y = lowerGridIdxY; y <= higherGridIdxY; ++y) {
+      vAcs.emplace_back(x, y, layerIdx);
     }
   }
 }

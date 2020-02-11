@@ -155,8 +155,8 @@ GDB="gdb --args"
 # comp2 manual
 $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           --design_file ../bench_manual/comp2/comp2_grid_v1.pin \
-           --placement_layout ../bench_manual/comp2/comp2_grid_v1.place.gds \
-           --symnet ../bench_manual/comp2/comp2.symnet \
+           --design_file ../bench_grid/comp2/comp2_grid_v1.pin \
+           --placement_layout ../bench_grid/comp2/comp2_grid_v1.place.gds \
+           --symnet ../bench_grid/comp2/comp2.symnet \
            --out $OUT_DIR/gds/comp2.route.gds 
 

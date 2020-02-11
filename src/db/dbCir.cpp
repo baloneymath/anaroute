@@ -119,6 +119,21 @@ void CirDB::addSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const 
   
 }
 
+void CirDB::addSpatialRoutedVia(const Int_t netIdx, const Int_t x, const Int_t y, const LefVia& via) {
+  for (auto box : via.vBotBoxes()) {
+    box.shift(x, y);
+    _vSpatialRoutedWires[via.botLayerIdx()].insert(box, netIdx);
+  }
+  for (auto box : via.vCutBoxes()) {
+    box.shift(x, y);
+    _vSpatialRoutedWires[via.cutLayerIdx()].insert(box, netIdx);
+  }
+  for (auto box : via.vTopBoxes()) {
+    box.shift(x, y);
+    _vSpatialRoutedWires[via.topLayerIdx()].insert(box, netIdx);
+  }
+}
+
 bool CirDB::removeSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
   assert(u.z() == v.z());
   const UInt_t layerIdx = u.z();
@@ -165,6 +180,23 @@ bool CirDB::removeSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, con
     Box<Int_t> shift_box(box);
     shift_box.shift(x, y);
     ret &= _vSpatialRoutedWires[topLayerIdx].erase(shift_box, netIdx);
+  }
+  return ret;
+}
+
+bool CirDB::removeSpatialRoutedVia(const Int_t netIdx, const Int_t x, const Int_t y, const LefVia& via) {
+  bool ret = true;
+  for (auto box : via.vBotBoxes()) {
+    box.shift(x, y);
+    ret &= _vSpatialRoutedWires[via.botLayerIdx()].erase(box, netIdx);
+  }
+  for (auto box : via.vCutBoxes()) {
+    box.shift(x, y);
+    ret &= _vSpatialRoutedWires[via.cutLayerIdx()].erase(box, netIdx);
+  }
+  for (auto box : via.vTopBoxes()) {
+    box.shift(x, y);
+    ret &= _vSpatialRoutedWires[via.topLayerIdx()].erase(box, netIdx);
   }
   return ret;
 }

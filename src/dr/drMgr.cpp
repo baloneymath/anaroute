@@ -12,9 +12,12 @@
 
 PROJECT_NAMESPACE_START
 
-void DrMgr::solve() {
+void DrMgr::solve(const bool bGrid) {
   fprintf(stderr, "DrMgr::%s Start Detailed Routing\n", __func__);
-  runGridlessRoute();
+  if (bGrid)
+    runGridRoute();
+  else
+    runGridlessRoute();
 }
 
 void DrMgr::runGridlessRoute() {

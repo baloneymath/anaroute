@@ -22,10 +22,10 @@ class AcsMgr {
     : _cir(c) {}
   /// @brief compute the access points and push the results into the circuit db
   void computeAcs();
- private:
   /// @brief compute the access points for one pin
   /// @param the pin index
   void computePinAcs(const UInt_t pinIdx);
+  void computeBoxAcs(const Box<Int_t>& box, const Int_t layerIdx, Vector_t<Point3d<Int_t>>& vAcs);
   /// @brief if using one candidate of access point
   /// @param pin index
   /// @param a 3d point representing the grid indices

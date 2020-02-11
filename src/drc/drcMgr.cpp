@@ -129,4 +129,27 @@ bool DrcMgr::checkWireEolSpacing(const UInt_t netIdx, const UInt_t layerIdx, con
   return true;
 }
 
+
+bool DrcMgr::checkViaSpaing(const UInt_t netIdx, const Int_t x, const Int_t y, const LefVia& via) const {
+  // check bot boxes
+  for (auto box : via.vBotBoxes()) {
+    box.shift(x, y);
+    if (!checkWireRoutingLayerSpacing(netIdx, via.botLayerIdx(), box))
+      return false;
+  }
+  // check cut boxes
+  for (auto box : via.vCutBoxes()) {
+    box.shift(x, y);
+    if (!checkWireCutLayerSpacing(netIdx, via.cutLayerIdx(), box))
+      return false;
+  }
+  // check top boxes
+  for (auto box : via.vTopBoxes()) {
+    box.shift(x, y);
+    if (!checkWireRoutingLayerSpacing(netIdx, via.topLayerIdx(), box))
+      return false;
+  }
+  return true;
+}
+
 PROJECT_NAMESPACE_END

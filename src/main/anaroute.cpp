@@ -86,7 +86,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   timer.start(TimeUsage::PARTIAL);
   DrcMgr drc(cir);
   DrMgr dr(cir, drc);
-  dr.solve();
+  dr.solve(true);
   timer.showUsage("Detailed Routing", TimeUsage::PARTIAL);
 
   // write files
