@@ -9,3 +9,4 @@ bench_grid/
 tags
 .ycm_extra_conf.py
 bin/*.gds
+bench_manual/

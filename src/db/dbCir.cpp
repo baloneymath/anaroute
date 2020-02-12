@@ -70,6 +70,11 @@ void CirDB::initSpatialRoutedWires() {
   _vSpatialRoutedWires.resize(_lef.numLayers());
 }
 
+void CirDB::addSpatialOD(const Box<Int_t> &box)
+{
+    _spatialOD.insert(box);
+}
+
 void CirDB::addSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
   assert(u.z() == v.z());
   const UInt_t layerIdx = u.z();
@@ -308,6 +313,18 @@ void CirDB::markBlks() {
       }
     }
   }
+}
+
+Int_t CirDB::overlapAreaWithOD(const Box<Int_t> &box) const
+{
+    Int_t area = 0;
+    Vector_t<spatial::b_box<Int_t>> rects; 
+    _spatialOD.query(box, rects);
+    for (const auto &rect : rects)
+    {
+        area += Box<Int_t> ::overlapArea(box, Box<Int_t>(rect.min_corner(), rect.max_corner()));
+    }
+    return area;
 }
 
 

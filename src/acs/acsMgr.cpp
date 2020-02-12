@@ -13,35 +13,29 @@ PROJECT_NAMESPACE_START
 void AcsMgr::computeAcs() {
   fprintf(stdout, "AcsMgr::%s Start Access Points Generation\n", __func__);
   for (UInt_t pinIdx = 0; pinIdx < _cir.numPins(); ++pinIdx) {
-    computePinAcs(pinIdx);
+    _curPinIdx = pinIdx;
+    computePinAcs();
   }
 }
 
-struct CandidateAcs {
- public:
-  explicit CandidateAcs(Int_t x, Int_t y, Int_t z, UInt_t boxIdx_)
-    : pt(x, y, z), boxIdx(boxIdx_) {}
-  Point3d<Int_t>  pt; ///< The 3D point for representing the grid indices
-  UInt_t          boxIdx; ///< The index of the box this point is in. pin.box(pt.z(), boxIdx.y())
-};
 
-void AcsMgr::computePinAcs(const UInt_t pinIdx) {
-  auto& pin = _cir.pin(pinIdx);
-  Vector_t<CandidateAcs> candidates; // The candidates for pin access
+void AcsMgr::computePinAcs() {
+  auto& pin = _cir.pin(_curPinIdx);
+  Vector_t<CandidateGridPt> candGridPts; // The candidates for pin access
   for (UInt_t layerIdx = pin.minLayerIdx(); layerIdx <= pin.maxLayerIdx(); ++layerIdx) {
     for (UInt_t i = 0; i < pin.numBoxes(layerIdx); ++i) {
       const auto& box = pin.box(layerIdx, i);
       Vector_t<Point3d<Int_t>> vAcs;
       computeBoxAcs(box, layerIdx, vAcs);
       for (const auto& p : vAcs) {
-        candidates.emplace_back(CandidateAcs(p.x(), p.y(), p.z(), i));
+        candGridPts.emplace_back(CandidateGridPt(p.x(), p.y(), p.z(), i));
       }
     }
   }
-  for (const auto& candidate : candidates) {
-    if (checkAc(pinIdx, candidate.pt, candidate.boxIdx)) {
-      pin.addAcsPt(candidate.pt);
-    }
+  Vector_t<CandidateAcsPt> candAcsPts;
+  for (const auto &candGridPt : candGridPts)
+  {
+    generateCandAcsPt(candGridPt, candAcsPts);
   }
 }
 
@@ -57,8 +51,23 @@ void AcsMgr::computeBoxAcs(const Box<Int_t>& box, const Int_t layerIdx, Vector_t
   }
 }
 
-bool AcsMgr::checkAc(const UInt_t pinIdx, const Point3d<Int_t>& gridPt, const UInt_t boxIdx) const {
-  return true;
+void AcsMgr::generateCandAcsPt(const CandidateGridPt &gridPt, Vector_t<CandidateAcsPt> &candAcspts)
+{
+  const auto &pin = _cir.pin(_curPinIdx);
 }
 
+void AcsMgr::generateHorizontalCandAcsPts(const CandidateGridPt &gridPt, Vector_t<CandidateAcsPt> &candAcsPts)
+{
+  static constexpr Int_t maxAllowedCands = 1;
+  UInt_t originCandSize = candAcsPts.size();
+}
+
+Box<Int_t> AcsMgr::computeExtensionRect(const CandidateAcsPt &acsPt)
+{
+  Int_t step = _cir.gridStep(); 
+  Int_t width = _cir.lef().routingLayer(_cir.lef().layerPair(acsPt.acs.gridPt().z()).second).minWidth();
+  Int_t eolExtension = width;
+  Point<Int_t> origin = Point<Int_t>(_cir.gridCenterX(acsPt.acs.gridPt().x()))
+
+}
 PROJECT_NAMESPACE_END

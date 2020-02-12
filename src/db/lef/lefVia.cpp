@@ -265,7 +265,7 @@ void LefViaTable::generateVias(LefDB &lef)
                 }
                 catch(ViaGenerationInfeasibleException e)
                 {
-                    ERR("Generate VIA: %s\n", e.std::exception::what());
+                    ERR("Generate VIA: %s\n", e.what());
                     WRN("Generate VIA: skip the via M%d rol %d col %d \n", lowerMetalLayerIdx, row, col);
                 }
                 catch(std::exception e)

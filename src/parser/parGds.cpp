@@ -8,6 +8,7 @@
 
 #include "parGds.hpp"
 #include "src/geo/polygon2box.hpp"
+#include "src/geo/box2polygon.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -52,6 +53,8 @@ void GdsReader::parse(const String_t& filename) {
   }
   // save to db
   saveShapesAsBlockages();
+  // Parse OD layer
+  parseOdLayers(flatCell);
 }
 
 /////////////////////////////////////////
@@ -133,6 +136,29 @@ void GdsReader::saveShapesAsBlockages() {
       }
     }
     vBoxes.clear();
+  }
+}
+
+void GdsReader::parseOdLayers(GdsParser::GdsDB::GdsCell &flatCell)
+{
+  // Parse in the od layer
+  Int_t odLayer = _cir.tech().mStr2LayerMaskIdx().at("OD");
+  Vector_t<PolygonLayer> _odPolygons;
+  for (const auto &obj : flatCell.objects())
+  {
+      GdsParser::GdsDB::GdsObjectHelpers()(obj.first, obj.second, ExtractSpecificShapeLayerAction(odLayer, _odPolygons));
+  }
+  // Convert into rectangles
+  Vector_t<Box<Int_t>> rects;
+  for (const auto& polyLayer : _odPolygons)
+  {
+      geo::polygon2Box(polyLayer.pts, rects);
+  }
+  // Eliminate the overlapping parts
+  geo::boxes2BoxesEmplace(rects);
+  for (const auto &rect : rects)
+  {
+      _cir.addSpatialOD(rect);
   }
 }
 
