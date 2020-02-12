@@ -87,7 +87,6 @@ class LefRoutingLayer {
   Int_t                   minStep(const Int_t i)      const { return _vMinSteps[i]; }
   Int_t                   maxEdges(const Int_t i)     const { return _vMaxEdges[i]; }
 
-
   // for debug
   void logInfo() const;
 
