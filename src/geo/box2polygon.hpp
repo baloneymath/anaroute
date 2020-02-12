@@ -8,7 +8,7 @@
 
 /**
  * @file   box2polygon.hpp
- * @brief  Geometric Utils: Convert polygon90 to boxes
+ * @brief  Geometric Utils: Convert boxes to polygon90 or disjoined boxes
  * @author Keren Zhu
  * @date   02/11/2020
  *

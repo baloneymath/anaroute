@@ -62,8 +62,8 @@ class GdsReader { // from limbo
 	/////////////////////////////////////////
 	String_t  topCell(const GdsParser::GdsDB::GdsDB& db);
 	void      buildLayerMap();
-    void      saveShapesAsBlockages();
-    void      parseOdLayers(GdsParser::GdsDB::GdsCell &flatCell);
+  void      saveShapesAsBlockages();
+  void      parseOdLayers(GdsParser::GdsDB::GdsCell &flatCell, Float_t sc);
 
 };
 //////////////////////////////////////////////////////////////////

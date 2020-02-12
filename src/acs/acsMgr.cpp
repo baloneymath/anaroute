@@ -37,6 +37,10 @@ void AcsMgr::computePinAcs() {
   {
     generateCandAcsPt(candGridPt, candAcsPts);
   }
+  for (const auto &candAcsPt : candAcsPts)
+  {
+    pin.addAcsPt(candAcsPt.acs);
+  }
 }
 
 void AcsMgr::computeBoxAcs(const Box<Int_t>& box, const Int_t layerIdx, Vector_t<Point3d<Int_t>>& vAcs) {
@@ -53,15 +57,51 @@ void AcsMgr::computeBoxAcs(const Box<Int_t>& box, const Int_t layerIdx, Vector_t
   }
 }
 
-void AcsMgr::generateCandAcsPt(const CandidateGridPt &gridPt, Vector_t<CandidateAcsPt> &candAcspts)
+void AcsMgr::generateCandAcsPt(const CandidateGridPt &gridPt, Vector_t<CandidateAcsPt> &candAcsPts)
 {
-  const auto &pin = _cir.pin(_curPinIdx);
+  generateVerticalCandAcsPts(gridPt, candAcsPts);
+  generateHorizontalCandAcsPts(gridPt, candAcsPts);
 }
 
 void AcsMgr::generateHorizontalCandAcsPts(const CandidateGridPt &gridPt, Vector_t<CandidateAcsPt> &candAcsPts)
 {
   static constexpr Int_t maxAllowedCands = 1;
   UInt_t originCandSize = candAcsPts.size();
+  auto calculateOverlap = [&](CandidateAcsPt &candAcsPt)
+  {
+    auto rect = computeExtensionRect(candAcsPt);
+    Int_t overlapArea = _cir.overlapAreaWithOD(rect);
+    candAcsPt.overlapAreaOD = overlapArea;
+  };
+  // Insert different directions
+  // East
+  candAcsPts.emplace_back(CandidateAcsPt(AcsPt(gridPt.pt, AcsPt::DirType::EAST)));
+  calculateOverlap(candAcsPts.back());
+  // WEST
+  candAcsPts.emplace_back(CandidateAcsPt(AcsPt(gridPt.pt, AcsPt::DirType::WEST)));
+  calculateOverlap(candAcsPts.back());
+  // NORTH
+  candAcsPts.emplace_back(CandidateAcsPt(AcsPt(gridPt.pt, AcsPt::DirType::NORTH)));
+  calculateOverlap(candAcsPts.back());
+  // SOUTH
+  candAcsPts.emplace_back(CandidateAcsPt(AcsPt(gridPt.pt, AcsPt::DirType::SOUTH)));
+  calculateOverlap(candAcsPts.back());
+  // Sort the new generated candidates with increasing overlap areaWEST
+  std::sort(candAcsPts.begin() + originCandSize, candAcsPts.end());
+  Int_t numZeros = 0;
+  for (UInt_t idx = 0; idx < 4; ++idx)
+  {
+    if (candAcsPts.at(idx + originCandSize).overlapAreaOD == 0)
+    {
+      numZeros++;
+    }
+    else
+    {
+      break;
+    }
+  }
+  // Erase the unwanted ones
+  candAcsPts.erase(candAcsPts.begin() + originCandSize + std::max(maxAllowedCands, numZeros), candAcsPts.end());
 }
 
 Box<Int_t> AcsMgr::computeExtensionRect(const CandidateAcsPt &acsPt)
@@ -69,7 +109,35 @@ Box<Int_t> AcsMgr::computeExtensionRect(const CandidateAcsPt &acsPt)
   Int_t step = _cir.gridStep(); 
   Int_t width = _cir.lef().routingLayer(_cir.lef().layerPair(acsPt.acs.gridPt().z()).second).minWidth();
   Int_t eolExtension = width;
-  Point<Int_t> origin = Point<Int_t>(_cir.gridCenterX(acsPt.acs.gridPt().x()))
-
+  Point<Int_t> origin = Point<Int_t>(acsPt.acs.gridPt().x(), acsPt.acs.gridPt().y()); 
+  // The below is east
+  Box<Int_t> rect = Box<Int_t>(
+      origin.x() - eolExtension,
+      origin.y() - width / 2,
+      origin.x() + step + eolExtension,
+      origin.y() + width / 2
+      );
+  if (acsPt.acs.dir() == AcsPt::DirType::NORTH)
+  {
+    // counterclockwise rorate 90
+    rect.rotate90(origin.x(), origin.y(), false);
+  }
+  else if (acsPt.acs.dir() == AcsPt::DirType::SOUTH)
+  {
+    // clockwise rorate 90
+    rect.rotate90(origin.x(), origin.y(), true);
+  }
+  else if (acsPt.acs.dir() == AcsPt::DirType::EAST)
+  {
+  }
+  else if (acsPt.acs.dir() == AcsPt::DirType::WEST)
+  {
+    rect.flipX(origin.x());
+  }
+  else
+  {
+    assert(0);
+  }
+  return rect;
 }
 PROJECT_NAMESPACE_END

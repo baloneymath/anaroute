@@ -30,8 +30,23 @@ class AcsPt
             UP    = 4,
             DOWN  = 5
         };
+        static std::string dirType2Str(DirType dir)
+        {
+          switch (dir)
+          {
+            case DirType::NORTH : return "NORTH";
+            case DirType::SOUTH : return "SOUTH";
+            case DirType::EAST : return "EAST";
+            case DirType::WEST : return "WEST";
+            case DirType::UP : return "UP";
+            case DirType::DOWN : return "DOWN";
+            default: return "INVALID";
+          }
+        }
     public:
         explicit AcsPt() = default;
+        explicit AcsPt(const Point3d<Int_t> &gridPt, DirType dir)
+          : _gridPt(gridPt), _dir(dir) {}
         /// @brief set the grid point
         void setGridPt(const Point3d<Int_t> &gridPt) { _gridPt = gridPt; }
         void setGridPt(Int_t x, Int_t y, Int_t z) { _gridPt = Point3d<Int_t>(x, y, z); }
@@ -41,10 +56,17 @@ class AcsPt
         void setDir(DirType dir) { _dir = dir; }
         DirType dir() const { return _dir; }
         const Point3d<Int_t> & gridPt() const { return _gridPt; }
+        std::string str() const 
+        {
+          std::stringstream ss;
+          ss << _gridPt << " " << dirType2Str(_dir);
+          return ss.str();
+        }
     private:
         Point3d<Int_t> _gridPt; ///< The grid index for the access point
         DirType _dir; ///< The direction of this access point
 };
+
 
 class Pin {
   friend class Parser;
@@ -73,10 +95,10 @@ class Pin {
   const Vector_t<Box<Int_t>>&             vBoxes(const UInt_t layerIdx)                 const { return _vvBoxes[layerIdx]; }
   const Vector_t<Vector_t<Box<Int_t>>>&   vvBoxes()                                     const { return _vvBoxes; }
   UInt_t                                  numAcsPts()                                   const { return _vAcsPts.size(); }
-  Point3d<Int_t>&                                  acsPt(const UInt_t i)                                { return _vAcsPts[i]; }
-  const Point3d<Int_t>&                            acsPt(const UInt_t i)                          const { return _vAcsPts[i]; }
-  Vector_t<Point3d<Int_t>>&                        AcsPts()                                            { return _vAcsPts; }
-  const Vector_t<Point3d<Int_t>>&                  AcsPts()                                      const { return _vAcsPts; }
+  AcsPt&                                  acsPt(const UInt_t i)                                { return _vAcsPts[i]; }
+  const AcsPt&                            acsPt(const UInt_t i)                          const { return _vAcsPts[i]; }
+  Vector_t<AcsPt>&                        AcsPts()                                            { return _vAcsPts; }
+  const Vector_t<AcsPt>&                  AcsPts()                                      const { return _vAcsPts; }
 
   // for grid-based DR
   Int_t                                   xGrid()                                       const { return _xGrid; }
@@ -94,7 +116,7 @@ class Pin {
   void addBox(const UInt_t layerIdx, const Box<Int_t>& box);
   void setLayerBoxes(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes);
   void resizeLayerBoxes(const UInt_t i);
-  void addAcsPt(const Point3d<Int_t>& p);
+  void addAcsPt(const AcsPt& p);
  
   // for grid-based DR
   void setXGrid(const Int_t x);
@@ -111,7 +133,7 @@ class Pin {
   UInt_t                          _minLayerIdx;
   UInt_t                          _maxLayerIdx;
   Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
-  Vector_t<Point3d<Int_t>>                 _vAcsPts;  ///< Access points
+  Vector_t<AcsPt>                 _vAcsPts;  ///< Access points
   // for grid-based DR
   Int_t                           _xGrid;
   Int_t                           _yGrid;

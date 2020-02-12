@@ -27,11 +27,14 @@ class AcsMgr {
 
   struct CandidateAcsPt
   {
+      explicit CandidateAcsPt() = default;
+      explicit CandidateAcsPt(const AcsPt & acspt) : acs(acspt), overlapAreaOD(0) {}
+      
       AcsPt acs;
       Int_t overlapAreaOD = 0;
-      bool operator>(const CandidateAcsPt &rhs) const
+      bool operator<(const CandidateAcsPt &rhs) const
       {
-          return overlapAreaOD > rhs.overlapAreaOD;
+          return overlapAreaOD < rhs.overlapAreaOD;
       }
   };
  public:
