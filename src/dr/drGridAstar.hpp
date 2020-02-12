@@ -97,6 +97,7 @@ class DrGridAstar {
   void  addAcsPts(const Int_t idx, const Int_t z, const Box<Int_t>& box);
   void  findNeighbors(DrGridAstarNode* pU);
   bool  bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* pV, const bool bSym, const bool bSelfSym);
+  bool  checkMinArea(const DrGridAstarNode* pU, const DrGridAstarNode* pV);
   bool  bNeedUpdate(const DrGridAstarNode* pV, const Int_t costG, const Int_t bendCnt);
   void  resetAllNodes();
   void  ripup();
@@ -112,9 +113,10 @@ class DrGridAstar {
   bool    hasBend(const DrGridAstarNode* pU, const DrGridAstarNode* pV);
   PathDir findDir(const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   bool    bInsideGuide(const DrGridAstarNode* pU);
-  void    toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, Box<Int_t>& wire);
-
+  void    toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, const Int_t width, const Int_t extension, Box<Int_t>& wire);
 };
+
+
 PROJECT_NAMESPACE_END
 
 #endif /// _DR_GRID_ASTAR_HPP_

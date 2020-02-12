@@ -38,17 +38,18 @@ void NetlistReader::parse(const String_t& filename) {
   ifs >> buf; ifs >> symAxisX;
 
   gridStep = to_db_unit(gridStep);
+  gridOffsetX = to_db_unit(gridOffsetX);
+  gridOffsetY = to_db_unit(gridOffsetY);
   symAxisX = to_db_unit(symAxisX);
   _cir.setGridStep(gridStep);
   _cir.setGridOffsetX(gridOffsetX);
   _cir.setGridOffsetY(gridOffsetY);
   _cir.setSymAxisX(symAxisX);
   
-  while (ifs.good()) {
-    ifs >> netName;
-    ifs >> routingLayerIdx;
-    ifs >> xl >> yl >> xh >> yh;
-    ifs >> xGrid >> yGrid;
+
+  while (ifs >> netName >> routingLayerIdx
+             >> xl >> yl >> xh >> yh 
+             >> xGrid >> yGrid) {
     assert(xl < xh and yl < yh);
     //if (xl >= xh or yl >= yh) {
       //std::cerr << netName << " " << xl << " " << yl << " " << xh << " " << yh << std::endl;

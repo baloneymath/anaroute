@@ -52,7 +52,9 @@ void AcsMgr::computeBoxAcs(const Box<Int_t>& box, const Int_t layerIdx, Vector_t
   const Int_t higherGridIdxY = (box.yh() - _cir.gridOffsetY()) / _cir.gridStep(); // round down
   for (Int_t x = lowerGridIdxX; x <= higherGridIdxX; ++x) {
     for (Int_t y = lowerGridIdxY; y <= higherGridIdxY; ++y) {
-      vAcs.emplace_back(x, y, layerIdx);
+      vAcs.emplace_back(x * _cir.gridStep() + _cir.gridOffsetX(),
+                        y * _cir.gridStep() + _cir.gridOffsetY(),
+                        layerIdx);
     }
   }
 }

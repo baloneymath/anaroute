@@ -153,10 +153,18 @@ GDB="gdb --args"
            #--out_guide $OUT_DIR/guide/COMPARATOR_PRE_AMP.guide
 
 # comp2 manual
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+           #--design_file ../bench_grid/comp2/comp2_grid_v1.pin \
+           #--placement_layout ../bench_grid/comp2/comp2_grid_v1.place.gds \
+           #--symnet ../bench_grid/comp2/comp2.symnet \
+           #--out $OUT_DIR/gds/comp2.route.gds 
+
+# comp2 magical on grid
 $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
            --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-           --design_file ../bench_grid/comp2/comp2_grid_v1.pin \
-           --placement_layout ../bench_grid/comp2/comp2_grid_v1.place.gds \
-           --symnet ../bench_grid/comp2/comp2.symnet \
-           --out $OUT_DIR/gds/comp2.route.gds 
+           --design_file ../bench_grid/comp2_mag/comp2.pin \
+           --placement_layout ../bench_grid/comp2_mag/comp2.place.gds \
+           --symnet ../bench_grid/comp2_mag/comp2.symnet \
+           --out $OUT_DIR/gds/comp2_mag.route.gds 
 

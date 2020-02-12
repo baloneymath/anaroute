@@ -54,16 +54,30 @@ bool DrcMgr::checkWireCutLayerShort(const UInt_t netIdx, const UInt_t layerIdx, 
 }
 
 // min area
-bool DrcMgr::checkWireMinArea(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const {
-  // TODO
-  return true;
+bool DrcMgr::checkWireMinArea(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes) const {
+  if (vBoxes.empty()) {
+    return true;
+  }
+  Int_t totalArea = vBoxes[0].area();
+  Int_t overlapArea = 0;
+  for (Int_t i = 0; i < (Int_t)vBoxes.size() - 1; ++i) {
+    const auto& b1 = vBoxes[i];
+    const auto& b2 = vBoxes[i + 1];
+    totalArea += b2.area();
+    overlapArea += Box<Int_t>::overlapArea(b1, b2);
+  }
+  totalArea -= overlapArea;
+  assert(_cir.lef().bRoutingLayer(layerIdx));
+  const auto& layerPair = _cir.lef().layerPair(layerIdx);
+  const auto& layer = _cir.lef().routingLayer(layerPair.second);
+  return totalArea >= layer.minArea();
 }
 
 // spacing
 bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const {
-  const Pair_t<LefLayerType, UInt_t>& layerPair = _cir.lef().layerPair(layerIdx);
-  assert(layerPair.first == LefLayerType::ROUTING);
-  const LefRoutingLayer& layer = _cir.lef().routingLayer(layerPair.second);
+  assert(_cir.lef().bRoutingLayer(layerIdx));
+  const auto& layerPair = _cir.lef().layerPair(layerIdx);
+  const auto& layer = _cir.lef().routingLayer(layerPair.second);
   const Int_t prlSpacing = layer.spacingTable().table.size() ?
                            layer.spacingTable().table[0].second[0] :
                            layer.spacing(0);
@@ -105,9 +119,9 @@ bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t laye
 }
 
 bool DrcMgr::checkWireCutLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const {
-  const Pair_t<LefLayerType, UInt_t>& layerPair = _cir.lef().layerPair(layerIdx);
-  assert(layerPair.first == LefLayerType::CUT);
-  const LefCutLayer& layer = _cir.lef().cutLayer(layerPair.second);
+  assert(_cir.lef().bCutLayer(layerIdx));
+  const auto& layerPair = _cir.lef().layerPair(layerIdx);
+  const auto& layer = _cir.lef().cutLayer(layerPair.second);
   const Int_t spacing = layer.spacing();
   
   Box<Int_t> checkBox(b);

@@ -698,8 +698,6 @@ bool DrAstar::bViolateDRC(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
     toWire(u, v, wire);
     //if (!_drcMgr.checkWireRoutingLayerShort(_net.idx(), z, wire))
       //return true;
-    if (!_drcMgr.checkWireMinArea(_net.idx(), z, wire))
-      return true;
     if (!_drcMgr.checkWireRoutingLayerSpacing(_net.idx(), z, wire))
       return true;
     if (!_drcMgr.checkWireEolSpacing(_net.idx(), z, wire))
@@ -726,8 +724,6 @@ bool DrAstar::bViolateSymDRC(const Point3d<Int_t>& u, const Point3d<Int_t>& v) {
     toWire(symU, symV, wire);
     //if (!_drcMgr.checkWireRoutingLayerShort(_net.idx(), z, wire))
       //return true;
-    if (!_drcMgr.checkWireMinArea(_net.idx(), z, wire))
-      return true;
     if (!_drcMgr.checkWireRoutingLayerSpacing(_net.idx(), z, wire))
       return true;
     if (!_drcMgr.checkWireEolSpacing(_net.idx(), z, wire))

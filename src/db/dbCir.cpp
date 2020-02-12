@@ -468,8 +468,8 @@ void CirDB::visualize() const {
       }
 
       Pin_ForEachAcsPt(pin, cpPt, k) {
-        Box<Int_t> box(_gridOffsetX + cpPt->x() * _gridStep - 5, _gridOffsetY + cpPt->y() * _gridStep - 5,
-                       _gridOffsetX + cpPt->x() * _gridStep + 5, _gridOffsetY + cpPt->y() * _gridStep + 5);
+        Box<Int_t> box(cpPt->x() - 5, cpPt->y() - 5,
+                       cpPt->x() + 5, cpPt->y() + 5);
         gw.writeRectangle(box, 20000, 0);
       }
     }

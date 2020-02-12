@@ -81,10 +81,7 @@ void DrGridAstar::init() {
       }
     }
     Pin_ForEachAcsPt(pin, cpPt, j) {
-      Point3d<Int_t> acs(_cir.gridOffsetX() + cpPt->x() * _cir.gridStep(),
-                         _cir.gridOffsetY() + cpPt->y() * _cir.gridStep(),
-                         cpPt->z());
-      _vCompAcsPts[i].insert(acs);
+      _vCompAcsPts[i].insert(*cpPt);
     }
   }
 }
@@ -384,8 +381,15 @@ void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, c
     const auto& u = vec.first;
     const auto& v = vec.second;
     if (u.z() == v.z()) {
+      // get the layer information
+      assert(_cir.lef().bRoutingLayer(u.z()));
+      const auto& layerPair = _cir.lef().layerPair(u.z());
+      const auto& layer = _cir.lef().routingLayer(layerPair.second);
+      const Int_t width = layer.minWidth();
+      const Int_t extension = layer.minWidth() / 2;
+      // generate the exact wire shape
       Box<Int_t> wire;
-      toWire(u, v, wire);
+      toWire(u, v, width, extension, wire);
       addAcsPts(rootIdx, u.z(), wire);
       _vCompBoxes[rootIdx].emplace_back(wire, u.z());
       _vCompSpatialBoxes[rootIdx][u.z()].insert(wire);
@@ -442,8 +446,15 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
     const auto& u = pair.first;
     const auto& v = pair.second;
     if (u.z() == v.z()) {
+      // get the layer information
+      assert(_cir.lef().bRoutingLayer(u.z()));
+      const auto& layerPair = _cir.lef().layerPair(u.z());
+      const auto& layer = _cir.lef().routingLayer(layerPair.second);
+      const Int_t width = layer.minWidth();
+      const Int_t extension = layer.minWidth() / 2;
+      // generate the exact wire
       Box<Int_t> wire;
-      toWire(u, v, wire);
+      toWire(u, v, width, extension, wire);
       vRoutedWires.emplace_back(wire, u.z());
       _cir.addSpatialRoutedWire(_net.idx(), u.z(), wire);
       // add symmetric wire to spatial routed wire, for DRC
@@ -574,8 +585,15 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
   if (u.z() == v.z()) {
     assert(u.x() == v.x() or u.y() == v.y());
     const Int_t z = u.z();
+    // get the layer information
+    assert(_cir.lef().bRoutingLayer(u.z()));
+    const auto& layerPair = _cir.lef().layerPair(u.z());
+    const auto& layer = _cir.lef().routingLayer(layerPair.second);
+    const Int_t width = layer.minWidth();
+    const Int_t extension = layer.minWidth() / 2;
+    // generate exact wire shape
     Box<Int_t> wire;
-    toWire(u, v, wire);
+    toWire(u, v, width, extension, wire);
     // check DRC
     if (!_drc.checkWireRoutingLayerSpacing(_net.idx(), z, wire))
       return true;
@@ -603,22 +621,33 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
       return true;
     // TODO: minarea, minstep
     // check min area
-    //const DrGridAstarNode* pN = pU;
-    //Vector_t<Box<Int_t>> vPrePath;
-    //Int_t numBends = 0;
-    //Int_t totalArea = 0;
-    //while (pN->pParent() and pN->pParent()->coord().z() == u.z()) {
-      //Box<Int_t> wire;
-      //toWire(u, pN->pParent()->coord(), wire);
-      //totalArea += wire.area();
-      //if (hasBend(pN->pParent(), pN)) {
-        //numBends += 1;
-      //}
-      //pN = pN->pParent();
-    //}
-    //totalArea -= 
+    if (!checkMinArea(pU, pV))
+      return true;
   }
   return false;
+}
+
+bool DrGridAstar::checkMinArea(const DrGridAstarNode* pU, const DrGridAstarNode* pV) {
+  const Int_t layerIdx = pU->coord().z();
+  const DrGridAstarNode* pN = pU;
+  Vector_t<Box<Int_t>> vPrePath;
+  // get the layer information
+  assert(_cir.lef().bRoutingLayer(layerIdx));
+  const auto& layerPair = _cir.lef().layerPair(layerIdx);
+  const auto& layer = _cir.lef().routingLayer(layerPair.second);
+  const Int_t width = layer.minWidth();
+  const Int_t extension = layer.minWidth() / 2;
+  while (pN->pParent() and pN->pParent()->coord().z() == layerIdx) {
+    // generate the exact wire shape
+    Box<Int_t> wire;
+    toWire(pN->coord(), pN->pParent()->coord(), width, extension, wire);
+    vPrePath.emplace_back(wire);
+    pN = pN->pParent();
+  }
+  assert(layerIdx == pN->coord().z());
+  if (!_drc.checkWireMinArea(layerIdx, vPrePath))
+    return false;
+  return true;
 }
 
 bool DrGridAstar::bNeedUpdate(const DrGridAstarNode* pV, const Int_t costG, const Int_t bendCnt) {
@@ -738,18 +767,23 @@ bool DrGridAstar::bInsideGuide(const DrGridAstarNode* pU) {
   return _cir.vSpatialNetGuides(_net.idx())[u.z()].find(u2d, u2d);
 }
 
-void DrGridAstar::toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, Box<Int_t>& wire) {
+void DrGridAstar::toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, const Int_t width, const Int_t extension, Box<Int_t>& wire) {
   // change wire width here
   assert(u.z() == v.z());
-  const Int_t z = u.z();
-  const Pair_t<LefLayerType, UInt_t>& layerPair = _cir.lef().layerPair(z);
-  assert(layerPair.first == LefLayerType::ROUTING);
-  const LefRoutingLayer& layer = _cir.lef().routingLayer(layerPair.second);
-  const Int_t halfWidth = layer.minWidth() / 2;
-  const Int_t xl = std::min(u.x(), v.x()) - halfWidth;
-  const Int_t xh = std::max(u.x(), v.x()) + halfWidth;
-  const Int_t yl = std::min(u.y(), v.y()) - halfWidth;
-  const Int_t yh = std::max(u.y(), v.y()) + halfWidth;
+  const Int_t halfWidth = width / 2;
+  Int_t xl, yl, xh, yh;
+  if (u.x() == v.x()) { // vertical edge
+    xl = u.x() - halfWidth;
+    yl = std::min(u.y(), v.y()) - extension;
+    xh = u.x() + halfWidth;
+    yh = std::max(u.y(), v.y()) + extension;
+  }
+  else if (u.y() == v.y()) { // horizontal edge
+    xl = std::min(u.x(), v.x()) - extension;
+    yl = u.y() - halfWidth;
+    xh = std::max(u.x(), v.x()) + extension;
+    yh = u.y() + halfWidth;
+  }
   wire.setXL(xl);
   wire.setXH(xh);
   wire.setYL(yl);
