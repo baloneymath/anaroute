@@ -84,6 +84,13 @@ public:
       return boost::hash_range(p.d(), p.d()+3);
     }
   };
+  // string
+  std::string str() const 
+  {
+    std::stringstream ss;
+    ss << *this;
+    return ss.str();
+  }
 
 private:
   T _d[3];

@@ -63,6 +63,7 @@ class GdsReader { // from limbo
 	String_t  topCell(const GdsParser::GdsDB::GdsDB& db);
 	void      buildLayerMap();
   void      saveShapesAsBlockages();
+  void      parseOdLayers(GdsParser::GdsDB::GdsCell &flatCell, Float_t sc);
 
 };
 //////////////////////////////////////////////////////////////////
@@ -242,6 +243,62 @@ struct GetSRefNameActionParser {
 
 
 	String_t &_name; ///< The cell reference name
+};
+
+
+namespace ExtractSpecificShapeLayerActionDetails {
+
+	namespace gtl = boost::polygon;
+	/// @brief default action
+	template<typename ObjectType>
+		inline void extractShape(Int_t layerIdx, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ObjectType *object) {}
+
+
+	/// @brief process gds rectangle
+	template<>
+		inline void extractShape(Int_t layerIdx, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsRectangle *object) {
+			assert(false);
+		}
+
+	/// @brief process gds polygon
+	template<>
+		inline void extractShape(Int_t layerIdx, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPolygon *object) {
+			if (object->layer() == layerIdx) {
+				polygons.emplace_back(PolygonLayer());
+				polygons.back().layer = layerIdx;
+				/// Add points
+				for (auto pt : *object) {
+					polygons.back().pts.emplace_back(Point<Int_t>(pt.x(), pt.y()));
+				}
+			}
+		}
+
+	/// @brief process path
+	template<>
+		inline void extractShape(Int_t layerIdx, Vector_t<PolygonLayer> &polygons, ::GdsParser::GdsRecords::EnumType type, ::GdsParser::GdsDB::GdsPath *object) {
+			auto polygon = object->toPolygon();
+			extractShape(layerIdx, polygons, type, &polygon);
+		}
+
+}
+
+/// @brief aution function object to process the the 
+struct ExtractSpecificShapeLayerAction {
+	/// @param first: the map between the gds layer indices to the router layers. Only care about the mapping within this map
+	/// @param second: a reference to a vector of polygons, saved the read polygons in this vector
+	ExtractSpecificShapeLayerAction(Int_t layerIdx, Vector_t<PolygonLayer> &polygons) : _layerIdx(layerIdx), _polygons(polygons) {}
+	template<typename ObjectType>
+		void operator()(::GdsParser::GdsRecords::EnumType type, ObjectType* object) {
+			ExtractSpecificShapeLayerActionDetails::extractShape(_layerIdx, _polygons, type, object);
+		}
+
+	/// @return a message of action for debug
+	String_t message() const {
+		return "ExtractShapeLayerAction";
+	}
+
+	Int_t _layerIdx; ///< The target gds layer
+	Vector_t<PolygonLayer> &_polygons; ///< The polygons read from the gds
 };
 
 PROJECT_NAMESPACE_END

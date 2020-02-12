@@ -15,8 +15,9 @@
 
 PROJECT_NAMESPACE_START
 
-class ViaGenerationNotImplementedException : std::exception
+class ViaGenerationNotImplementedException : public std::exception 
 {
+    public:
     virtual const char* what() const throw()
     {
         return "Generation for the given LefViaRule type has not been implemented";
@@ -25,6 +26,7 @@ class ViaGenerationNotImplementedException : std::exception
 
 class ViaGenerationInfeasibleException : public std::exception
 {
+    public:
     virtual const char* what() const throw()
     {
         return "Infeasible VIA generation from ViaRule";
