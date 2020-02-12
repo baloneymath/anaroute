@@ -123,4 +123,89 @@ namespace boost { namespace geometry { namespace traits {
   };
 }}}
 
+// boost polygon
+#include <boost/polygon/point_traits.hpp>
+#include <boost/polygon/interval_traits.hpp>
+#include <boost/polygon/polygon.hpp>
+namespace boost { namespace polygon {
+    template<typename CoordType>
+    struct geometry_concept<PROJECT_NAMESPACE::Point<CoordType>> { typedef point_concept type;};
+    // Point Concept
+    template<typename CoordType>
+    struct point_traits<PROJECT_NAMESPACE::Point<CoordType>>
+    {
+        typedef CoordType coordinate_type;
+        static inline coordinate_type set(PROJECT_NAMESPACE::Point<CoordType> &point, orientation_2d orient)
+        {
+            if (orient== HORIZONTAL)
+            {
+                return point.x();
+            }
+            else
+            {
+                return point.y();
+            }
+        }
+    };
+    template<typename CoordType>
+    struct point_mutable_traits<PROJECT_NAMESPACE::Point<CoordType>>
+    {
+        typedef CoordType coordinate_type;
+        static void inline set(PROJECT_NAMESPACE::Point<CoordType> &point, orientation_2d orient, CoordType value)
+        {
+            if (orient == HORIZONTAL)
+            {
+                point.setX(value);
+            }
+            else
+            {
+                point.setY(value);
+            }
+        }
+        static inline PROJECT_NAMESPACE::Point<CoordType> construct(CoordType x_value, CoordType y_value)
+        {
+            return PROJECT_NAMESPACE::Point<CoordType>(x_value, y_value);
+        }
+    };
+    // Interval Concept
+    // The semantic of an interval is that it has a low and high coordinate and there is an invariant that low is less than or equal to high.  This invariant is enforced by the generic library functions that operate on intervals, and is not expected of the data type itself or the concept mapping of that data type to the interval concept through its traits.  In this way a std::pair<int, int>, boost::tuple<int, int> or boost::array<int, 2> could all be made models of interval by simply providing indirect access to their elements through traits.
+    // In other words, the invariant checking in the Interval class is redundant
+    template<typename CoordType>
+    struct interval_traits<PROJECT_NAMESPACE::Point<CoordType>>
+    {
+        typedef CoordType coordinate_type;
+        static inline coordinate_type get(const PROJECT_NAMESPACE::Point<CoordType> &interval, direction_1d dir)
+        {
+            if (dir == LOW)
+            {
+                return interval.x();
+            }
+            else
+            {
+                return interval.y();
+            }
+        }
+    };
+    template<typename CoordType>
+    struct interval_mutable_traits<PROJECT_NAMESPACE::Point<CoordType>>
+    {
+        typedef CoordType coordinate_type;
+        static inline void set(PROJECT_NAMESPACE::Point<CoordType> &interval, direction_1d dir, CoordType value)
+        {
+            if (dir == LOW)
+            {
+                interval.setX(value);
+            }
+            else
+            {
+                interval.setY(value);
+            }
+        }
+        static inline PROJECT_NAMESPACE::Point<CoordType> construct(CoordType low_value, CoordType high_value)
+        {
+            return PROJECT_NAMESPACE::Point<CoordType>(low_value, high_value);
+        }
+    };
+}};
+
 #endif /// _GEO_POINT_HPP_

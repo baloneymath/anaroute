@@ -11,12 +11,14 @@
 
 #include "src/global/global.hpp"
 #include "point.hpp"
+#include "interval.hpp"
 
 PROJECT_NAMESPACE_START
 
 template<typename T>
 class Box {
 public:
+  typedef Interval<T> interval_type;
   Box(T l = 0, T b = 0, T r = 0, T t = 0)
     : _bl(l, b), _tr(r, t) {
     assert(l <= r && b <= t);
@@ -530,4 +532,67 @@ void Box<T>::difference2(const Box<T>& box1, const Box<T>& box2, Vector_t<Box<T>
 
 PROJECT_NAMESPACE_END
 
+// boost traits
+#include <boost/polygon/rectangle_traits.hpp>
+#include <boost/polygon/polygon.hpp>
+namespace boost
+{
+    namespace polygon
+    {
+        template<typename CoordType>
+        struct geometry_concept<PROJECT_NAMESPACE::Box<CoordType>> {typedef rectangle_concept type; };
+
+        template<typename CoordType>
+        struct rectangle_traits<PROJECT_NAMESPACE::Box<CoordType>, typename gtl_same_type<typename PROJECT_NAMESPACE::Box<CoordType>::interval_type, typename PROJECT_NAMESPACE::Box<CoordType>::interval_type>::type>
+        {
+            typedef CoordType coordinate_type;
+            typedef typename PROJECT_NAMESPACE::Box<CoordType>::interval_type interval_type;
+            static inline interval_type get(const PROJECT_NAMESPACE::Box<CoordType> &rectangle, orientation_2d orient)
+            {
+                if (orient == HORIZONTAL)
+                {
+                    return boost::polygon::interval_mutable_traits<interval_type>::construct(rectangle.xl(), rectangle.xh());
+                }
+                else
+                {
+                    return boost::polygon::interval_mutable_traits<interval_type>::construct(rectangle.yl(), rectangle.yh());
+                }
+            }
+        };
+        template<typename CoordType>
+        struct rectangle_mutable_traits<PROJECT_NAMESPACE::Box<CoordType>>
+        {
+            template<typename T2>
+            static inline void set(PROJECT_NAMESPACE::Box<CoordType> &rectangle, orientation_2d orient, const T2& interval)
+            {
+                if (orient == HORIZONTAL)
+                {
+                    rectangle.setXL(boost::polygon::interval_traits<T2>::get(interval, LOW));
+                    rectangle.setXH(boost::polygon::interval_traits<T2>::get(interval, HIGH));
+                }
+                else
+                {
+                    rectangle.setYL(boost::polygon::interval_traits<T2>::get(interval, LOW));
+                    rectangle.setYH(boost::polygon::interval_traits<T2>::get(interval, HIGH));
+                }
+            }
+            template<typename T2, typename T3>
+            static inline PROJECT_NAMESPACE::Box<CoordType> construct(const T2& interval_horizontal,
+                                                                      const T3& interval_vertical)
+            {
+                return PROJECT_NAMESPACE::Box<CoordType>
+                    (
+                         boost::polygon::interval_traits<T2>::get(interval_horizontal, LOW),
+                         boost::polygon::interval_traits<T2>::get(interval_vertical, LOW),
+                         boost::polygon::interval_traits<T2>::get(interval_horizontal, HIGH),
+                         boost::polygon::interval_traits<T2>::get(interval_vertical, HIGH)
+                    );
+            }
+        };
+/*
+        template<typename CoordType>
+        struct polygon_traits<PROJECT_NAMESPACE::Box<CoordType>>
+        */
+    };
+}; // boost
 #endif /// _GEO_BOX_HPP_
