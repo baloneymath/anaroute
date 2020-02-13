@@ -10,6 +10,7 @@
 #define _DR_GRID_ROUTE_HPP_
 
 #include "drMgr.hpp"
+#include "src/geo/spatial.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -17,7 +18,8 @@ class DrGridRoute {
   friend class DrGridAstar;
  public:
   DrGridRoute(CirDB& c, DrMgr& dr, DrcMgr& drc)
-    : _cir(c), _drMgr(dr), _drcMgr(drc) {}
+    : _cir(c), _drMgr(dr), _drc(drc),
+      _vSpatialHistoryMaps(c.lef().numLayers()) {}
   ~DrGridRoute() {}
 
   void solve();
@@ -25,8 +27,10 @@ class DrGridRoute {
  private:
   CirDB&    _cir;
   DrMgr&    _drMgr;
-  DrcMgr&   _drcMgr;
+  DrcMgr&   _drc;
   
+  Vector_t<SpatialMap<Int_t, Int_t>> _vSpatialHistoryMaps;
+
   /////////////////////////////////////////
   //    Private structs                  //
   /////////////////////////////////////////
@@ -47,12 +51,30 @@ class DrGridRoute {
     Int_t w_selfSym = 200;
     Int_t w_fail_cnt = 100;
   };
+
+  struct Param {
+    Int_t maxSymTry = 3;
+    Int_t maxSelfSymTry = 3;
+  } _param;
   
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
-  bool routeSingleNet(Net& n);
+  void checkSymSelfSym(const Net& net, bool& bSym, bool& bSelfSym);
+  
+  bool routeSingleNet(Net& n, const bool bSym, const bool bSelfSym, const bool bStrictDRC);
+
+  bool checkDRC();
+  bool checkSingleNetDRC(const Net& net);
+  
   void ripupSingleNet(Net& n);
+  
+  void addWireHistoryCost(const Int_t cost, const Int_t layerIdx, const Box<Int_t>& wire);
+  void addViaHistoryCost(const Int_t cost, const Int_t x, const Int_t y, const LefVia& via);
+
+  bool bSatisfySymCondition(const Net& net);
+  bool bSatisfySelfSymCondition(const Net& net);
+
 };
 
 PROJECT_NAMESPACE_END

@@ -10,6 +10,7 @@
 #include "src/ds/pqueue.hpp"
 #include "src/geo/kdtree.hpp"
 #include "src/acs/acsMgr.hpp"
+#include "src/geo/box2polygon.hpp"
 
 #include <lemon/maps.h>
 #include <lemon/kruskal.h>
@@ -25,39 +26,15 @@ bool DrGridAstar::run() {
   init();
   splitSubNetMST();
 
-  bool bSym = false;
-  bool bSelfSym = false;
-
-  // check sym and self-sym constraint
-  if (_net.hasSymNet()
-      and _net.drFailCnt() < _param.maxSymTry
-      and _cir.net(_net.symNetIdx()).drFailCnt() < _param.maxSymTry) {
-    if (bSatisfySymCondition()) {
-      bSym = true;
-    }
-    else {
-      fprintf(stderr, "DrGridAstar::%s WARNING: Net %s %s cannot be symmetric\n", __func__, _net.name().c_str(), _cir.net(_net.symNetIdx()).name().c_str());
-    }
-  }
-  else if (_net.bSelfSym()
-           and _net.drFailCnt() < _param.maxSelfSymTry) {
-    if (bSatisfySelfSymCondition()) {
-      bSelfSym = true;
-    }
-    else {
-      fprintf(stderr, "DrGridAstar::%s WARNING: Net %s cannot be self-symmetric\n", __func__, _net.name().c_str());
-    }
-  }
-
   // route net with sym and self-sym constraint
-  bool bSuccess = route(bSym, bSelfSym);
+  bool bSuccess = route(_bSym, _bSelfSym);
 
   // ripup or not
   if (!bSuccess) {
     ripup();
     return false;
   }
-  saveResult2Net(bSym);
+  saveResult2Net(_bSym);
   return true;
 }
 
@@ -130,79 +107,6 @@ void DrGridAstar::splitSubNetMST() {
     lemon::ListGraph::Edge& edge = vResEdges[i];
     _vSubNets.emplace_back(graph.id(graph.u(edge)), graph.id(graph.v(edge)));
   }
-}
-
-bool DrGridAstar::bSatisfySymCondition() {
-  const Int_t symAxisX = _cir.symAxisX();
-  const Net& net1 = _net;
-  const Net& net2 = _cir.net(_net.symNetIdx());
-  Vector_t<Box<Int_t>> vBoxes1, vBoxes2;
-  // init net1 pin shapes
-  for (const auto idx : net1.vPinIndices()) {
-    const Pin& pin = _cir.pin(idx);
-    UInt_t i, layerIdx;
-    const Box<Int_t>* cpBox;
-    Pin_ForEachLayerIdx(pin, layerIdx) {
-      Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
-        vBoxes1.emplace_back(*cpBox);
-      }
-    }
-  }
-  // init net2 pin shapes
-  for (const auto idx : net2.vPinIndices()) {
-    const Pin& pin = _cir.pin(idx);
-    UInt_t i, layerIdx;
-    const Box<Int_t>* cpBox;
-    Pin_ForEachLayerIdx(pin, layerIdx) {
-      Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
-        vBoxes2.emplace_back(*cpBox);
-      }
-    }
-  }
-  // search net1 sym shapes in net2
-  if (vBoxes1.size() != vBoxes2.size())
-    return false;
-  std::sort(vBoxes2.begin(), vBoxes2.end());
-  for (const auto& box : vBoxes1) {
-    Box<Int_t> symBox;
-    symBox.setXL(2 * symAxisX - box.xh());
-    symBox.setYL(box.yl());
-    symBox.setXH(2 * symAxisX - box.xl());
-    symBox.setYH(box.yh());
-    if (!std::binary_search(vBoxes2.begin(), vBoxes2.end(), symBox)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool DrGridAstar::bSatisfySelfSymCondition() {
-  const Int_t symAxisX = _cir.symAxisX();
-  Vector_t<Box<Int_t>> vBoxes;
-  // init pin shapes
-  for (const auto idx : _net.vPinIndices()) {
-    const Pin& pin = _cir.pin(idx);
-    UInt_t i, layerIdx;
-    const Box<Int_t>* cpBox;
-    Pin_ForEachLayerIdx(pin, layerIdx) {
-      Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
-        vBoxes.emplace_back(*cpBox);
-      }
-    }
-  }
-  // make sure there exist a sym box of each box
-  std::sort(vBoxes.begin(), vBoxes.end());
-  for (const auto& box : vBoxes) {
-    Box<Int_t> symBox;
-    symBox.setXL(2 * symAxisX - box.xh());
-    symBox.setYL(box.yl());
-    symBox.setXH(2 * symAxisX - box.xl());
-    symBox.setYH(box.yh());
-    if (!std::binary_search(vBoxes.begin(), vBoxes.end(), symBox)) {
-      return false;
-    }
-  }
-  return true;
 }
 
 bool DrGridAstar::route(const bool bSym, const bool bSelfSym) {
@@ -306,9 +210,6 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
     for (auto pV : pU->vpNeighbors()) {
       if (pV->bExplored())
         continue;
-      if (bViolateDRC(pU, pV, bSym, bSelfSym)) {
-        continue;
-      }
       const Int_t costG = pU->costG() + scaledMDist(pU->coord(), pV->coord());
       const Int_t bendCnt = pU->bendCnt() + hasBend(pU, pV);
       if (bNeedUpdate(pV, costG, bendCnt)) {
@@ -320,9 +221,16 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
         Int_t scaledNearestDist;
         tarKD.nearestSearch(scaledP, scaledNearestP, scaledNearestDist);
         Int_t costF = (costG * _param.factorG + scaledNearestDist * _param.factorH);
+        if (bViolateDRC(pU, pV, bSym, bSelfSym)) {
+          if (_bStrictDRC) // do not allow any DRC violation
+            continue;
+          else // add high cost to DRC violations
+            costF += _param.drcCost;
+        }
         if (bInsideGuide(pV)) {
           costF += _param.guideCost;
         }
+        costF += history(pV);
         pV->setCostF(costF);
         pV->setCostG(costG);
         pV->setBendCnt(bendCnt);
@@ -463,6 +371,8 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
         symWire.flipX(_cir.symAxisX());
         _cir.addSpatialRoutedWire(_net.symNetIdx(), u.z(), symWire);
       }
+      // add history cost
+      _dr.addWireHistoryCost(_param.historyCost, u.z(), wire);
     }
     else {
       // choose via
@@ -478,6 +388,8 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
         const Int_t symX = 2 * _cir.symAxisX() - x;
         _cir.addSpatialRoutedVia(_net.idx(), symX, y, via);
       }
+      // add history cost
+      _dr.addViaHistoryCost(_param.historyCost, x, y, via);
     }
   }
 }
@@ -621,8 +533,9 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
       return true;
     // TODO: minarea, minstep
     // check min area
-    if (!checkMinArea(pU, pV))
-      return true;
+    //if (!checkMinArea(pU, pV)) {
+      //return true;
+    //}
   }
   return false;
 }
@@ -645,9 +558,7 @@ bool DrGridAstar::checkMinArea(const DrGridAstarNode* pU, const DrGridAstarNode*
     pN = pN->pParent();
   }
   assert(layerIdx == pN->coord().z());
-  if (!_drc.checkWireMinArea(layerIdx, vPrePath))
-    return false;
-  return true;
+  return _drc.checkWireMinArea(layerIdx, vPrePath);
 }
 
 bool DrGridAstar::bNeedUpdate(const DrGridAstarNode* pV, const Int_t costG, const Int_t bendCnt) {
@@ -663,16 +574,6 @@ void DrGridAstar::resetAllNodes() {
     for (auto& pair : map) {
       DrGridAstarNode* pNode = pair.second;
       pNode->reset();
-    }
-  }
-}
-
-void DrGridAstar::ripup() {
-  for (const auto& vRoutedWires : _vvRoutedWires) {
-    for (const auto& pair : vRoutedWires) {
-      const Box<Int_t>& wire = pair.first;
-      const Int_t layerIdx = pair.second;
-      _cir.removeSpatialRoutedWire(_net.idx(), layerIdx, wire);
     }
   }
 }
@@ -695,6 +596,16 @@ void DrGridAstar::saveResult2Net(const bool bSym) {
       }
     }
     symNet.setRouted(true);
+  }
+}
+
+void DrGridAstar::ripup() {
+  for (const auto& vRoutedWires : _vvRoutedWires) {
+    for (const auto& pair : vRoutedWires) {
+      const Box<Int_t>& wire = pair.first;
+      const Int_t layerIdx = pair.second;
+      _cir.removeSpatialRoutedWire(_net.idx(), layerIdx, wire);
+    }
   }
 }
 
@@ -761,17 +672,25 @@ DrGridAstar::PathDir DrGridAstar::findDir(const Point3d<Int_t>& u, const Point3d
 }
 
 bool DrGridAstar::bInsideGuide(const DrGridAstarNode* pU) {
-  const Point3d<Int_t>& u = pU->coord();
+  const auto& u = pU->coord();
   assert(u.z() < (Int_t)_cir.vSpatialNetGuides(_net.idx()).size() and u.z() > 0);
   const Point<Int_t> u2d(u.x(), u.y());
   return _cir.vSpatialNetGuides(_net.idx())[u.z()].find(u2d, u2d);
+}
+
+Int_t DrGridAstar::history(const DrGridAstarNode* pU) {
+  const auto& u = pU->coord();
+  const Point<Int_t> u2d(u.x(), u.y());
+  Vector_t<Int_t> vHis;
+  _dr._vSpatialHistoryMaps[u.z()].query(u2d, u2d, vHis);
+  return std::accumulate(vHis.begin(), vHis.end(), 0);
 }
 
 void DrGridAstar::toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, const Int_t width, const Int_t extension, Box<Int_t>& wire) {
   // change wire width here
   assert(u.z() == v.z());
   const Int_t halfWidth = width / 2;
-  Int_t xl, yl, xh, yh;
+  Int_t xl = 0, yl = 0, xh = 0, yh = 0;
   if (u.x() == v.x()) { // vertical edge
     xl = u.x() - halfWidth;
     yl = std::min(u.y(), v.y()) - extension;
