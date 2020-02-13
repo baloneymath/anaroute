@@ -473,7 +473,7 @@ void CirDB::visualize() const {
   const Net* cpNet;
   const Blk* cpBlk;
   const Box<Int_t>* cpBox;
-  const Point3d<Int_t>* cpPt;
+  const AcsPt* cpPt;
 
   Cir_ForEachNet((*this), cpNet, i) {
     Net_ForEachPinIdx((*cpNet), pinIdx, j) {
@@ -485,9 +485,26 @@ void CirDB::visualize() const {
       }
 
       Pin_ForEachAcsPt(pin, cpPt, k) {
-        Box<Int_t> box(cpPt->x() - 5, cpPt->y() - 5,
-                       cpPt->x() + 5, cpPt->y() + 5);
+        const auto& acsPt = cpPt->gridPt();
+        Box<Int_t> box(acsPt.x() - 5, acsPt.y() - 5,
+                       acsPt.x() + 5, acsPt.y() + 5);
+        Point3d<Int_t> pt(acsPt);
+        switch (cpPt->dir()) {
+          case AcsPt::DirType::NORTH: pt.setY(pt.y() + _gridStep); break;
+          case AcsPt::DirType::SOUTH: pt.setY(pt.y() - _gridStep); break;
+          case AcsPt::DirType::EAST: pt.setX(pt.x() + _gridStep); break;
+          case AcsPt::DirType::WEST: pt.setX(pt.x() - _gridStep); break;
+          case AcsPt::DirType::UP: assert(false);
+          case AcsPt::DirType::DOWN: assert(false);
+          default: assert(false);
+        }
+        Box<Int_t> box2(pt.x() - 5, pt.y() - 5,
+                        pt.x() + 5, pt.y() + 5);
+        Box<Int_t> box3(std::min(acsPt.x(), pt.x()) - 2, std::min(acsPt.y(), pt.y()) - 2,
+                        std::max(acsPt.x(), pt.x()) + 2, std::max(acsPt.y(), pt.y()) + 2);
         gw.writeRectangle(box, 20000, 0);
+        gw.writeRectangle(box2, 30000, 0);
+        gw.writeRectangle(box3, 30000, 0);
       }
     }
   }
