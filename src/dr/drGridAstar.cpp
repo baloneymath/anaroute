@@ -46,7 +46,7 @@ void DrGridAstar::init() {
 
   UInt_t i, j, pinIdx, layerIdx;
   const Box<Int_t>* cpBox;
-  const Point3d<Int_t>* cpPt;
+  const AcsPt* cpPt;
   Net_ForEachPinIdx(_net, pinIdx, i) {
     _vCompAcsPts[i].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
     _vCompAcsPts[i].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
@@ -58,7 +58,8 @@ void DrGridAstar::init() {
       }
     }
     Pin_ForEachAcsPt(pin, cpPt, j) {
-      _vCompAcsPts[i].insert(*cpPt);
+      const auto& pt = cpPt->gridPt();
+      _vCompAcsPts[i].insert(pt);
     }
   }
 }
