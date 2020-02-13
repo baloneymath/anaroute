@@ -607,6 +607,7 @@ void DrGridAstar::saveResult2Net() {
       _net.vWires().emplace_back(pair);
     }
   }
+  _net.setRouted(true);
   if (_bSym) {
     Net& symNet = _cir.net(_net.symNetIdx());
     for (const auto& vRoutedWires : _vvRoutedWires) {

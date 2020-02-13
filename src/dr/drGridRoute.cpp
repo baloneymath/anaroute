@@ -8,7 +8,6 @@
 
 #include "drGridRoute.hpp"
 #include "drGridAstar.hpp"
-#include "src/ds/pqueue.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -16,31 +15,48 @@ void DrGridRoute::solve() {
   
   // initialize net routing priority queue
   PairingHeap<Net*, Net_Cmp> pq;
-  UInt_t i;
-  Net* pNet;
-  Cir_ForEachNet(_cir, pNet, i) {
-    if (pNet->numPins() > 1) {
-      pq.push(pNet);
+
+  // add unrouted nets to pq
+  addUnroutedNetsToPQ(pq);
+
+  // start routing process with ripup and reroute
+  for (Int_t iter = 0; iter < _param.maxIteration; ++iter) {
+    fprintf(stderr, "DrGridRoute::%s Iteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
+    while (!pq.empty()) {
+      Net* pNet = pq.top();
+      pq.pop();
+      
+      // check sym and self sym
+      bool bSym = false;
+      bool bSelfSym = false;
+      checkSymSelfSym(*pNet, bSym, bSelfSym);
+
+      // start Astar routing (Hard DRC)
+      bool bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, true);
+      if (!bSuccess) {
+        bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, false);
+      }
+      assert(bSuccess);
+    }
+    // check DRC violations
+    bool bFinish = checkDRC();
+    if (bFinish) {
+      break;
+    }
+    else {
+      addUnroutedNetsToPQ(pq);
     }
   }
 
-  // start routing process with ripup and reroute
-  while (!pq.empty()) {
-    pNet = pq.top();
-    pq.pop();
-    
-    // check sym and self sym
-    bool bSym = false;
-    bool bSelfSym = false;
-    checkSymSelfSym(*pNet, bSym, bSelfSym);
+}
 
-    // start Astar routing (soft DRC)
-    bool bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, false);
-    assert(bSuccess);
+void DrGridRoute::addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq) {
+  for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+    Net* pNet = &_cir.net(i);
+    if (!pNet->bRouted() and pNet->numPins() > 1) {
+      pq.push(pNet);
+    }
   }
-  // check DRC violations
-  //checkDRC();
-
 }
 
 void DrGridRoute::checkSymSelfSym(const Net& net, bool& bSym, bool& bSelfSym) {
@@ -72,8 +88,12 @@ bool DrGridRoute::routeSingleNet(Net& n, const bool bSym, const bool bSelfSym, c
 }
 
 bool DrGridRoute::checkDRC() {
+  // randomize the checking sequence
+  Vector_t<Int_t> vIndices(_cir.numNets(), 0);
+  std::iota(vIndices.begin(), vIndices.end(), 0);
+  std::random_shuffle(vIndices.begin(), vIndices.end());
   bool bValid = true;
-  for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+  for (auto i : vIndices) {
     Net& net = _cir.net(i);
     if (!checkSingleNetDRC(net)) {
       ripupSingleNet(net);
@@ -102,8 +122,27 @@ bool DrGridRoute::checkSingleNetDRC(const Net& net) {
   return true;
 }
 
-void DrGridRoute::ripupSingleNet(Net& n) {
-  // TODO
+void DrGridRoute::ripupSingleNet(Net& net) {
+  for (const auto& pair : net.vWires()) {
+    const auto& wire = pair.first;
+    const Int_t layerIdx = pair.second;
+    bool bExist = _cir.removeSpatialRoutedWire(net.idx(), layerIdx, wire);
+    assert(bExist);
+    net.setRouted(false);
+    // check sym net
+    if (net.hasSymNet()) {
+      Net& symNet = _cir.net(net.symNetIdx());
+      if (symNet.bRouted()) {
+        for (const auto& pair : symNet.vWires()) {
+          const auto& wire = pair.first;
+          const Int_t layerIdx = pair.second;
+          bool bExist = _cir.removeSpatialRoutedWire(symNet.idx(), layerIdx, wire);
+          assert(bExist);
+          symNet.setRouted(false);
+        }
+      }
+    }
+  }
 }
 
 
