@@ -27,14 +27,14 @@ bool DrGridAstar::run() {
   splitSubNetMST();
 
   // route net with sym and self-sym constraint
-  bool bSuccess = route(_bSym, _bSelfSym);
+  bool bSuccess = route();
 
   // ripup or not
   if (!bSuccess) {
     ripup();
     return false;
   }
-  saveResult2Net(_bSym);
+  saveResult2Net();
   return true;
 }
 
@@ -57,9 +57,20 @@ void DrGridAstar::init() {
         _vCompSpatialBoxes[i][layerIdx].insert(*cpBox);
       }
     }
+
     Pin_ForEachAcsPt(pin, cpPt, j) {
-      const auto& pt = cpPt->gridPt();
+      Point3d<Int_t> pt = cpPt->gridPt();
+      //switch (cpPt->dir()) {
+        //case AcsPt::DirType::NORTH: pt.setY(pt.y() + _cir.gridStep()); break;
+        //case AcsPt::DirType::SOUTH: pt.setY(pt.y() - _cir.gridStep()); break;
+        //case AcsPt::DirType::EAST: pt.setX(pt.x() + _cir.gridStep()); break;
+        //case AcsPt::DirType::WEST: pt.setX(pt.x() - _cir.gridStep()); break;
+        //case AcsPt::DirType::UP: assert(false);
+        //case AcsPt::DirType::DOWN: assert(false);
+        //default: assert(false);
+      //}
       _vCompAcsPts[i].insert(pt);
+      _pinAcsMap[pt] = *cpPt;
     }
   }
 }
@@ -110,11 +121,11 @@ void DrGridAstar::splitSubNetMST() {
   }
 }
 
-bool DrGridAstar::route(const bool bSym, const bool bSelfSym) {
+bool DrGridAstar::route() {
   for (const auto& pair : _vSubNets) {
     const Int_t srcIdx = pair.first;
     const Int_t tarIdx = pair.second;
-    if (!routeSubNet(srcIdx, tarIdx, bSym, bSelfSym)) {
+    if (!routeSubNet(srcIdx, tarIdx)) {
       fprintf(stderr, "DrGridAstar::%s ERROR: Route net %s failed!\n", __func__, _net.name().c_str());
       return false;
     }
@@ -122,7 +133,7 @@ bool DrGridAstar::route(const bool bSym, const bool bSelfSym) {
   return true;
 }
 
-bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const bool bSelfSym) {
+bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx) {
   assert(_compDS.find(srcIdx) != _compDS.find(tarIdx));
   
   // init source and target access point sets
@@ -149,10 +160,10 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
     }
   }
 
-  return pathSearch(srcIdx, tarIdx, bSym, bSelfSym);
+  return pathSearch(srcIdx, tarIdx);
 }
 
- bool DrGridAstar::pathSearch(const Int_t srcIdx, const Int_t tarIdx, const bool bSym, const bool bSelfSym) {
+ bool DrGridAstar::pathSearch(const Int_t srcIdx, const Int_t tarIdx) {
   auto& src = _vCompAcsPts[srcIdx]; // DenseHashSet
   auto& tar = _vCompAcsPts[tarIdx]; // DenseHashSet
   
@@ -198,9 +209,10 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
   // start exploring nodes
   while (!pq.empty()) {
     DrGridAstarNode* pU = pq.top();
-    if (tar.find(pU->coord()) != tar.end()) { // u \in tar
+    if (bTerminate(pU, tarIdx)) { // u \in tar
       const UInt_t bigCompIdx = mergeComp(srcIdx, tarIdx);
-      backTrack(pU, bigCompIdx, srcIdx, tarIdx, bSym);
+      //connect2AcsPt(pU);
+      backTrack(pU, bigCompIdx, srcIdx, tarIdx);
       return true;
     }
     pq.pop();
@@ -222,7 +234,7 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
         Int_t scaledNearestDist;
         tarKD.nearestSearch(scaledP, scaledNearestP, scaledNearestDist);
         Int_t costF = (costG * _param.factorG + scaledNearestDist * _param.factorH);
-        if (bViolateDRC(pU, pV, bSym, bSelfSym)) {
+        if (bViolateDRC(pU, pV)) {
           if (_bStrictDRC) // do not allow any DRC violation
             continue;
           else // add high cost to DRC violations
@@ -246,6 +258,16 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx, const bool bSym, const
   return false;
 }
 
+bool DrGridAstar::bTerminate(DrGridAstarNode* pU, const Int_t tarIdx) {
+  const auto& tar = _vCompAcsPts[tarIdx];
+  if (tar.find(pU->coord()) != tar.end()) {
+    //const AcsPt& acsPt = _pinAcsMap.at(pU->coord());
+    //if (findAcsDir(pU) == acsPt.dir())
+      return true;
+  }
+  return false;
+}
+
 Int_t DrGridAstar::mergeComp(const Int_t srcIdx, const Int_t tarIdx) {
   _compDS.merge(srcIdx, tarIdx);
   Int_t bigCompIdx = srcIdx, smallCompIdx = tarIdx;
@@ -260,7 +282,7 @@ Int_t DrGridAstar::mergeComp(const Int_t srcIdx, const Int_t tarIdx) {
   return bigCompIdx;
 }
 
-void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, const Int_t srcIdx, const Int_t tarIdx, const bool bSym) {
+void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, const Int_t srcIdx, const Int_t tarIdx) {
   List_t<Point3d<Int_t>> lPathPts;
   add2Path(pU, lPathPts);
   const DrGridAstarNode* pParent = pU->pParent();
@@ -277,7 +299,7 @@ void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, c
   List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>> lPathVec;
   mergePath(lPathPts, lPathVec);
   
-  savePath(lPathVec, bSym);
+  savePath(lPathVec);
   
 
   // add to comp box
@@ -340,7 +362,7 @@ bool DrGridAstar::bNeedMergePath(const Point3d<Int_t>& u1, const Point3d<Int_t>&
   return findDir(u1, v1) == findDir(u2, v2);
 }
 
-void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec, const bool bSym) {
+void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& lPathVec) {
   _vvRoutePaths.resize(_vvRoutePaths.size() + 1);
   _vvRoutePaths.back().reserve(lPathVec.size());
   _vvRoutedWires.resize(_vvRoutedWires.size() + 1);
@@ -367,7 +389,7 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       vRoutedWires.emplace_back(wire, u.z());
       _cir.addSpatialRoutedWire(_net.idx(), u.z(), wire);
       // add symmetric wire to spatial routed wire, for DRC
-      if (bSym) {
+      if (_bSym) {
         Box<Int_t> symWire(wire);
         symWire.flipX(_cir.symAxisX());
         _cir.addSpatialRoutedWire(_net.symNetIdx(), u.z(), symWire);
@@ -385,7 +407,7 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       via2LayerBoxes(x, y, via, vRoutedWires);     
       _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
       // add symmetric via to spatial routed wire, for DRC
-      if (bSym) {
+      if (_bSym) {
         const Int_t symX = 2 * _cir.symAxisX() - x;
         _cir.addSpatialRoutedVia(_net.idx(), symX, y, via);
       }
@@ -492,7 +514,7 @@ void DrGridAstar::findNeighbors(DrGridAstarNode* pU) {
   }
 }
 
-bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* pV, const bool bSym, const bool bSelfSym) {
+bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* pV) {
   const auto& u = pU->coord();
   const auto& v = pV->coord();
   if (u.z() == v.z()) {
@@ -514,7 +536,7 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
       return true;
    
     // check symmetric DRC
-    if (bSym) {
+    if (_bSym) {
       Box<Int_t> symWire(wire);
       symWire.flipX(_cir.symAxisX());
       if (!_drc.checkWireRoutingLayerSpacing(_net.symNetIdx(), z, symWire))
@@ -579,13 +601,13 @@ void DrGridAstar::resetAllNodes() {
   }
 }
 
-void DrGridAstar::saveResult2Net(const bool bSym) {
+void DrGridAstar::saveResult2Net() {
   for (const auto& vRoutedWires : _vvRoutedWires) {
     for (const auto& pair : vRoutedWires) {
       _net.vWires().emplace_back(pair);
     }
   }
-  if (bSym) {
+  if (_bSym) {
     Net& symNet = _cir.net(_net.symNetIdx());
     for (const auto& vRoutedWires : _vvRoutedWires) {
       for (const auto& pair : vRoutedWires) {
@@ -605,7 +627,14 @@ void DrGridAstar::ripup() {
     for (const auto& pair : vRoutedWires) {
       const Box<Int_t>& wire = pair.first;
       const Int_t layerIdx = pair.second;
-      _cir.removeSpatialRoutedWire(_net.idx(), layerIdx, wire);
+      bool bExist = _cir.removeSpatialRoutedWire(_net.idx(), layerIdx, wire);
+      assert(bExist);
+      if (_bSym) {
+        Box<Int_t> symWire(wire);
+        symWire.flipX(_cir.symAxisX());
+        bool bExist = _cir.removeSpatialRoutedWire(_net.symNetIdx(), layerIdx, symWire);
+        assert(bExist);
+      }
     }
   }
 }
@@ -708,6 +737,41 @@ void DrGridAstar::toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, const
   wire.setXH(xh);
   wire.setYL(yl);
   wire.setYH(yh);
+}
+
+AcsPt::DirType DrGridAstar::findAcsDir(const DrGridAstarNode* pU) {
+  assert(pU->pParent() != nullptr);
+  switch (findDir(pU->coord(), pU->pParent()->coord())) {
+    case PathDir::LEFT: return AcsPt::DirType::WEST;
+    case PathDir::RIGHT: return AcsPt::DirType::EAST;
+    case PathDir::UP: return AcsPt::DirType::NORTH;
+    case PathDir::DOWN: return AcsPt::DirType::SOUTH;
+    case PathDir::VIA_UP: return AcsPt::DirType::UP;
+    case PathDir::VIA_DOWN: return AcsPt::DirType::DOWN;
+    default: assert(false);
+  }
+}
+
+void DrGridAstar::connect2AcsPt(const DrGridAstarNode* pU) {
+  _vvRoutedWires.resize(_vvRoutedWires.size() + 1);
+  const auto& pt = pU->coord();
+  const auto& acsPt = _pinAcsMap.at(pt).gridPt();
+
+  assert(_cir.lef().bRoutingLayer(pt.z()));
+  const auto& layerPair = _cir.lef().layerPair(pt.z());
+  const auto& layer = _cir.lef().routingLayer(layerPair.second);
+  const Int_t width = layer.minWidth();
+  const Int_t extension = width / 2;
+
+  Box<Int_t> wire;
+  toWire(pt, acsPt, width, extension, wire);
+  _vvRoutedWires.back().emplace_back(wire, pt.z());
+  _cir.addSpatialRoutedWire(_net.idx(), pt.z(), wire);
+  if (_bSym) {
+    Box<Int_t> symWire(wire);
+    symWire.flipX(_cir.symAxisX());
+    _cir.addSpatialRoutedWire(_net.symNetIdx(), pt.z(), symWire);
+  }
 }
 
 PROJECT_NAMESPACE_END
