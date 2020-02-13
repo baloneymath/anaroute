@@ -63,6 +63,9 @@ class CirDB {
   /// @param the index of the grid
   /// @return the center y coordinate for the grid
   Int_t             gridCenterY(UInt_t gridIdx) const { return _gridStep * gridIdx + _gridOffsetY; }
+  /// @brief compute the center for a grid
+  /// @param a point representing the grid index
+  /// @return the center coordinates for the grid
 
   // SymAxis
   Int_t             symAxisX() const { return _symAxisX; }
@@ -125,6 +128,7 @@ class CirDB {
   void buildSpatialBlks();
   void buildSpatialNetGuides();
   void initSpatialRoutedWires();
+  void addSpatialOD(const Box<Int_t>& box);
   void addSpatialRoutedWire(const UInt_t netIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
   void addSpatialRoutedWire(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& box);
   void addSpatialRoutedVia(const UInt_t netIdx, const UInt_t viaIdx, const Point3d<Int_t>& u, const Point3d<Int_t>& v);
@@ -147,6 +151,10 @@ class CirDB {
   bool existSpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box);
   bool existSpatialRoutedWireNet(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, const UInt_t netIdx);
   bool existSpatialRoutedWireNet(const UInt_t layerIdx, const Box<Int_t>& box, const UInt_t netIdx);
+  /// @brief compute the overlapping area with OD shapes
+  /// @param a box
+  /// @return the area this box overlapped with OD shapes
+  Int_t overlapAreaWithOD(const Box<Int_t> &box) const;
  
   // fix
   void markBlks();
@@ -183,6 +191,7 @@ class CirDB {
   Vector_t<SpatialMap<Int_t, UInt_t>>  _vSpatialPins;
   Vector_t<SpatialMap<Int_t, UInt_t>>  _vSpatialBlks;
   Vector_t<SpatialMap<Int_t, UInt_t>>  _vSpatialRoutedWires;
+  Spatial<Int_t> _spatialOD; ///< The spatial representation of OD layers
 
   Vector_t<Vector_t<Spatial<Int_t>>>   _vvSpatialNetGuides;
 

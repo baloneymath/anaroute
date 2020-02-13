@@ -17,6 +17,26 @@ PROJECT_NAMESPACE_START
 
 /// @brief Manage the generation of the access points
 class AcsMgr {
+  struct CandidateGridPt {
+   public:
+    explicit CandidateGridPt(Int_t x, Int_t y, Int_t z, UInt_t boxIdx_)
+      : pt(x, y, z), boxIdx(boxIdx_) {}
+    Point3d<Int_t>  pt; ///< The 3D point for representing the grid indices
+    UInt_t          boxIdx; ///< The index of the box this point is in. pin.box(pt.z(), boxIdx.y())
+  };
+
+  struct CandidateAcsPt
+  {
+      explicit CandidateAcsPt() = default;
+      explicit CandidateAcsPt(const AcsPt & acspt) : acs(acspt), overlapAreaOD(0) {}
+      
+      AcsPt acs;
+      Int_t overlapAreaOD = 0;
+      bool operator<(const CandidateAcsPt &rhs) const
+      {
+          return overlapAreaOD < rhs.overlapAreaOD;
+      }
+  };
  public:
   explicit AcsMgr(CirDB & c)
     : _cir(c) {}
@@ -24,17 +44,21 @@ class AcsMgr {
   void computeAcs();
   /// @brief compute the access points for one pin
   /// @param the pin index
-  void computePinAcs(const UInt_t pinIdx);
+  void computePinAcs();
   void computeBoxAcs(const Box<Int_t>& box, const Int_t layerIdx, Vector_t<Point3d<Int_t>>& vAcs);
-  /// @brief if using one candidate of access point
-  /// @param pin index
-  /// @param a 3d point representing the grid indices
-  /// @param a unsign int representing the box index in the pin
-  /// @return true: use it. false: prune it 
-  bool checkAc(const UInt_t pinIdx, const Point3d<Int_t>& gridPt, const UInt_t boxIdx) const;
+  /// @brief generate AcsPt from GridPt
+  void generateCandAcsPt(const CandidateGridPt &gridPt, Vector_t<CandidateAcsPt> &candAcsPts);
+  /// @brief generate vertical candidate AcsPts
+  void generateVerticalCandAcsPts(const CandidateGridPt &gridPt, Vector_t<CandidateAcsPt> &candAcsPts)
+  {}
+  /// @brief generate horizontal candidate AcsPts
+  void generateHorizontalCandAcsPts(const CandidateGridPt &gridPt, Vector_t<CandidateAcsPt> &candAcsPts);
+  /// @brief compute the rectangle shape of the extension metal
+  Box<Int_t> computeExtensionRect(const CandidateAcsPt &candAcsPt);
 
  private:
   CirDB&  _cir;
+  UInt_t _curPinIdx = 0;
 };
 
 PROJECT_NAMESPACE_END

@@ -8,7 +8,7 @@
 
 /**
  * @file   box2polygon.hpp
- * @brief  Geometric Utils: Convert polygon90 to boxes
+ * @brief  Geometric Utils: Convert boxes to polygon90 or disjoined boxes
  * @author Keren Zhu
  * @date   02/11/2020
  *
@@ -34,7 +34,7 @@ namespace geo
         typedef boost::polygon::polygon_90_set_data<CoordType>  PolygonSetType;
         typedef std::map<std::set<Int_t>, PolygonSetType> PropertyMergeResultType;
         PropertyMergeType pm;
-        for (Int_t idx = 0; idx < vBoxes.size(); ++idx)
+        for (UInt_t idx = 0; idx < vBoxes.size(); ++idx)
         {
             pm.insert(vBoxes[idx], 0); // Use 0 as property -> do not distinguish shapes
         }
@@ -45,6 +45,8 @@ namespace geo
             // Should only have one component
             return mapPair.second;
         }
+        assert(false);
+        return (*result.begin()).second;
     }
     /// @brief convert the boxes into nonoverlapping boxes
     template<typename CoordType>
@@ -52,6 +54,15 @@ namespace geo
     {
         auto polygon = box2Polygon(vBoxes);
         polygon.get_rectangles(results);
+    }
+
+    /// @brief convert the boxes into nonoverlapping boxes
+    template<typename CoordType>
+    inline void boxes2BoxesEmplace(Vector_t<Box<CoordType>> &vBoxes)
+    {
+        auto polygon = box2Polygon(vBoxes);
+        vBoxes.clear();
+        polygon.get_rectangles(vBoxes);
     }
 };
 
