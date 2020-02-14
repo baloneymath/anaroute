@@ -56,6 +56,10 @@ class DrGridAstar {
   Vector_t<DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher>>  _vCompAcsPts;
   Vector_t<UMap_t<Int_t, Spatial<Int_t>>>                         _vCompSpatialBoxes;
   Vector_t<Pair_t<UInt_t, UInt_t>>                                _vSubNets;
+  
+  // self-symmetric
+  Vector_t<UInt_t> _vPinIdx; ///< The vector of pins appear in the left of the symmetric axis
+  bool _bSelfSymHasPinInBothSide = false;
 
   // pin acs
   std::unordered_map<Point3d<Int_t>, AcsPt, Point3d<Int_t>::hasher> _pinAcsMap;
@@ -93,6 +97,7 @@ class DrGridAstar {
   //    Private functions                //
   /////////////////////////////////////////
   void  init();
+  void  initSelfSym();
   void  splitSubNetMST();
   bool  route();
   bool  routeSubNet(Int_t srcIdx, Int_t tarIdx);

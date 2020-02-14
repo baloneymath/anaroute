@@ -38,21 +38,83 @@ bool DrGridAstar::run() {
   return true;
 }
 
+void DrGridAstar::initSelfSym()
+{
+  UInt_t i, pinIdx, layerIdx;
+  for (i = 0; i < _net.numPins(); ++i)
+  {
+    pinIdx = _net.pinIdx(i);
+    const auto &pin = _cir.pin(pinIdx);
+    bool inLeft = false;
+    bool inRight = false;
+    Pin_ForEachLayerIdx(pin, layerIdx)
+    {
+      for (UInt_t boxIdx = 0; boxIdx < pin.numBoxes(layerIdx); ++boxIdx)
+      {
+        const auto &box = pin.box(layerIdx, boxIdx);
+        if (box.xl() < _cir.symAxisX())
+        {
+          inLeft = true;
+        }
+        if (box.xh() > _cir.symAxisX())
+        {
+          inRight = true;
+        }
+      }
+    }
+    if (inLeft && inRight)
+    {
+      _bSelfSymHasPinInBothSide = true;
+    }
+    if (inLeft)
+    {
+      _vPinIdx.emplace_back(pinIdx);
+    }
+  }
+  Int_t numHalfPins = _vPinIdx.size();
+  if (!_bSelfSymHasPinInBothSide)
+  {
+    numHalfPins += 1; // Dummy pin at the symmetric axis
+  }
+  _compDS.init(numHalfPins);
+  _vCompBoxes.resize(numHalfPins);
+  _vCompAcsPts.resize(numHalfPins);
+  _vCompSpatialBoxes.resize(numHalfPins);
+}
+
 void DrGridAstar::init() {
-  _compDS.init(_net.numPins());
-  _vCompBoxes.resize(_net.numPins());
-  _vCompAcsPts.resize(_net.numPins());
-  _vCompSpatialBoxes.resize(_net.numPins());
+  _vPinIdx.clear();
+  _bSelfSymHasPinInBothSide = false;
+  if (_bSelfSym)
+  {
+    initSelfSym();
+  }
+  else
+  {
+    for (UInt_t ii = 0; ii < _net.numPins(); ++ii)
+    {
+      _vPinIdx.emplace_back(_net.pinIdx(ii));
+    }
+    _compDS.init(_net.numPins());
+    _vCompBoxes.resize(_net.numPins());
+    _vCompAcsPts.resize(_net.numPins());
+    _vCompSpatialBoxes.resize(_net.numPins());
+  }
 
   UInt_t i, j, pinIdx, layerIdx;
+  Int_t yRangeLo = MAX_INT;
+  Int_t yRangeHi = MIN_INT;
   const Box<Int_t>* cpBox;
   const AcsPt* cpPt;
-  Net_ForEachPinIdx(_net, pinIdx, i) {
+  for (i = 0; i < _vPinIdx.size(); ++ i) {
+    pinIdx = _vPinIdx[i];
     _vCompAcsPts[i].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
     _vCompAcsPts[i].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
     const Pin& pin = _cir.pin(pinIdx);
     Pin_ForEachLayerIdx(pin, layerIdx) {
       Pin_ForEachLayerBox(pin, layerIdx, cpBox, j) {
+        yRangeLo = std::min(yRangeLo, cpBox->yl());
+        yRangeHi = std::max(yRangeHi, cpBox->yh());
         _vCompBoxes[i].emplace_back((*cpBox), layerIdx);
         _vCompSpatialBoxes[i][layerIdx].insert(*cpBox);
       }
@@ -73,6 +135,38 @@ void DrGridAstar::init() {
       _pinAcsMap[pt] = *cpPt;
     }
   }
+  // Add dummy pin at the sym axis for self-symmetric nets
+  // Init access points pointing to the left
+  if (!_bSelfSymHasPinInBothSide && _bSelfSym)
+  {
+    UInt_t dummyIdx = _vPinIdx.size();
+    _vPinIdx.emplace_back(MAX_INT);
+    Int_t xWidth = _cir.gridStep();
+    Box<Int_t> dummyPinRect(_cir.symAxisX() - xWidth,
+               yRangeLo,
+               _cir.symAxisX() + xWidth,
+               yRangeHi);
+    _vCompAcsPts[dummyIdx].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
+    _vCompAcsPts[dummyIdx].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
+    constexpr std::array<Int_t, 3> layerIdxArray = {2, 4, 6}; // M1, M2, M3 FIXME: hard-coded layer indices
+    for (auto layerIdx : layerIdxArray)
+    {
+      _vCompBoxes[dummyIdx].emplace_back(dummyPinRect, layerIdx);
+      _vCompSpatialBoxes[dummyIdx][layerIdx].insert(dummyPinRect);
+    }
+    Int_t gridX = (_cir.symAxisX() - _cir.gridOffsetX()) / _cir.gridStep();
+    Int_t gridYLo = std::ceil(static_cast<Float_t>(yRangeLo - _cir.gridOffsetY()) / _cir.gridStep());
+    Int_t gridYHi = std::floor(static_cast<Float_t>(yRangeHi - _cir.gridOffsetY()) / _cir.gridStep());
+    for (Int_t yIdx = gridYLo; yIdx <= gridYHi; ++yIdx)
+    {
+      for (auto layerIdx : layerIdxArray)
+      {
+        Point3d<Int_t> pt = Point3d<Int_t>(_cir.gridCenterX(gridX), _cir.gridCenterY(yIdx), layerIdx);
+        _vCompAcsPts[dummyIdx].insert(pt);
+        _pinAcsMap[pt] = AcsPt(pt, AcsPt::DirType::WEST);
+      }
+    }
+  }
 }
 
 void DrGridAstar::splitSubNetMST() {
@@ -85,11 +179,16 @@ void DrGridAstar::splitSubNetMST() {
   // compute cost value of each edge
   Vector_t<Int_t> vEdgeCostValues;
   UInt_t i, j;
-  for (i = 0; i < _vCompBoxes.size(); ++i) {
+  UInt_t numRealPins = _vCompBoxes.size();
+  if (!_bSelfSymHasPinInBothSide and _bSelfSym)
+  {
+    --numRealPins; // Remove the dummy
+  }
+  for (i = 0; i < numRealPins; ++i) {
     vGraphNodes.emplace_back(graph.addNode());
   }
-  for (i = 0; i < _vCompBoxes.size(); ++i) {
-    for (j = i + 1; j < _vCompBoxes.size(); ++j) {
+  for (i = 0; i < numRealPins; ++i) {
+    for (j = i + 1; j < numRealPins; ++j) {
       vGraphEdges.emplace_back(graph.addEdge(vGraphNodes[i], vGraphNodes[j]));
       Int_t minDist = MAX_INT;
       for (const auto& u : _vCompBoxes[i]) {
@@ -100,7 +199,7 @@ void DrGridAstar::splitSubNetMST() {
           }
         }
       }
-      assert(minDist != MAX_INT);
+      AssertMsg(minDist != MAX_INT, "net %s check i %d j %d \n", _net.name().c_str(), i, j);
       vEdgeCostValues.emplace_back(minDist);
     }
   }
@@ -112,12 +211,36 @@ void DrGridAstar::splitSubNetMST() {
   // solve graph MST
   Vector_t<lemon::ListGraph::Edge> vResEdges;
   lemon::kruskal(graph, edgeCostMap, std::back_inserter(vResEdges));
-  assert(vResEdges.size() == _vCompBoxes.size() - 1); // |E| == |V| - 1
+  assert(vResEdges.size() == _vCompBoxes.size() - 1 or (!_bSelfSymHasPinInBothSide and _bSelfSym)); // |E| == |V| - 1
   
   // save the MST result
   for (i = 0; i < vResEdges.size(); ++i) {
     lemon::ListGraph::Edge& edge = vResEdges[i];
     _vSubNets.emplace_back(graph.id(graph.u(edge)), graph.id(graph.v(edge)));
+  }
+
+  // Handle the dummy case
+  if (!_bSelfSymHasPinInBothSide and _bSelfSym)
+  {
+    UInt_t luckyIdx = 0; // it's connected to the dummy pin!
+    UInt_t dummyIdx = numRealPins; 
+    Int_t minDist = MAX_INT;
+    for (i = 0; i < numRealPins; ++i)
+    {
+      for (const auto &u : _vCompBoxes[i])
+      {
+        for (const auto &v : _vCompBoxes[dummyIdx])
+        {
+          Int_t dist = scaledMDist(u, v);
+          if (dist < minDist)
+          {
+            minDist = dist;
+            luckyIdx = i;
+          }
+        }
+      }
+    }
+    _vSubNets.emplace_back(luckyIdx, dummyIdx);
   }
 }
 
@@ -394,6 +517,11 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
         symWire.flipX(_cir.symAxisX());
         _cir.addSpatialRoutedWire(_net.symNetIdx(), u.z(), symWire);
       }
+      if (_bSelfSym) {
+        Box<Int_t> symWire(wire);
+        symWire.flipX(_cir.symAxisX());
+        _cir.addSpatialRoutedWire(_net.idx(), u.z(), symWire);
+      }
       // add history cost
       _dr.addWireHistoryCost(_param.historyCost, u.z(), wire);
     }
@@ -408,6 +536,10 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
       // add symmetric via to spatial routed wire, for DRC
       if (_bSym) {
+        const Int_t symX = 2 * _cir.symAxisX() - x;
+        _cir.addSpatialRoutedVia(_net.idx(), symX, y, via);
+      }
+      if (_bSelfSym) {
         const Int_t symX = 2 * _cir.symAxisX() - x;
         _cir.addSpatialRoutedVia(_net.idx(), symX, y, via);
       }
@@ -544,6 +676,17 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
       if (!_drc.checkWireEolSpacing(_net.symNetIdx(), z, symWire))
         return true;
     }
+    
+    // Self-symmetric
+    if (_bSelfSym)
+    {
+      Box<Int_t> symWire(wire);
+      symWire.flipX(_cir.symAxisX());
+      if (!_drc.checkWireRoutingLayerSpacing(_net.idx(), z, symWire))
+        return true;
+      if (!_drc.checkWireEolSpacing(_net.idx(), z, symWire))
+        return true;
+    }
   }
   else {
     // generate via and check min area and adj edges
@@ -621,6 +764,18 @@ void DrGridAstar::saveResult2Net() {
     }
     symNet.setRouted(true);
   }
+  if (_bSelfSym)
+  {
+    for (const auto& vRoutedWires : _vvRoutedWires) {
+      for (const auto& pair : vRoutedWires) {
+        const Box<Int_t>& wire = pair.first;
+        const Int_t layerIdx = pair.second;
+        Box<Int_t> symWire(wire);
+        symWire.flipX(_cir.symAxisX());
+        _net.vWires().emplace_back(symWire, layerIdx);
+      }
+    }
+  }
 }
 
 void DrGridAstar::ripup() {
@@ -634,6 +789,13 @@ void DrGridAstar::ripup() {
         Box<Int_t> symWire(wire);
         symWire.flipX(_cir.symAxisX());
         bool bExist = _cir.removeSpatialRoutedWire(_net.symNetIdx(), layerIdx, symWire);
+        assert(bExist);
+      }
+      if (_bSelfSym)
+      {
+        Box<Int_t> symWire(wire);
+        symWire.flipX(_cir.symAxisX());
+        bool bExist = _cir.removeSpatialRoutedWire(_net.idx(), layerIdx, symWire);
         assert(bExist);
       }
     }
@@ -772,6 +934,11 @@ void DrGridAstar::connect2AcsPt(const DrGridAstarNode* pU) {
     Box<Int_t> symWire(wire);
     symWire.flipX(_cir.symAxisX());
     _cir.addSpatialRoutedWire(_net.symNetIdx(), pt.z(), symWire);
+  }
+  if (_bSelfSym) {
+    Box<Int_t> symWire(wire);
+    symWire.flipX(_cir.symAxisX());
+    _cir.addSpatialRoutedWire(_net.idx(), pt.z(), symWire);
   }
 }
 

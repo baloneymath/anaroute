@@ -71,9 +71,27 @@ unset(PYBIND11_DIR)
 add_subdirectory(${PYBIND11_ROOT_DIR} "./pybind11")
 set(PYBIND11_CPP_STANDARD -std=c++14)
 
+
+#Print out the used build type
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+    message(STATUS "Using build type DEBUG")
+    #ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
+ELSEIF(CMAKE_BUILD_TYPE MATCHES Release)
+    message(STATUS "Using build type RELEASE")
+    #ENDIF(CMAKE_BUILD_TYPE MATCHES Release)
+ELSEIF(CMAKE_BUILD_TYPE MATCHES Profile)
+    message(STATUS "Using build type PROFILE")
+    #ENDIF(CMAKE_BUILD_TYPE MATCHES Profile)
+ELSE()
+    message(STATUS "Using build type DEFAULT: using Release flag")
+    set(CMAKE_BUILD_TYPE Release)
+ENDIF()
+
 # CXX flags
-set(CMAKE_CXX_FLAGS "-g -std=c++14 -Wall -fPIC")
-set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -Wall -fPIC")
+set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -fPIC")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-inline ")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_PROFILE "-O3 -pg -Winline")
 
 ##################################################
 #        Source Code                             #

@@ -79,6 +79,13 @@ public:
   void multi_diff(const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
   void multi_diff(const std::list<const Box*>& vBox, Vector_t<Box>& result) const;
   void multi_diff(const std::list<UInt_t>& ord, const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
+  void coverPoint(const Point<T> &pt) 
+  {
+    _bl.setX(std::min(pt.x(), _bl.x()));
+    _bl.setY(std::min(pt.y(), _bl.y()));
+    _tr.setX(std::max(pt.x(), _tr.x()));
+    _tr.setY(std::max(pt.y(), _tr.y()));
+  }
 
   //static functions
   static T     Mdistance(const Box& box1, const Box& box2);

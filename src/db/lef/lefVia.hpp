@@ -82,13 +82,14 @@ class LefVia {
                                          
   // for debug
   void logInfo() const;
- private:                                                        
+ protected:                                                        
   String_t             _name;
   bool                 _bDefault; // true: fixed via, false: generated via
   Int_t                _resistance;
   UInt_t               _layerIndices[3]; // 0 -> botLayer 1 -> cutLayer 2 -> topLayer
   String_t             _layerNames[3];   // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
   Vector_t<Box<Int_t>> _vBoxes[3];       // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
+  //Box<Int_t>           _cutBBox = Box<Int_t> (MAX_INT, MAX_INT, MIN_INT, MIN_INT); ///< The bounding box for the cut layer
   bool                 _valid = false;
 
  public:
@@ -103,6 +104,16 @@ class LefVia {
   void addBox(const UInt_t i, const Box<Int_t>& b);
   void setValid(bool valid) { _valid = valid; }
 };
+
+/*
+class LefViaImplementorBase;
+
+class LefViaPrototype : public LefVia
+{
+  protected:
+    std::unique_ptr<LefViaImplementorBase> _implementor = nullptr;
+};
+*/
 
 /// @brief the table for LefVia
 class LefViaTable

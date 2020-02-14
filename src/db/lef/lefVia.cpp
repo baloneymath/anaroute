@@ -32,7 +32,9 @@ void LefVia::setLayerName(const UInt_t i, const String_t& n) {
 
 void LefVia::addBox(const UInt_t i, const Box<Int_t>& b) {
   assert(0 <= i and i <= 2);
-  _vBoxes[i].emplace_back(b);
+    _vBoxes[i].emplace_back(b);
+  //_cutBBox.coverPoint(b.bl());
+  //_cutBBox.coverPoint(b.tr());
 }
 
 void LefVia::logInfo() const {

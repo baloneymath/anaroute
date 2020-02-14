@@ -36,7 +36,7 @@ void DrGridRoute::solve() {
       if (!bSuccess) {
         bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, false);
       }
-      assert(bSuccess);
+      AssertMsg(bSuccess, "Route net %s failed \n", pNet->name().c_str());
     }
     // check DRC violations
     bool bFinish = checkDRC();

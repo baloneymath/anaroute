@@ -38,6 +38,7 @@
 #include "type.hpp"
 #include "param.hpp"
 #include "src/util/MsgPrinter.h"
+#include "src/util/Assert.h"
 
 PROJECT_NAMESPACE_START
 
