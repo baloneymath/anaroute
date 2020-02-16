@@ -129,25 +129,25 @@ class LefVia {
     {
       _vBoxes[0].clear();
       _vBoxes[0].emplace_back(_cutBBox);
-      _vBoxes[0].back().expandY(std::max(enclosure1[0], enclosure1[1]));
+      _vBoxes[0].back().expandY(std::max(enclosure1[0], enclosure2[0]));
     }
     if (bot == HORIZONTAL)
     {
       _vBoxes[0].clear();
       _vBoxes[0].emplace_back(_cutBBox);
-      _vBoxes[0].back().expandX(std::max(enclosure1[0], enclosure1[1]));
+      _vBoxes[0].back().expandX(std::max(enclosure1[0], enclosure2[0]));
     }
     if (top == VERTICAL)
     {
       _vBoxes[2].clear();
       _vBoxes[2].emplace_back(_cutBBox);
-      _vBoxes[2].back().expandY(std::max(enclosure2[0], enclosure2[1]));
+      _vBoxes[2].back().expandY(std::max(enclosure1[1], enclosure2[1]));
     }
     if (top == HORIZONTAL)
     {
       _vBoxes[2].clear();
       _vBoxes[2].emplace_back(_cutBBox);
-      _vBoxes[2].back().expandX(std::max(enclosure2[0], enclosure2[1]));
+      _vBoxes[2].back().expandX(std::max(enclosure1[1], enclosure2[1]));
     }
   }
 

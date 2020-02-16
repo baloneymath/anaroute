@@ -496,7 +496,8 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
   // add exact shapes to spatial
   const auto& vPathVec = _vvRoutePaths.back();
   auto& vRoutedWires = _vvRoutedWires.back();
-  for (const auto& pair : vPathVec) {
+  for (Int_t i = 0; i < (Int_t)vPathVec.size(); ++i) {
+    const auto& pair = vPathVec[i];
     const auto& u = pair.first;
     const auto& v = pair.second;
     if (u.z() == v.z()) {
@@ -531,13 +532,58 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       const Int_t x = u.x();
       const Int_t y = u.y();
       const Int_t botLayerIdx = std::min(u.z(), v.z());
-      const LefVia& via = _cir.lef().via(botLayerIdx, 2, 2);
+
+      const Pair_t<Point3d<Int_t>, Point3d<Int_t>>* pPrev = (i > 0) ? &vPathVec[i - 1] : nullptr;
+      const Pair_t<Point3d<Int_t>, Point3d<Int_t>>* pNext = (i < (Int_t)vPathVec.size() - 1) ? &vPathVec[i + 1] : nullptr;
+      LefViaExtendType topType = DEFAULT, botType = DEFAULT;
+      if (pPrev) {
+        LefViaExtendType* p1 = (pPrev->first.z() == botLayerIdx
+                                or pPrev->second.z() == botLayerIdx) ? &botType : &topType;
+        PathDir dir = findDir(pPrev->first, pPrev->second);
+        switch(dir) {
+          case PathDir::UP:
+          case PathDir::DOWN:
+            *p1 = VERTICAL;
+            break;
+          case PathDir::LEFT:
+          case PathDir::RIGHT:
+            *p1 = HORIZONTAL;
+            break;
+          case PathDir::VIA_UP:
+          case PathDir::VIA_DOWN:
+            *p1 = DEFAULT;
+            break;
+          default: assert(false);
+        }
+      }
+      if (pNext) {
+        LefViaExtendType* p2 = (pNext->first.z() == botLayerIdx
+                                or pNext->second.z() == botLayerIdx) ? &botType : &topType;
+        PathDir dir = findDir(pNext->first, pNext->second);
+        switch(dir) {
+          case PathDir::UP:
+          case PathDir::DOWN:
+            *p2 = VERTICAL;
+            break;
+          case PathDir::LEFT:
+          case PathDir::RIGHT:
+            *p2 = HORIZONTAL;
+            break;
+          case PathDir::VIA_UP:
+          case PathDir::VIA_DOWN:
+            *p2= DEFAULT;
+            break;
+          default: assert(false);
+        }
+      }
+
+      const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1, botType, topType);
       via2LayerBoxes(x, y, via, vRoutedWires);     
       _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
       // add symmetric via to spatial routed wire, for DRC
       if (_bSym) {
         const Int_t symX = 2 * _cir.symAxisX() - x;
-        _cir.addSpatialRoutedVia(_net.idx(), symX, y, via);
+        _cir.addSpatialRoutedVia(_net.symNetIdx(), symX, y, via);
       }
       if (_bSelfSym) {
         const Int_t symX = 2 * _cir.symAxisX() - x;
@@ -694,14 +740,24 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     const Int_t x = u.x();
     const Int_t y = u.y();
     const Int_t botLayerIdx = std::min(u.z(), v.z());
-    const LefVia& via = _cir.lef().via(botLayerIdx, 2, 2);
-    if (!_drc.checkViaSpaing(_net.idx(), x, y, via))
+    const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1);
+    if (!_drc.checkViaSpacing(_net.idx(), x, y, via))
       return true;
     // TODO: minarea, minstep
     // check min area
     //if (!checkMinArea(pU, pV)) {
       //return true;
     //}
+    if (_bSym) {
+      const Int_t symX = 2 * _cir.symAxisX() - x;
+      if (!_drc.checkViaSpacing(_net.symNetIdx(), symX, y, via))
+        return true;
+    }
+    if (_bSelfSym) {
+      const Int_t symX = 2 * _cir.symAxisX() - x;
+      if (!_drc.checkViaSpacing(_net.idx(), symX, y, via))
+        return true;
+    }
   }
   return false;
 }

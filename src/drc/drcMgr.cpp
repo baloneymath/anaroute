@@ -164,7 +164,7 @@ bool DrcMgr::checkWireEolSpacing(const UInt_t netIdx, const UInt_t layerIdx, con
 }
 
 
-bool DrcMgr::checkViaSpaing(const UInt_t netIdx, const Int_t x, const Int_t y, const LefVia& via) const {
+bool DrcMgr::checkViaSpacing(const UInt_t netIdx, const Int_t x, const Int_t y, const LefVia& via) const {
   // check bot boxes
   for (auto box : via.vBotBoxes()) {
     box.shift(x, y);

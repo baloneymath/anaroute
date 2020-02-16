@@ -209,7 +209,7 @@ void Box<T>::expand(const T s, const int dim) {
   else {
     assert(dim == 1);
     setYL(_bl.y() - s);
-    setYH(_bl.y() + s);
+    setYH(_tr.y() + s);
   }
 }
 
@@ -222,7 +222,7 @@ void Box<T>::expandX(const T s) {
 template<typename T>
 void Box<T>::expandY(const T s) {
   setYL(_bl.y() - s);
-  setYH(_bl.y() + s);
+  setYH(_tr.y() + s);
 }
 
 template<typename T>
