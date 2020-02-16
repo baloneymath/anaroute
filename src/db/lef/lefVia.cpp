@@ -167,6 +167,7 @@ void generateBasedOnViaRule(LefVia &via, LefViaRuleTemplate1 &rule, UInt_t row, 
         }
     }
     via.setValid(true);
+    via.computeCutBBox();
 }
 
 void drawAllVias(const Vector_t<Vector2D<LefVia>> &table)
@@ -251,7 +252,7 @@ void LefViaTable::generateVias(LefDB &lef)
         {
             for (UInt_t col = MIN_GENERATE_COLUMN; col <= MAX_GENERATE_COLUMN; ++col)
             {
-                auto& via = this->via(lowerMetalLayerIdx, row, col);
+                auto via  = LefVia();
                 via.setDefault(false);
                 via.setLayerIdx(0, bottomLayerIdx);
                 via.setLayerName(0, bottomLayerName);
@@ -264,6 +265,15 @@ void LefViaTable::generateVias(LefDB &lef)
                 try 
                 {
                     generateBasedOnViaRule(via, temp1, row, col);
+                    for (UInt_t mod = 0; mod < 9; ++mod)
+                    {
+                      auto extendTypePair = int2LefViaExtendType(mod);
+                      auto bot = extendTypePair.first;
+                      auto top = extendTypePair.second;
+                      this->via(lowerMetalLayerIdx, row, col, bot, top) = via;
+                      this->via(lowerMetalLayerIdx, row, col, bot, top).adjustBBox(extendTypePair.first, extendTypePair.second, temp1.enclosureOverhang1, temp1.enclosureOverhang2);
+                    }
+
                 }
                 catch(ViaGenerationInfeasibleException e)
                 {

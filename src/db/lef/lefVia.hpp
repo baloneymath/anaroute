@@ -43,6 +43,24 @@ class ViaGenerationInfeasibleMaxWidthException : public ViaGenerationInfeasibleE
 
 class LefDB;
 
+
+enum LefViaExtendType : Byte_t
+{
+  DEFAULT = 0,
+  VERTICAL = 1,
+  HORIZONTAL = 2
+};
+
+inline static UInt_t LefViaExtendType2Int(LefViaExtendType bot, LefViaExtendType top)
+{
+  return bot *3 + top;
+}
+
+inline static std::pair<LefViaExtendType, LefViaExtendType> int2LefViaExtendType(UInt_t idx)
+{
+  return std::make_pair(LefViaExtendType(idx /3), LefViaExtendType(idx %3));
+}
+
 class LefVia {
   friend class LefReader;
   friend class LefViaTable;
@@ -76,6 +94,44 @@ class LefVia {
   const Vector_t<Box<Int_t>>&   vCutBoxes()             const { return _vBoxes[1]; }
   const Vector_t<Box<Int_t>>&   vTopBoxes()             const { return _vBoxes[2]; }
   bool bValid() const { return _valid; }
+  void computeCutBBox()
+  {
+    _cutBBox = _vBoxes[1][0];
+    for (const auto & cut : _vBoxes[1])
+    {
+      _cutBBox.setXL(std::min(cut.xl(), _cutBBox.xl()));
+      _cutBBox.setXH(std::max(cut.xh(), _cutBBox.xh()));
+      _cutBBox.setYL(std::min(cut.yl(), _cutBBox.yl()));
+      _cutBBox.setYH(std::max(cut.yh(), _cutBBox.yh()));
+    }
+  }
+  void adjustBBox(LefViaExtendType bot, LefViaExtendType top, const std::array<Int_t, 2> &enclosure1, const std::array<Int_t, 2> &enclosure2)
+  {
+    if (bot == VERTICAL)
+    {
+      _vBoxes[0].clear();
+      _vBoxes[0].emplace_back(_cutBBox);
+      _vBoxes[0].back().expandY(std::max(enclosure1[0], enclosure1[1]));
+    }
+    if (bot == HORIZONTAL)
+    {
+      _vBoxes[0].clear();
+      _vBoxes[0].emplace_back(_cutBBox);
+      _vBoxes[0].back().expandX(std::max(enclosure1[0], enclosure1[1]));
+    }
+    if (top == VERTICAL)
+    {
+      _vBoxes[1].clear();
+      _vBoxes[1].emplace_back(_cutBBox);
+      _vBoxes[1].back().expandY(std::max(enclosure2[0], enclosure2[1]));
+    }
+    if (top == HORIZONTAL)
+    {
+      _vBoxes[1].clear();
+      _vBoxes[1].emplace_back(_cutBBox);
+      _vBoxes[1].back().expandX(std::max(enclosure2[0], enclosure2[1]));
+    }
+  }
 
 
 
@@ -91,6 +147,7 @@ class LefVia {
   Vector_t<Box<Int_t>> _vBoxes[3];       // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
   //Box<Int_t>           _cutBBox = Box<Int_t> (MAX_INT, MAX_INT, MIN_INT, MIN_INT); ///< The bounding box for the cut layer
   bool                 _valid = false;
+  Box<Int_t>           _cutBBox= Box<Int_t>(0, 0, 0, 0);  
 
  public:
   /////////////////////////////////
@@ -119,9 +176,9 @@ class LefViaPrototype : public LefVia
 class LefViaTable
 {
     protected:
-        static constexpr UInt_t MAX_GENERATE_ROW = 6; ///< The max number of rows to generate
+        static constexpr UInt_t MAX_GENERATE_ROW = 4; ///< The max number of rows to generate
         static constexpr UInt_t MIN_GENERATE_ROW = 1; ///< The min number of rows to generate
-        static constexpr UInt_t MAX_GENERATE_COLUMN = 6; ///< The max number of columns to generate
+        static constexpr UInt_t MAX_GENERATE_COLUMN = 4; ///< The max number of columns to generate
         static constexpr UInt_t MIN_GENERATE_COLUMN = 1; ///< The min number of columns to generate
     public:
         LefViaTable() 
@@ -133,23 +190,25 @@ class LefViaTable
         explicit LefViaTable(UInt_t numLayers) 
         {
             _table.resize(numLayers, 
-                    Vector2D<LefVia>(MAX_GENERATE_ROW - MIN_GENERATE_ROW + 1,
+                    Vector2D<std::array<LefVia, 9>>(MAX_GENERATE_ROW - MIN_GENERATE_ROW + 1,
                                      MAX_GENERATE_COLUMN - MIN_GENERATE_COLUMN +1)
                     ); // size: # of layers * # of rows * # of columns
         }
         /// @brief genearte the vias based on viarules
         /// @param the LEF tech database
         void generateVias(LefDB &lef);
-        LefVia & via(UInt_t lowerMetalLayer, UInt_t row, UInt_t col)
+        LefVia & via(UInt_t lowerMetalLayer, UInt_t row, UInt_t col, LefViaExtendType bot, LefViaExtendType top)
         {
-            return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN);
+          auto idx = LefViaExtendType2Int(bot, top);
+          return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN)[idx];
         }
-        const LefVia & via(UInt_t lowerMetalLayer, UInt_t row, UInt_t col) const
+        const LefVia & via(UInt_t lowerMetalLayer, UInt_t row, UInt_t col, LefViaExtendType bot, LefViaExtendType top) const
         {
-            return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN);
+          auto idx = LefViaExtendType2Int(bot, top);
+          return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN)[idx];
         }
     private:
-        Vector_t<Vector2D<LefVia>> _table; ///< _table[layer][# of rows][# of columns] = via
+        Vector_t<Vector2D<std::array<LefVia, 9>>> _table; ///< _table[layer][# of rows][# of columns] = via
 };
 
 PROJECT_NAMESPACE_END

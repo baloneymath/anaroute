@@ -14,7 +14,6 @@
 
 PROJECT_NAMESPACE_START
 
-
 /// @brief Manage the generation of the access points
 class AcsMgr {
   struct CandidateGridPt {
