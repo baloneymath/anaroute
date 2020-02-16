@@ -175,12 +175,8 @@ class CirDB {
   Int_t                          _yh;
  
   Int_t                          _gridStep;
-<<<<<<< Updated upstream
   Int_t                          _gridOffsetX; ///< The offset of the routing grid X
   Int_t                          _gridOffsetY; ///< The offset of the routing grid Y
-=======
-  Point<Int_t>                   _gridOffset = Point<Int_t>(0, 0); ///< The offset of the routing grid
->>>>>>> Stashed changes
   Int_t                          _symAxisX;
 
   Vector_t<Pin>                  _vPins;

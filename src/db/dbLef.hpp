@@ -118,8 +118,8 @@ class LefDB {
     _viaTable.generateVias(*this);
   }
   // lowerLayerIdx: M1 -> 2
-  LefVia&         via(const Int_t botLayerIdx, const Int_t row, const Int_t col)        { return _viaTable.via(layerPair(botLayerIdx).second, row, col); }
-  const LefVia&   via(const Int_t botLayerIdx, const Int_t row, const Int_t col)  const { return _viaTable.via(layerPair(botLayerIdx).second, row, col); }
+  LefVia&         via(const Int_t botLayerIdx, const Int_t row, const Int_t col, LefViaExtendType bot=DEFAULT, LefViaExtendType top=DEFAULT)        { return _viaTable.via(layerPair(botLayerIdx).second, row, col, bot, top); }
+  const LefVia&   via(const Int_t botLayerIdx, const Int_t row, const Int_t col, LefViaExtendType bot=DEFAULT, LefViaExtendType top=DEFAULT )  const { return _viaTable.via(layerPair(botLayerIdx).second, row, col, bot, top); }
 
   // for debug
   void logInfo() const;
