@@ -106,6 +106,7 @@ T Point<T>::Mdistance(const Point<T>& p1, const Point<T>& p2) {
 
 PROJECT_NAMESPACE_END
 
+#if 0
 namespace boost { namespace geometry { namespace traits {
   // int32_t
   using Int_t = PROJECT_NAMESPACE::Int_t;
@@ -122,6 +123,7 @@ namespace boost { namespace geometry { namespace traits {
     static void set(PROJECT_NAMESPACE::Point<Int_t> & p, Int_t const& value) { p.setY(value); }
   };
 }}}
+#endif
 
 // boost polygon
 #include <boost/polygon/point_traits.hpp>
@@ -207,5 +209,62 @@ namespace boost { namespace polygon {
         }
     };
 }};
+
+// Boost geometry traits
+#include <boost/geometry/geometries/concepts/point_concept.hpp>
+namespace boost { namespace geometry { namespace traits {
+  
+  template<typename CoordType>
+  struct tag<PROJECT_NAMESPACE::Point<CoordType>>
+  {
+    typedef point_tag type;
+  };
+
+  template<typename CoordType>
+  struct coordinate_type<PROJECT_NAMESPACE::Point<CoordType>>
+  {
+    typedef CoordType type;
+  };
+
+  template<typename CoordType>
+  struct coordinate_system<PROJECT_NAMESPACE::Point<CoordType>>
+  {
+    typedef boost::geometry::cs::cartesian type;
+  };
+
+  template<typename CoordType>
+  struct dimension<PROJECT_NAMESPACE::Point<CoordType>>
+  : boost::mpl::int_<2>
+  {};
+
+  template<typename CoordType>
+  struct access<PROJECT_NAMESPACE::Point<CoordType>, 0>
+  {
+    static inline CoordType get (const PROJECT_NAMESPACE::Point<CoordType> &p)
+    {
+      return p.x();
+    }
+    
+    static inline void set(PROJECT_NAMESPACE::Point<CoordType> &p, CoordType const & value)
+    {
+      p.setX(value);
+    }
+  };
+
+  template<typename CoordType>
+  struct access<PROJECT_NAMESPACE::Point<CoordType>, 1>
+  {
+    static inline CoordType get (const PROJECT_NAMESPACE::Point<CoordType> &p)
+    {
+      return p.y();
+    }
+    
+    static inline void set(PROJECT_NAMESPACE::Point<CoordType> &p, CoordType const & value)
+    {
+      p.setY(value);
+    }
+  };
+
+}}}
 
 #endif /// _GEO_POINT_HPP_

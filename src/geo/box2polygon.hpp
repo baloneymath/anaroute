@@ -22,13 +22,14 @@
 #include <boost/polygon/polygon.hpp>
 #include "src/global/global.hpp"
 #include "polygon2box.hpp"
+#include "polygon.hpp"
 
 
 PROJECT_NAMESPACE_START
 namespace geo
 {
     template<typename CoordType>
-    inline boost::polygon::polygon_90_set_data<CoordType> box2Polygon(const Vector_t<Box<CoordType>> &vBoxes)
+    inline boost::polygon::polygon_90_set_data<CoordType> box2NativePolygon(const Vector_t<Box<CoordType>> &vBoxes)
     {
         typedef boost::polygon::property_merge_90<CoordType, Int_t> PropertyMergeType; // use Int_t as property_type -> we don't care basically
         typedef boost::polygon::polygon_90_set_data<CoordType>  PolygonSetType;
@@ -48,11 +49,17 @@ namespace geo
         assert(false);
         return (*result.begin()).second;
     }
+    template<typename CoordType>
+    void box2Polygon(const Vector_t<Box<CoordType>> &vBoxes, Vector_t<Polygon<CoordType>> &polygonVec)
+    {
+      auto polygonSet = box2NativePolygon(vBoxes);
+      polygonSet.get_polygons(polygonVec);
+    }
     /// @brief convert the boxes into nonoverlapping boxes
     template<typename CoordType>
     inline void boxes2Boxes(const Vector_t<Box<CoordType>> &vBoxes, Vector_t<Box<CoordType>> &results)
     {
-        auto polygon = box2Polygon(vBoxes);
+        auto polygon = box2NativePolygon(vBoxes);
         polygon.get_rectangles(results);
     }
 
@@ -60,7 +67,7 @@ namespace geo
     template<typename CoordType>
     inline void boxes2BoxesEmplace(Vector_t<Box<CoordType>> &vBoxes)
     {
-        auto polygon = box2Polygon(vBoxes);
+        auto polygon = box2NativePolygon(vBoxes);
         vBoxes.clear();
         polygon.get_rectangles(vBoxes);
     }
