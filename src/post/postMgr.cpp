@@ -7,8 +7,17 @@
  **/
 
 #include "postMgr.hpp"
+#include "src/geo/box2polygon.hpp"
+
 
 PROJECT_NAMESPACE_START
 
+void PostMgr::solve() {
+
+}
+
+void PostMgr::patchSameNetSpacing() {
+
+}
 
 PROJECT_NAMESPACE_END

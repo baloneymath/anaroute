@@ -135,6 +135,7 @@ set(SRC
   src/writer/wrGrGuide.cpp
   src/writer/wrGds.cpp
   src/writer/wrDumb.cpp
+  src/post/postMgr.cpp
 )
 
 set(SRC_EXE

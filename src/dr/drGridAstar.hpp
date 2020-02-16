@@ -28,7 +28,7 @@ class DrGridAstar {
     for (auto& m : _vAllNodesMap) {
       m.set_empty_key(Point<Int_t>(-1, -1));
     }
-    _param.viaCost = _cir.gridStep() * 3;
+    _param.viaCost = _cir.gridStep() * 4;
   }
   
   ~DrGridAstar() {
@@ -79,7 +79,7 @@ class DrGridAstar {
     Int_t factorG = 1;
     Int_t factorH = 1;
     Int_t guideCost = -5000;
-    Int_t drcCost = 100000;
+    Int_t drcCost = 20000;
     Int_t historyCost = 500; // the cost added to the history map
     Int_t maxExplore = 200000;
   } _param;

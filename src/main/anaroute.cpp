@@ -17,6 +17,7 @@
 #include "src/drc/drcMgr.hpp"
 #include "src/writer/writer.hpp"
 #include "src/acs/acsMgr.hpp"
+#include "src/post/postMgr.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -88,6 +89,10 @@ Anaroute::Anaroute(int argc, char** argv) {
   DrMgr dr(cir, drc);
   dr.solve(true);
   timer.showUsage("Detailed Routing", TimeUsage::PARTIAL);
+
+  // post processing
+  PostMgr post(cir);
+  post.solve();
 
   // write files
   Writer wr(cir);

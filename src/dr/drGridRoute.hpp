@@ -48,9 +48,9 @@ class DrGridRoute {
       return c1 < c2;
     }
     Int_t pinWeight = 1;
-    Int_t symWeight = 100;
-    Int_t selfSymWeight = 200;
-    Int_t failWeight = 100;
+    Int_t symWeight = 10;
+    Int_t selfSymWeight = 10;
+    Int_t failWeight = 20;
   };
 
   struct Param {

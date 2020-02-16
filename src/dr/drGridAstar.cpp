@@ -512,19 +512,22 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       toWire(u, v, width, extension, wire);
       vRoutedWires.emplace_back(wire, u.z());
       _cir.addSpatialRoutedWire(_net.idx(), u.z(), wire);
+      // add history cost
+      _dr.addWireHistoryCost(_param.historyCost, u.z(), wire);
+      
       // add symmetric wire to spatial routed wire, for DRC
       if (_bSym) {
         Box<Int_t> symWire(wire);
         symWire.flipX(_cir.symAxisX());
         _cir.addSpatialRoutedWire(_net.symNetIdx(), u.z(), symWire);
+        _dr.addWireHistoryCost(_param.historyCost, u.z(), symWire);
       }
       if (_bSelfSym) {
         Box<Int_t> symWire(wire);
         symWire.flipX(_cir.symAxisX());
         _cir.addSpatialRoutedWire(_net.idx(), u.z(), symWire);
+        _dr.addWireHistoryCost(_param.historyCost, u.z(), symWire);
       }
-      // add history cost
-      _dr.addWireHistoryCost(_param.historyCost, u.z(), wire);
     }
     else {
       // choose via
@@ -580,17 +583,19 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1, botType, topType);
       via2LayerBoxes(x, y, via, vRoutedWires);     
       _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
+      // add history cost
+      _dr.addViaHistoryCost(_param.historyCost, x, y, via);
       // add symmetric via to spatial routed wire, for DRC
       if (_bSym) {
         const Int_t symX = 2 * _cir.symAxisX() - x;
         _cir.addSpatialRoutedVia(_net.symNetIdx(), symX, y, via);
+        _dr.addViaHistoryCost(_param.historyCost, symX, y, via);
       }
       if (_bSelfSym) {
         const Int_t symX = 2 * _cir.symAxisX() - x;
         _cir.addSpatialRoutedVia(_net.idx(), symX, y, via);
+        _dr.addViaHistoryCost(_param.historyCost, symX, y, via);
       }
-      // add history cost
-      _dr.addViaHistoryCost(_param.historyCost, x, y, via);
     }
   }
 }
