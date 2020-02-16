@@ -69,6 +69,24 @@ class LefVia {
     : _name(""), _bDefault(false), _resistance(0),
       _layerIndices{0, 0 , 0}, _layerNames{"", "", ""} {}
   ~LefVia() {}
+  LefVia(const LefVia& lefVia)
+  {
+    _name = lefVia.name();
+    _bDefault = lefVia.bDefault();
+    _resistance = lefVia.resistance();
+    _layerIndices[0] = lefVia._layerIndices[0]; 
+    _layerIndices[1] = lefVia._layerIndices[1];
+    _layerIndices[2] = lefVia._layerIndices[2];
+    _layerNames[0] = lefVia._layerNames[0];
+    _layerNames[1] = lefVia._layerNames[1];
+    _layerNames[2] = lefVia._layerNames[2];
+    _vBoxes[0] = lefVia._vBoxes[0];
+    _vBoxes[1] = lefVia._vBoxes[1];
+    _vBoxes[2] = lefVia._vBoxes[2];
+    _valid = lefVia._valid;
+    _cutBBox = lefVia._cutBBox;
+
+  }
 
   /////////////////////////////////
   //    Getter                   //
@@ -121,15 +139,15 @@ class LefVia {
     }
     if (top == VERTICAL)
     {
-      _vBoxes[1].clear();
-      _vBoxes[1].emplace_back(_cutBBox);
-      _vBoxes[1].back().expandY(std::max(enclosure2[0], enclosure2[1]));
+      _vBoxes[2].clear();
+      _vBoxes[2].emplace_back(_cutBBox);
+      _vBoxes[2].back().expandY(std::max(enclosure2[0], enclosure2[1]));
     }
     if (top == HORIZONTAL)
     {
-      _vBoxes[1].clear();
-      _vBoxes[1].emplace_back(_cutBBox);
-      _vBoxes[1].back().expandX(std::max(enclosure2[0], enclosure2[1]));
+      _vBoxes[2].clear();
+      _vBoxes[2].emplace_back(_cutBBox);
+      _vBoxes[2].back().expandX(std::max(enclosure2[0], enclosure2[1]));
     }
   }
 

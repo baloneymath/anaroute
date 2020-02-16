@@ -270,7 +270,7 @@ void LefViaTable::generateVias(LefDB &lef)
                       auto extendTypePair = int2LefViaExtendType(mod);
                       auto bot = extendTypePair.first;
                       auto top = extendTypePair.second;
-                      this->via(lowerMetalLayerIdx, row, col, bot, top) = via;
+                      this->via(lowerMetalLayerIdx, row, col, bot, top) = LefVia(via);
                       this->via(lowerMetalLayerIdx, row, col, bot, top).adjustBBox(extendTypePair.first, extendTypePair.second, temp1.enclosureOverhang1, temp1.enclosureOverhang2);
                     }
 
