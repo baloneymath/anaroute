@@ -531,7 +531,7 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       const Int_t x = u.x();
       const Int_t y = u.y();
       const Int_t botLayerIdx = std::min(u.z(), v.z());
-      const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1);
+      const LefVia& via = _cir.lef().via(botLayerIdx, 2, 2);
       via2LayerBoxes(x, y, via, vRoutedWires);     
       _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
       // add symmetric via to spatial routed wire, for DRC
@@ -694,7 +694,7 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     const Int_t x = u.x();
     const Int_t y = u.y();
     const Int_t botLayerIdx = std::min(u.z(), v.z());
-    const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1);
+    const LefVia& via = _cir.lef().via(botLayerIdx, 2, 2);
     if (!_drc.checkViaSpaing(_net.idx(), x, y, via))
       return true;
     // TODO: minarea, minstep
@@ -772,7 +772,8 @@ void DrGridAstar::saveResult2Net() {
         const Int_t layerIdx = pair.second;
         Box<Int_t> symWire(wire);
         symWire.flipX(_cir.symAxisX());
-        _net.vWires().emplace_back(symWire, layerIdx);
+        if (symWire != wire)
+          _net.vWires().emplace_back(symWire, layerIdx);
       }
     }
   }

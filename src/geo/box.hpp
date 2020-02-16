@@ -108,10 +108,15 @@ public:
     if (_tr.x() != box.xh()) return _tr.x() < box.xh();
     return _tr.y() < box.yh();
   }
+  
   bool operator == (const Box<T>& box) const {
     return _bl.x() == box.xl() && _bl.y() == box.yl() && _tr.x() == box.xh() && _tr.y() == box.yh();
   }
-
+  
+  bool operator != (const Box<T>& box) const {
+    return !(*this == box);
+  }
+  
   friend std::ostream& operator << (std::ostream& os, const Box& r) {
     os << '(' << r._bl.x() << ' ' << r._bl.y() << ' ' << r._tr.x() << ' ' << r._tr.y() << ')';
     return os;

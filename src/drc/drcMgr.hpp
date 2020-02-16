@@ -35,7 +35,7 @@ class DrcMgr {
   // min area
   bool checkWireMinArea(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes) const;
   // spacing
-  bool checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
+  bool checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b, const Int_t prl = 0) const;
   bool checkWireCutLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   bool checkWireEolSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   bool checkViaSpaing(const UInt_t netIdx, const Int_t x, const Int_t y, const LefVia& via) const;

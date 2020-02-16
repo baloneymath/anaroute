@@ -36,7 +36,7 @@ void DrGridRoute::solve() {
       if (!bSuccess) {
         bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, false);
       }
-      AssertMsg(bSuccess, "Route net %s failed \n", pNet->name().c_str());
+      assert(bSuccess);
     }
     // check DRC violations
     bool bFinish = checkDRC();
@@ -47,6 +47,38 @@ void DrGridRoute::solve() {
       addUnroutedNetsToPQ(pq);
     }
   }
+  // second try
+  if (!pq.empty()) {
+    fprintf(stderr, "DrGridRoute::%s Second Stage\n", __func__);
+    for (auto& historyMap : _vSpatialHistoryMaps) {
+      historyMap.clear();
+    }
+    for (Int_t iter = 0; iter < _param.maxIteration2; ++iter) {
+      fprintf(stderr, "DrGridRoute::%s Second Stage Iteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
+      while (!pq.empty()) {
+        Net* pNet = pq.top();
+        pq.pop();
+        
+        bool bSym = false;
+        bool bSelfSym = false;
+        checkSymSelfSym(*pNet, bSym, bSelfSym);
+        
+        bool bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, true);
+        if (!bSuccess) {
+          bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, false);
+        }
+        assert(bSuccess);
+      }
+      bool bFinish = checkDRC();
+      if (bFinish) {
+        break;
+      }
+      else {
+        addUnroutedNetsToPQ(pq);
+      }
+    }
+  }
+
 
 }
 
@@ -142,6 +174,11 @@ void DrGridRoute::ripupSingleNet(Net& net) {
         }
       }
     }
+  }
+  net.vWires().clear();
+  if (net.hasSymNet()) {
+    Net& symNet = _cir.net(net.symNetIdx());
+    symNet.vWires().clear();
   }
 }
 

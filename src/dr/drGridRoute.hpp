@@ -57,6 +57,7 @@ class DrGridRoute {
     Int_t maxSymTry = 3;
     Int_t maxSelfSymTry = 3;
     Int_t maxIteration = 5;
+    Int_t maxIteration2 = 3;
   } _param;
   
   /////////////////////////////////////////
