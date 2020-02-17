@@ -32,7 +32,9 @@ void LefVia::setLayerName(const UInt_t i, const String_t& n) {
 
 void LefVia::addBox(const UInt_t i, const Box<Int_t>& b) {
   assert(0 <= i and i <= 2);
-  _vBoxes[i].emplace_back(b);
+    _vBoxes[i].emplace_back(b);
+  //_cutBBox.coverPoint(b.bl());
+  //_cutBBox.coverPoint(b.tr());
 }
 
 void LefVia::logInfo() const {
@@ -268,7 +270,7 @@ void LefViaTable::generateVias(LefDB &lef)
                       auto extendTypePair = int2LefViaExtendType(mod);
                       auto bot = extendTypePair.first;
                       auto top = extendTypePair.second;
-                      this->via(lowerMetalLayerIdx, row, col, bot, top) = via;
+                      this->via(lowerMetalLayerIdx, row, col, bot, top) = LefVia(via);
                       this->via(lowerMetalLayerIdx, row, col, bot, top).adjustBBox(extendTypePair.first, extendTypePair.second, temp1.enclosureOverhang1, temp1.enclosureOverhang2);
                     }
 

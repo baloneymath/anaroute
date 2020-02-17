@@ -79,6 +79,13 @@ public:
   void multi_diff(const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
   void multi_diff(const std::list<const Box*>& vBox, Vector_t<Box>& result) const;
   void multi_diff(const std::list<UInt_t>& ord, const Vector_t<Box>& vBox, Vector_t<Box>& result) const;
+  void coverPoint(const Point<T> &pt) 
+  {
+    _bl.setX(std::min(pt.x(), _bl.x()));
+    _bl.setY(std::min(pt.y(), _bl.y()));
+    _tr.setX(std::max(pt.x(), _tr.x()));
+    _tr.setY(std::max(pt.y(), _tr.y()));
+  }
 
   //static functions
   static T     Mdistance(const Box& box1, const Box& box2);
@@ -101,10 +108,15 @@ public:
     if (_tr.x() != box.xh()) return _tr.x() < box.xh();
     return _tr.y() < box.yh();
   }
+  
   bool operator == (const Box<T>& box) const {
     return _bl.x() == box.xl() && _bl.y() == box.yl() && _tr.x() == box.xh() && _tr.y() == box.yh();
   }
-
+  
+  bool operator != (const Box<T>& box) const {
+    return !(*this == box);
+  }
+  
   friend std::ostream& operator << (std::ostream& os, const Box& r) {
     os << '(' << r._bl.x() << ' ' << r._bl.y() << ' ' << r._tr.x() << ' ' << r._tr.y() << ')';
     return os;
@@ -197,7 +209,7 @@ void Box<T>::expand(const T s, const int dim) {
   else {
     assert(dim == 1);
     setYL(_bl.y() - s);
-    setYH(_bl.y() + s);
+    setYH(_tr.y() + s);
   }
 }
 
@@ -210,7 +222,7 @@ void Box<T>::expandX(const T s) {
 template<typename T>
 void Box<T>::expandY(const T s) {
   setYL(_bl.y() - s);
-  setYH(_bl.y() + s);
+  setYH(_tr.y() + s);
 }
 
 template<typename T>

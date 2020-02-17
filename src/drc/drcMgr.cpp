@@ -74,13 +74,33 @@ bool DrcMgr::checkWireMinArea(const UInt_t layerIdx, const Vector_t<Box<Int_t>>&
 }
 
 // spacing
-bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const {
+bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b, const Int_t prl) const {
   assert(_cir.lef().bRoutingLayer(layerIdx));
   const auto& layerPair = _cir.lef().layerPair(layerIdx);
   const auto& layer = _cir.lef().routingLayer(layerPair.second);
-  const Int_t prlSpacing = layer.spacingTable().table.size() ?
-                           layer.spacingTable().table[0].second[0] :
-                           layer.spacing(0);
+  
+  Int_t prlSpacing = 0;
+  const Int_t wireWidth = std::min(b.width(), b.height());
+  if (layer.spacingTable().table.size()) {
+    for (Int_t i = 0; i < (Int_t)layer.spacingTable().table.size(); ++i) {
+      const auto& table = layer.spacingTable().table[i];
+      const auto& width = table.first;
+      const auto& vSpacings = table.second;
+      if (wireWidth >= width) {
+        assert(vSpacings.size() == layer.spacingTable().vParallelRunLength.size());
+        for (Int_t j = 0; j < (Int_t)vSpacings.size(); ++j) {
+          if (prl >= layer.spacingTable().vParallelRunLength[j]) {
+            prlSpacing = vSpacings[j];
+            break;
+          }
+        }
+        break;
+      }
+    }
+  }
+  else {
+    prlSpacing = layer.spacing(0);
+  }
   //const Int_t eolSpacing = layer.numEolSpacings() ? layer.eolSpacing(0) : 0;
   //const Int_t eolWithin = layer.numEolSpacings() ? layer.eolWithin(0) : 0;
   
@@ -144,7 +164,7 @@ bool DrcMgr::checkWireEolSpacing(const UInt_t netIdx, const UInt_t layerIdx, con
 }
 
 
-bool DrcMgr::checkViaSpaing(const UInt_t netIdx, const Int_t x, const Int_t y, const LefVia& via) const {
+bool DrcMgr::checkViaSpacing(const UInt_t netIdx, const Int_t x, const Int_t y, const LefVia& via) const {
   // check bot boxes
   for (auto box : via.vBotBoxes()) {
     box.shift(x, y);

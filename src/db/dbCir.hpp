@@ -63,9 +63,6 @@ class CirDB {
   /// @param the index of the grid
   /// @return the center y coordinate for the grid
   Int_t             gridCenterY(UInt_t gridIdx) const { return _gridStep * gridIdx + _gridOffsetY; }
-  /// @brief compute the center for a grid
-  /// @param a point representing the grid index
-  /// @return the center coordinates for the grid
 
   // SymAxis
   Int_t             symAxisX() const { return _symAxisX; }

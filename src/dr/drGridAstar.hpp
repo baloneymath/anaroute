@@ -28,7 +28,7 @@ class DrGridAstar {
     for (auto& m : _vAllNodesMap) {
       m.set_empty_key(Point<Int_t>(-1, -1));
     }
-    _param.viaCost = _cir.gridStep() * 3;
+    _param.viaCost = _cir.gridStep() * 4;
   }
   
   ~DrGridAstar() {
@@ -56,6 +56,10 @@ class DrGridAstar {
   Vector_t<DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher>>  _vCompAcsPts;
   Vector_t<UMap_t<Int_t, Spatial<Int_t>>>                         _vCompSpatialBoxes;
   Vector_t<Pair_t<UInt_t, UInt_t>>                                _vSubNets;
+  
+  // self-symmetric
+  Vector_t<UInt_t> _vPinIdx; ///< The vector of pins appear in the left of the symmetric axis
+  bool _bSelfSymHasPinInBothSide = false;
 
   // pin acs
   std::unordered_map<Point3d<Int_t>, AcsPt, Point3d<Int_t>::hasher> _pinAcsMap;
@@ -75,7 +79,7 @@ class DrGridAstar {
     Int_t factorG = 1;
     Int_t factorH = 1;
     Int_t guideCost = -5000;
-    Int_t drcCost = 100000;
+    Int_t drcCost = 20000;
     Int_t historyCost = 500; // the cost added to the history map
     Int_t maxExplore = 200000;
   } _param;
@@ -93,6 +97,7 @@ class DrGridAstar {
   //    Private functions                //
   /////////////////////////////////////////
   void  init();
+  void  initSelfSym();
   void  splitSubNetMST();
   bool  route();
   bool  routeSubNet(Int_t srcIdx, Int_t tarIdx);
