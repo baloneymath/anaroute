@@ -33,6 +33,7 @@ class DrcMgr {
   bool checkWireRoutingLayerShort(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   bool checkWireCutLayerShort(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b) const;
   // min area
+  // FIXME
   bool checkWireMinArea(const UInt_t layerIdx, const Vector_t<Box<Int_t>>& vBoxes) const;
   // spacing
   bool checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b, const Int_t prl = 0) const;

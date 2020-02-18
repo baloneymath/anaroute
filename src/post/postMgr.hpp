@@ -25,7 +25,7 @@ class PostMgr {
  private:
   CirDB& _cir;
 
-  void patchSameNetSpacing();
+  void patchJogs();
 
 };
 

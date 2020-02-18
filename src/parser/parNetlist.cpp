@@ -57,14 +57,15 @@ void NetlistReader::parse(const String_t& filename) {
     //}
     assert(routingLayerIdx > 0);
     const Int_t layerIdx = _cir.lef().routingLayerIdx2LayerIdx(routingLayerIdx - 1);
-    Pin pin;
-    pin.setIdx(_cir.numPins());
-    
-    pin.resizeLayerBoxes(_cir.lef().numLayers());
     xl = to_db_unit(xl);
     yl = to_db_unit(yl);
     xh = to_db_unit(xh);
     yh = to_db_unit(yh);
+    
+    Pin pin;
+    pin.setIdx(_cir.numPins());
+    
+    pin.resizeLayerBoxes(_cir.lef().numLayers());
     pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
     
     pin.setXGrid(xGrid);

@@ -315,7 +315,7 @@ void LefReader::parseRoutingLayer(const lefiLayer& v) {
   // minstep maxedge
   if (v.hasMinstep()) {
     for (Int_t i = 0; i < v.numMinstep(); ++i) {
-      layer.addMinStep(v.minstep(i));
+      layer.addMinStep(to_lef_unit_1d(v.minstep(i)));
       if (v.hasMinstepMaxedges(i))
         layer.addMaxEdges(v.minstepMaxedges(i));
     }

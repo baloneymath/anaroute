@@ -148,22 +148,24 @@ void DrGridAstar::init() {
                yRangeHi);
     _vCompAcsPts[dummyIdx].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
     _vCompAcsPts[dummyIdx].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
-    constexpr std::array<Int_t, 3> layerIdxArray = {2, 4, 6}; // M1, M2, M3 FIXME: hard-coded layer indices
-    for (auto layerIdx : layerIdxArray)
-    {
-      _vCompBoxes[dummyIdx].emplace_back(dummyPinRect, layerIdx);
-      _vCompSpatialBoxes[dummyIdx][layerIdx].insert(dummyPinRect);
+    
+    Cir_ForEachLayerIdx(_cir, layerIdx) {
+      if (_cir.lef().bRoutingLayer(layerIdx)) {
+        _vCompBoxes[dummyIdx].emplace_back(dummyPinRect, layerIdx);
+        _vCompSpatialBoxes[dummyIdx][layerIdx].insert(dummyPinRect);
+      }
     }
     Int_t gridX = (_cir.symAxisX() - _cir.gridOffsetX()) / _cir.gridStep();
     Int_t gridYLo = std::ceil(static_cast<Float_t>(yRangeLo - _cir.gridOffsetY()) / _cir.gridStep());
     Int_t gridYHi = std::floor(static_cast<Float_t>(yRangeHi - _cir.gridOffsetY()) / _cir.gridStep());
     for (Int_t yIdx = gridYLo; yIdx <= gridYHi; ++yIdx)
     {
-      for (auto layerIdx : layerIdxArray)
-      {
-        Point3d<Int_t> pt = Point3d<Int_t>(_cir.gridCenterX(gridX), _cir.gridCenterY(yIdx), layerIdx);
-        _vCompAcsPts[dummyIdx].insert(pt);
-        _pinAcsMap[pt] = AcsPt(pt, AcsPt::DirType::WEST);
+      Cir_ForEachLayerIdx(_cir, layerIdx) {
+        if (_cir.lef().bRoutingLayer(layerIdx)) {
+          Point3d<Int_t> pt = Point3d<Int_t>(_cir.gridCenterX(gridX), _cir.gridCenterY(yIdx), layerIdx);
+          _vCompAcsPts[dummyIdx].insert(pt);
+          _pinAcsMap[pt] = AcsPt(pt, AcsPt::DirType::WEST);
+        }
       }
     }
   }
@@ -440,7 +442,8 @@ void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, c
       const auto& layerPair = _cir.lef().layerPair(u.z());
       const auto& layer = _cir.lef().routingLayer(layerPair.second);
       const Int_t width = layer.minWidth();
-      const Int_t extension = layer.minWidth() / 2;
+      //const Int_t width = 200;
+      const Int_t extension = width / 2;
       // generate the exact wire shape
       Box<Int_t> wire;
       toWire(u, v, width, extension, wire);
@@ -506,7 +509,8 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       const auto& layerPair = _cir.lef().layerPair(u.z());
       const auto& layer = _cir.lef().routingLayer(layerPair.second);
       const Int_t width = layer.minWidth();
-      const Int_t extension = layer.minWidth() / 2;
+      //const Int_t width = 200;
+      const Int_t extension = width / 2;
       // generate the exact wire
       Box<Int_t> wire;
       toWire(u, v, width, extension, wire);
@@ -708,7 +712,8 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     const auto& layerPair = _cir.lef().layerPair(u.z());
     const auto& layer = _cir.lef().routingLayer(layerPair.second);
     const Int_t width = layer.minWidth();
-    const Int_t extension = layer.minWidth() / 2;
+    //const Int_t width = 200;
+    const Int_t extension = width / 2;
     // generate exact wire shape
     Box<Int_t> wire;
     toWire(u, v, width, extension, wire);
@@ -740,6 +745,12 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     }
   }
   else {
+    // prohibit stacking vias
+    if (pU->pParent()
+        and pU->pParent()->coord().z() != u.z()
+        and pU->pParent()->coord().z() != v.z()) {
+      return true;
+    }
     // generate via and check min area and adj edges
     assert(u.x() == v.x() and u.y() == v.y());
     const Int_t x = u.x();
@@ -750,9 +761,9 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
       return true;
     // TODO: minarea, minstep
     // check min area
-    //if (!checkMinArea(pU, pV)) {
-      //return true;
-    //}
+    if (!checkMinArea(pU, pV))
+      return true;
+    
     if (_bSym) {
       const Int_t symX = 2 * _cir.symAxisX() - x;
       if (!_drc.checkViaSpacing(_net.symNetIdx(), symX, y, via))
@@ -776,7 +787,9 @@ bool DrGridAstar::checkMinArea(const DrGridAstarNode* pU, const DrGridAstarNode*
   const auto& layerPair = _cir.lef().layerPair(layerIdx);
   const auto& layer = _cir.lef().routingLayer(layerPair.second);
   const Int_t width = layer.minWidth();
-  const Int_t extension = layer.minWidth() / 2;
+  //const Int_t width = 200;
+  const Int_t extension = width / 2;
+
   while (pN->pParent() and pN->pParent()->coord().z() == layerIdx) {
     // generate the exact wire shape
     Box<Int_t> wire;
@@ -986,6 +999,7 @@ void DrGridAstar::connect2AcsPt(const DrGridAstarNode* pU) {
   const auto& layerPair = _cir.lef().layerPair(pt.z());
   const auto& layer = _cir.lef().routingLayer(layerPair.second);
   const Int_t width = layer.minWidth();
+  //const Int_t width = 200;
   const Int_t extension = width / 2;
 
   Box<Int_t> wire;

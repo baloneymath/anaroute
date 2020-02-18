@@ -95,6 +95,9 @@ class Net {
 #define Net_ForEachNetNodeC(net, cpNode_, i) \
   for (i = 0; i < net.numNodes() and (cpNode_ = &net.node(i)); ++i)
 
+#define Net_ForEachRoutedWire(net, pWire_, i) \
+  for (i = 0; i < net.vWires().size() and (pWire_ = &net.vWires()[i]); ++i)
+
 PROJECT_NAMESPACE_END
 
 #endif /// _DB_NET_HPP_
