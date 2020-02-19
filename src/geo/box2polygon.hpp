@@ -71,6 +71,26 @@ namespace geo
         vBoxes.clear();
         polygon.get_rectangles(vBoxes);
     }
+
+
+    /// @brief do difference on two vector of boxes
+    template<typename CoordType>
+    inline void boxesDifAssign(std::vector<Box<CoordType>> &lhs, const std::vector<Box<CoordType>> &rhs)
+    {
+        typedef boost::polygon::polygon_90_set_data<CoordType>  PolygonSetType;
+        PolygonSetType lps, rps;
+        for (const auto &rect : lhs)
+        {
+            lps.insert(rect);
+        }
+        for (const auto &rect : rhs)
+        {
+            rps.insert(rect);
+        }
+        boost::polygon::operators::operator-=(lps, rps);
+        lhs.clear();
+        lps.get_rectangles(lhs);
+    }
 };
 
 PROJECT_NAMESPACE_END
