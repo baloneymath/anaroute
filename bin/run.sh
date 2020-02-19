@@ -168,11 +168,26 @@ GDB="gdb --args"
           #--symnet $ANAROUTE_DIR/bench_grid/comp2_mag/comp2.symnet \
           #--out $OUT_DIR/gds/comp2_mag.route.gds 
 
-# comp2 magical on grid
+# comp2 magical on grid 2
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $ANAROUTE_DIR/bench_grid/comp2_mag2/comp2.pin \
+          #--placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag2/comp2.place.gds \
+          #--symnet $ANAROUTE_DIR/bench_grid/comp2_mag2/comp2.symnet \
+          #--out $OUT_DIR/gds/comp2_mag2.route.gds 
+
+# comp2 magical on grid 3
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $ANAROUTE_DIR/bench_grid/comp2_mag3/comp2_mag3.pin \
+          #--placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag3/comp2_mag3.place.gds \
+          #--symnet $ANAROUTE_DIR/bench_grid/comp2_mag3/comp2.symnet \
+          #--out $OUT_DIR/gds/comp2_mag3.route.gds 
+
+# comp2 magical on grid 4
 $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          --design_file $ANAROUTE_DIR/bench_grid/comp2_mag2/comp2.pin \
-          --placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag2/comp2.place.gds \
-          --symnet $ANAROUTE_DIR/bench_grid/comp2_mag2/comp2.symnet \
-          --out $OUT_DIR/gds/comp2_mag2.route.gds 
-
+          --design_file $ANAROUTE_DIR/bench_grid/comp2_mag4/comp2_mag4.pin \
+          --placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag4/comp2_mag4.place.gds \
+          --symnet $ANAROUTE_DIR/bench_grid/comp2_mag4/comp2.symnet \
+          --out $OUT_DIR/gds/comp2_mag4.route.gds 

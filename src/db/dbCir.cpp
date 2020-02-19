@@ -406,6 +406,22 @@ UInt_t CirDB::layerIdx2MaskIdx(const UInt_t i) const {
   return MAX_UINT;
 }
 
+void CirDB::resizeVVMaskWires(const Int_t s) {
+  _vvMaskWires.resize(s);
+}
+
+void CirDB::resizeVVPatchWires(const Int_t s) {
+  _vvPatchWires.resize(s);
+}
+
+void CirDB::addMaskWire(const Box<Int_t>& box, const Int_t layerIdx) {
+  _vvMaskWires[layerIdx].emplace_back(box);
+}
+
+void CirDB::addPatchWire(const Box<Int_t>& box, const Int_t layerIdx) {
+  _vvPatchWires[layerIdx].emplace_back(box);
+}
+
 // for debug
 void CirDB::printInfo() const {
   FILE* fout = stdout;

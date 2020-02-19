@@ -368,6 +368,9 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx) {
         if (bInsideGuide(pV)) {
           costF += _param.guideCost;
         }
+        if (bStackedVia(pU, pV)) {
+          costF += _param.stackedViaCost;
+        }
         costF += history(pV);
         pV->setCostF(costF);
         pV->setCostG(costG);
@@ -746,11 +749,8 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
   }
   else {
     // prohibit stacking vias
-    if (pU->pParent()
-        and pU->pParent()->coord().z() != u.z()
-        and pU->pParent()->coord().z() != v.z()) {
-      return true;
-    }
+    //if (bStackedVia(pU, pV))
+      //return true;
     // generate via and check min area and adj edges
     assert(u.x() == v.x() and u.y() == v.y());
     const Int_t x = u.x();
@@ -1016,6 +1016,19 @@ void DrGridAstar::connect2AcsPt(const DrGridAstarNode* pU) {
     symWire.flipX(_cir.symAxisX());
     _cir.addSpatialRoutedWire(_net.idx(), pt.z(), symWire);
   }
+}
+
+bool DrGridAstar::bStackedVia(const DrGridAstarNode* pU, const DrGridAstarNode* pV) {
+  if (pU->coord().z() != pV->coord().z()) {
+    assert(pU->coord().x() == pV->coord().x()
+           and pU->coord().y() == pV->coord().y());
+    if (pU->pParent()
+        and pU->pParent()->coord().z() != pU->coord().z()
+        and pU->pParent()->coord().z() != pV->coord().z()) {
+      return true;
+    }
+  }
+  return false;
 }
 
 PROJECT_NAMESPACE_END

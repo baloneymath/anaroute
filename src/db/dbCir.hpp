@@ -95,6 +95,12 @@ class CirDB {
   Blk&              blk(const UInt_t i, const UInt_t j)         { return _vBlks[_vvBlkIndices[i][j]]; }
   const Blk&        blk(const UInt_t i, const UInt_t j)   const { return _vBlks[_vvBlkIndices[i][j]]; }
 
+  // post process
+  Vector_t<Box<Int_t>>&        vMaskWires(const Int_t i)                    { return _vvMaskWires[i]; }
+  const Vector_t<Box<Int_t>>&  vMaskWires(const Int_t i)              const { return _vvMaskWires[i]; }
+  Vector_t<Box<Int_t>>&        vPatchWires(const Int_t i)                   { return _vvPatchWires[i]; }
+  const Vector_t<Box<Int_t>>&  vPatchWires(const Int_t i)             const { return _vvPatchWires[i]; }
+
 
   //////////////////////////////////
   //  Funcs                       //
@@ -157,6 +163,12 @@ class CirDB {
   void markBlks();
   void addBlk2ConnectedPin();
 
+  // post process
+  void resizeVVMaskWires(const Int_t s);
+  void resizeVVPatchWires(const Int_t s);
+  void addMaskWire(const Box<Int_t>& box, const Int_t layerIdx);
+  void addPatchWire(const Box<Int_t>& box, const Int_t layerIdx);
+
   // for debug
   void printInfo() const;
   void visualize() const;
@@ -191,6 +203,9 @@ class CirDB {
   Spatial<Int_t> _spatialOD; ///< The spatial representation of OD layers
 
   Vector_t<Vector_t<Spatial<Int_t>>>   _vvSpatialNetGuides;
+
+  Vector_t<Vector_t<Box<Int_t>>> _vvMaskWires; // for convex jogs, to remove from layout
+  Vector_t<Vector_t<Box<Int_t>>> _vvPatchWires; // for concave jogs, to add to layout
 
 
   //////////////////////////////////

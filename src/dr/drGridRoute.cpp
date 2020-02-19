@@ -25,7 +25,6 @@ void DrGridRoute::solve() {
     while (!pq.empty()) {
       Net* pNet = pq.top();
       pq.pop();
-      
       // check sym and self sym
       bool bSym = false;
       bool bSelfSym = false;
@@ -50,8 +49,13 @@ void DrGridRoute::solve() {
   // second try
   if (!pq.empty()) {
     fprintf(stderr, "DrGridRoute::%s Second Stage\n", __func__);
+    // reset history map
     for (auto& historyMap : _vSpatialHistoryMaps) {
       historyMap.clear();
+    }
+    // reset net fail cnt
+    for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+      _cir.net(i).clearDrFail();
     }
     for (Int_t iter = 0; iter < _param.maxIteration2; ++iter) {
       fprintf(stderr, "DrGridRoute::%s Second Stage Iteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
@@ -78,15 +82,35 @@ void DrGridRoute::solve() {
       }
     }
   }
-
-
+  else {
+    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
+    return;
+  }
+  if (!pq.empty()) {
+    fprintf(stderr, "DrGridRoute::%s Failed!!!!\n", __func__);
+    fprintf(stderr, "Unrouted Nets:");
+    for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+      const Net& net = _cir.net(i);
+      if (!net.bRouted()) {
+        fprintf(stderr, " %s", net.name().c_str());
+      }
+    }
+    fprintf(stderr, "\n");
+  }
+  else {
+    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
+  }
 }
 
 void DrGridRoute::addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq) {
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
     Net* pNet = &_cir.net(i);
-    if (!pNet->bRouted() and pNet->numPins() > 1) {
-      pq.push(pNet);
+    if (pNet->numPins() > 1) {
+      if (!pNet->bRouted())
+        pq.push(pNet);
+    }
+    else { // single pin net
+      pNet->setRouted(true);
     }
   }
 }
@@ -160,25 +184,22 @@ void DrGridRoute::ripupSingleNet(Net& net) {
     const Int_t layerIdx = pair.second;
     bool bExist = _cir.removeSpatialRoutedWire(net.idx(), layerIdx, wire);
     assert(bExist);
-    net.setRouted(false);
-    // check sym net
-    if (net.hasSymNet()) {
-      Net& symNet = _cir.net(net.symNetIdx());
-      if (symNet.bRouted()) {
-        for (const auto& pair : symNet.vWires()) {
-          const auto& wire = pair.first;
-          const Int_t layerIdx = pair.second;
-          bool bExist = _cir.removeSpatialRoutedWire(symNet.idx(), layerIdx, wire);
-          assert(bExist);
-          symNet.setRouted(false);
-        }
-      }
-    }
   }
   net.vWires().clear();
+  net.addDrFail();
+  net.setRouted(false);
+  // check sym net
   if (net.hasSymNet()) {
     Net& symNet = _cir.net(net.symNetIdx());
+    for (const auto& pair : symNet.vWires()) {
+      const auto& wire = pair.first;
+      const Int_t layerIdx = pair.second;
+      bool bExist = _cir.removeSpatialRoutedWire(symNet.idx(), layerIdx, wire);
+      assert(bExist);
+    }
     symNet.vWires().clear();
+    symNet.addDrFail();
+    symNet.setRouted(false);
   }
 }
 

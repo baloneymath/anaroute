@@ -91,8 +91,10 @@ Anaroute::Anaroute(int argc, char** argv) {
   timer.showUsage("Detailed Routing", TimeUsage::PARTIAL);
 
   // post processing
+  timer.start(TimeUsage::PARTIAL);
   PostMgr post(cir);
   post.solve();
+  timer.showUsage("Post Processing", TimeUsage::PARTIAL);
 
   // write files
   Writer wr(cir);

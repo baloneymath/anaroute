@@ -79,6 +79,7 @@ class DrGridAstar {
     Int_t factorG = 1;
     Int_t factorH = 1;
     Int_t guideCost = -5000;
+    Int_t stackedViaCost = 2000;
     Int_t drcCost = 20000;
     Int_t historyCost = 500; // the cost added to the history map
     Int_t maxExplore = 200000;
@@ -130,6 +131,7 @@ class DrGridAstar {
   bool    bInsideGuide(const DrGridAstarNode* pU);
   Int_t   history(const DrGridAstarNode* pU);
   void    toWire(const Point3d<Int_t>& u, const Point3d<Int_t>& v, const Int_t width, const Int_t extension, Box<Int_t>& wire);
+  bool    bStackedVia(const DrGridAstarNode* pU, const DrGridAstarNode* pV);
 
   AcsPt::DirType findAcsDir(const DrGridAstarNode* pU);
 };
