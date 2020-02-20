@@ -17,6 +17,7 @@ class LefVia;
 /// @brief the class for the via configuration rule with two enclusre rule
 class LefViaEnclosureConfig
 {
+  friend class LefViaImplementor;
   public:
     explicit LefViaEnclosureConfig() = default;
     explicit LefViaEnclosureConfig(const std::array<Int_t, 2> &enclosureOverhang1, const std::array<Int_t, 2> &enclosureOverhang2)
@@ -26,14 +27,27 @@ class LefViaEnclosureConfig
       _enclosureOverhang1 = enclosureOverhang1;
       _enclosureOverhang2 = enclosureOverhang2;
     }
+    /// @param < 0 if don't care
+    void legalize(Int_t &edgeEnclosure1, Int_t &edgeEnclosure2, Int_t layer)
+    {
+      Int_t *larger = edgeEnclosure1 > edgeEnclosure2 ? &edgeEnclosure1 : &edgeEnclosure2;
+      Int_t *smaller =  edgeEnclosure1 <= edgeEnclosure2 ? &edgeEnclosure1 : &edgeEnclosure2;
+      if (*smaller < 0)
+      {
+        std::swap(larger, smaller);
+      }
+      *larger = std::max(*larger, _enclosureOverhang1.at(layer));
+      *smaller = std::max(*smaller, _enclosureOverhang2.at(layer));
+    }
   protected:
-      std::array<Int_t, 2> _enclosureOverhang1;
-      std::array<Int_t, 2> _enclosureOverhang2;
+      std::array<Int_t, 2> _enclosureOverhang1 = {0, 0};
+      std::array<Int_t, 2> _enclosureOverhang2 = {0, 0};
 };
 
 /// @brief the class for the via configuration rule with two enclusre rule
 class LefViaWidthConfig
 {
+  friend class LefViaImplementor;
   public:
     explicit LefViaWidthConfig() = default;
     explicit LefViaWidthConfig(const std::array<Int_t, 2> &widthLo, const std::array<Int_t, 2> &widthHi)
@@ -43,9 +57,35 @@ class LefViaWidthConfig
       _widthLo = widthLo;
       _widthHi = widthHi;
     }
+    bool checkBotWidthHeight(Int_t width, Int_t height, Int_t layer)
+    {
+      if (width > 0)
+      {
+        if (width > _widthHi.at(layer))
+        {
+          return false;
+        }
+        if (width < _widthLo.at(layer))
+        {
+          return false;
+        }
+      }
+      if (height > 0)
+      {
+        if (height > _widthHi.at(layer))
+        {
+          return false;
+        }
+        if (height < _widthLo.at(layer))
+        {
+          return false;
+        }
+      }
+      return true;
+    }
   protected:
-      std::array<Int_t, 2> _widthLo;
-      std::array<Int_t, 2> _widthHi;
+      std::array<Int_t, 2> _widthLo = {0, 0};
+      std::array<Int_t, 2> _widthHi = {0, 0};
 };
 
 
@@ -54,21 +94,36 @@ class LefViaImplementor
 {
   public:
     explicit LefViaImplementor() = default;
-    explicit LefViaImplementor(LefVia *lefVia);
+    explicit LefViaImplementor(LefVia *lefVia)
+    { _pLefVia = lefVia; }
     /// @brief configure the width and height for the via metals
     /// @param first: target width for bottom metal. -1 if don't care
     /// @param second: target height for bottom metal. -1 if don't care
     /// @param third: target width for top metal. -1 if don't care
     /// @param fourth: target height for top metal. -1 if don't care
     /// @return true: if configuration success. false: failed. the original shapes should not change
-    bool configureOnMetalWidthHeight(Int_t botWidth, Int_t botHeight, Int_t topWidth, Int_t topHeight);
+    bool configureMetalWidthHeight(Int_t botWidth, Int_t botHeight, Int_t topWidth, Int_t topHeight);
+    /// @brief shortcut to the adjust metal width/height. Use minimum size for the direction and adjust the other side correspondingly
+    /// @param Orientation 2D type representing the routing direction
+    /// @return if configuration success
+    bool configureMetalWithHeightWithDirection(Orient2D_t botOrient, Orient2D_t topOrient);
+    /// @brief configure the via into default mode
+    void configureDefault();
     /* Config */
     LefViaEnclosureConfig &metalEnclosureConfig() { return _metalEnclosureConfig; }
     LefViaWidthConfig &metalWidthConfig() { return _metalWidthConfig; }
+    void setCheckBotWidth(bool checkBotWidth) { _checkBotWidth = checkBotWidth; }
+    void setCheckTopWidth(bool checkTopWidth) { _checkTopEnclosure = checkTopWidth; }
+    void setCheckBotEnclosure(bool checkBotEnclosure) { _checkBotEnclosure = checkBotEnclosure; }
+    void setCheckTopEnclosure(bool checkTopEnclosure) { _checkTopEnclosure = checkTopEnclosure; }
   protected:
     LefVia *_pLefVia = nullptr;
     LefViaEnclosureConfig _metalEnclosureConfig;
     LefViaWidthConfig _metalWidthConfig;
+    bool _checkBotWidth = false;
+    bool _checkTopWidth = false;
+    bool _checkBotEnclosure = false;
+    bool _checkTopEnclosure = false;
 };
 
 
@@ -81,16 +136,6 @@ struct LefViaImplementorConceptTraits
   {
     viaRule.config(impl);
   }
-  static const bool enableBotMetalWidth = false;
-  static const bool enableBotMetalHeight = false;
-  static const bool enableTopMetalWidth = false;
-  static const bool enableTopMetalHeight = false;
-  static const bool hasBotMetalMinWidthRule = false;
-  static const bool hasBotMetalMaxWidthRule = false;
-  static const bool hasTopMetalMinWidthRule = false;
-  static const bool hasTopMetalMaxWidthRule = false;
-  static const bool hasBotMetalEnclosureRule = false;
-  static const bool hasTopMetalEnclosureRule = false;
 };
 
 
@@ -102,17 +147,11 @@ struct LefViaImplementorConceptTraits<LefViaRuleTemplate1>
   {
     impl.metalEnclosureConfig().configure(viaRule.enclosureOverhang1, viaRule.enclosureOverhang2);
     impl.metalWidthConfig().configure(viaRule.widthLo, viaRule.widthHi);
+    impl.setCheckBotWidth(true);
+    impl.setCheckTopWidth(true);
+    impl.setCheckBotEnclosure(true);
+    impl.setCheckTopEnclosure(true);
   }
-  static const bool enableBotMetalWidth = true;
-  static const bool enableBotMetalHeight = true;
-  static const bool enableTopMetalWidth = true;
-  static const bool enableTopMetalHeight = true;
-  static const bool hasBotMetalMinWidthRule = true;
-  static const bool hasBotMetalMaxWidthRule = true;
-  static const bool hasTopMetalMinWidthRule = true;
-  static const bool hasTopMetalMaxWidthRule = true;
-  static const bool hasBotMetalEnclosureRule = true;
-  static const bool hasTopMetalEnclosureRule = true;
 };
 
 PROJECT_NAMESPACE_END

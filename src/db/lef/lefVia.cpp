@@ -7,6 +7,7 @@
  **/
 
 #include "lefVia.hpp"
+#include "lefViaImpl.hpp"
 #include "src/db/dbLef.hpp"
 #include "src/writer/wrGds.hpp"
 
@@ -57,6 +58,14 @@ void LefVia::logInfo() const {
     fprintf(fout, "    RECT %d %d %d %d\n", box.xl(), box.yl(), box.xh(), box.yh());
   }
   fprintf(fout, "END %s\n\n", _name.c_str());
+}
+
+template<typename ViaRuleType>
+void LefViaPrototype::config(const LefVia &via, const ViaRuleType &viaRule)
+{
+  _lefVia = LefVia(via);
+  _implementor = std::make_shared<LefViaImplementor>(&_lefVia);
+  LefViaImplementorConceptTraits<ViaRuleType>::configure(viaRule, *_implementor);
 }
 
 template<typename ViaRuleType>
@@ -265,15 +274,7 @@ void LefViaTable::generateVias(LefDB &lef)
                 try 
                 {
                     generateBasedOnViaRule(via, temp1, row, col);
-                    for (UInt_t mod = 0; mod < 9; ++mod)
-                    {
-                      auto extendTypePair = int2LefViaExtendType(mod);
-                      auto bot = extendTypePair.first;
-                      auto top = extendTypePair.second;
-                      this->via(lowerMetalLayerIdx, row, col, bot, top) = LefVia(via);
-                      this->via(lowerMetalLayerIdx, row, col, bot, top).adjustBBox(extendTypePair.first, extendTypePair.second, temp1.enclosureOverhang1, temp1.enclosureOverhang2);
-                    }
-
+                    this->viaProtoType(lowerMetalLayerIdx, row, col).config(via, temp1);
                 }
                 catch(ViaGenerationInfeasibleException e)
                 {

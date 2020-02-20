@@ -12,6 +12,7 @@
 #include "src/global/global.hpp"
 #include "src/geo/box.hpp"
 #include "src/util/Vector2D.h"
+#include "lefViaImpl.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -43,27 +44,10 @@ class ViaGenerationInfeasibleMaxWidthException : public ViaGenerationInfeasibleE
 
 class LefDB;
 
-
-enum LefViaExtendType : Byte_t
-{
-  DEFAULT = 0,
-  VERTICAL = 1,
-  HORIZONTAL = 2
-};
-
-inline static UInt_t LefViaExtendType2Int(LefViaExtendType bot, LefViaExtendType top)
-{
-  return bot *3 + top;
-}
-
-inline static std::pair<LefViaExtendType, LefViaExtendType> int2LefViaExtendType(UInt_t idx)
-{
-  return std::make_pair(LefViaExtendType(idx /3), LefViaExtendType(idx %3));
-}
-
 class LefVia {
   friend class LefReader;
   friend class LefViaTable;
+  friend class LefViaImplementor;
  public:
   LefVia()
     : _name(""), _bDefault(false), _resistance(0),
@@ -123,33 +107,6 @@ class LefVia {
       _cutBBox.setYH(std::max(cut.yh(), _cutBBox.yh()));
     }
   }
-  void adjustBBox(LefViaExtendType bot, LefViaExtendType top, const std::array<Int_t, 2> &enclosure1, const std::array<Int_t, 2> &enclosure2)
-  {
-    if (bot == VERTICAL)
-    {
-      _vBoxes[0].clear();
-      _vBoxes[0].emplace_back(_cutBBox);
-      _vBoxes[0].back().expandY(std::max(enclosure1[0], enclosure2[0]));
-    }
-    if (bot == HORIZONTAL)
-    {
-      _vBoxes[0].clear();
-      _vBoxes[0].emplace_back(_cutBBox);
-      _vBoxes[0].back().expandX(std::max(enclosure1[0], enclosure2[0]));
-    }
-    if (top == VERTICAL)
-    {
-      _vBoxes[2].clear();
-      _vBoxes[2].emplace_back(_cutBBox);
-      _vBoxes[2].back().expandY(std::max(enclosure1[1], enclosure2[1]));
-    }
-    if (top == HORIZONTAL)
-    {
-      _vBoxes[2].clear();
-      _vBoxes[2].emplace_back(_cutBBox);
-      _vBoxes[2].back().expandX(std::max(enclosure1[1], enclosure2[1]));
-    }
-  }
 
 
 
@@ -157,15 +114,14 @@ class LefVia {
   // for debug
   void logInfo() const;
  protected:                                                        
-  String_t             _name;
-  bool                 _bDefault; // true: fixed via, false: generated via
-  Int_t                _resistance;
-  UInt_t               _layerIndices[3]; // 0 -> botLayer 1 -> cutLayer 2 -> topLayer
-  String_t             _layerNames[3];   // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
-  Vector_t<Box<Int_t>> _vBoxes[3];       // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
-  //Box<Int_t>           _cutBBox = Box<Int_t> (MAX_INT, MAX_INT, MIN_INT, MIN_INT); ///< The bounding box for the cut layer
-  bool                 _valid = false;
-  Box<Int_t>           _cutBBox= Box<Int_t>(0, 0, 0, 0);  
+  String_t                             _name;
+  bool                                 _bDefault; // true: fixed via, false: generated via
+  Int_t                                _resistance;
+  std::array<UInt_t, 3>                _layerIndices; // 0 -> botLayer 1 -> cutLayer 2 -> topLayer
+  std::array<String_t, 3>              _layerNames;   // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
+  std::array<Vector_t<Box<Int_t>>, 3>  _vBoxes;       // 0 -> botLayer 1 -> cutLayer 2 -> topLayer 
+  bool                                 _valid = false;
+  Box<Int_t>                           _cutBBox= Box<Int_t>(0, 0, 0, 0);  
 
  public:
   /////////////////////////////////
@@ -180,15 +136,39 @@ class LefVia {
   void setValid(bool valid) { _valid = valid; }
 };
 
-/*
-class LefViaImplementorBase;
-
-class LefViaPrototype : public LefVia
+class LefViaPrototype 
 {
+  public:
+    LefViaPrototype()  {}
+    template<typename ViaRuleType>
+    void config(const LefVia &lefVia, const ViaRuleType &viaRule);
+    const LefVia &lefVia() const { return _lefVia; }
+    LefVia &lefVia() { return _lefVia; }
+    /// @brief configure the width and height for the via metals
+    /// @param first: target width for bottom metal. -1 if don't care
+    /// @param second: target height for bottom metal. -1 if don't care
+    /// @param third: target width for top metal. -1 if don't care
+    /// @param fourth: target height for top metal. -1 if don't care
+    /// @return true: if configuration success. false: failed. the original shapes should not change
+    bool configureMetalWidthHeight(Int_t botWidth, Int_t botHeight, Int_t topWidth, Int_t topHeight)
+    {
+     return  _implementor->configureMetalWidthHeight(botWidth, botHeight, topWidth, topHeight);
+    }
+    /// @param Orientation 2D type representing the routing direction
+    /// @return if configuration success
+    bool configureMetalWithHeightWithDirection(Orient2D_t botOrient, Orient2D_t topOrient)
+    {
+      return _implementor->configureMetalWithHeightWithDirection(botOrient, topOrient);
+    }
+    /// @brief configure the via into default mode
+    void configureDefault()
+    {
+      _implementor->configureDefault();
+    }
   protected:
-    std::unique_ptr<LefViaImplementorBase> _implementor = nullptr;
+    LefVia _lefVia;
+    std::shared_ptr<LefViaImplementor> _implementor = nullptr;
 };
-*/
 
 /// @brief the table for LefVia
 class LefViaTable
@@ -208,25 +188,27 @@ class LefViaTable
         explicit LefViaTable(UInt_t numLayers) 
         {
             _table.resize(numLayers, 
-                    Vector2D<std::array<LefVia, 9>>(MAX_GENERATE_ROW - MIN_GENERATE_ROW + 1,
+                    Vector2D<LefViaPrototype>(MAX_GENERATE_ROW - MIN_GENERATE_ROW + 1,
                                      MAX_GENERATE_COLUMN - MIN_GENERATE_COLUMN +1)
                     ); // size: # of layers * # of rows * # of columns
         }
         /// @brief genearte the vias based on viarules
         /// @param the LEF tech database
         void generateVias(LefDB &lef);
-        LefVia & via(UInt_t lowerMetalLayer, UInt_t row, UInt_t col, LefViaExtendType bot, LefViaExtendType top)
+        LefVia & via(UInt_t lowerMetalLayer, UInt_t row, UInt_t col)
         {
-          auto idx = LefViaExtendType2Int(bot, top);
-          return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN)[idx];
+          return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN).lefVia();
         }
-        const LefVia & via(UInt_t lowerMetalLayer, UInt_t row, UInt_t col, LefViaExtendType bot, LefViaExtendType top) const
+        const LefVia & via(UInt_t lowerMetalLayer, UInt_t row, UInt_t col) const
         {
-          auto idx = LefViaExtendType2Int(bot, top);
-          return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN)[idx];
+          return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN).lefVia();
+        }
+        LefViaPrototype & viaProtoType(UInt_t lowerMetalLayer, UInt_t row, UInt_t col)
+        {
+          return _table.at(lowerMetalLayer).at(row - MIN_GENERATE_ROW, col - MIN_GENERATE_COLUMN);
         }
     private:
-        Vector_t<Vector2D<std::array<LefVia, 9>>> _table; ///< _table[layer][# of rows][# of columns] = via
+        Vector_t<Vector2D<LefViaPrototype>> _table; ///< _table[layer][# of rows][# of columns] = via
 };
 
 PROJECT_NAMESPACE_END

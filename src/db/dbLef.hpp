@@ -118,8 +118,28 @@ class LefDB {
     _viaTable.generateVias(*this);
   }
   // lowerLayerIdx: M1 -> 2
-  LefVia&         via(const Int_t botLayerIdx, const Int_t row, const Int_t col, LefViaExtendType bot=DEFAULT, LefViaExtendType top=DEFAULT)        { return _viaTable.via(layerPair(botLayerIdx).second, row, col, bot, top); }
-  const LefVia&   via(const Int_t botLayerIdx, const Int_t row, const Int_t col, LefViaExtendType bot=DEFAULT, LefViaExtendType top=DEFAULT )  const { return _viaTable.via(layerPair(botLayerIdx).second, row, col, bot, top); }
+  LefVia         via(const Int_t botLayerIdx, const Int_t row, const Int_t col)
+  {
+    auto metalIdx = layerPair(botLayerIdx).second;
+    auto &prototype = _viaTable.viaProtoType(metalIdx, row, col);
+    prototype.configureDefault();
+    return prototype.lefVia();
+  }
+  LefVia         via(const Int_t botLayerIdx, const Int_t row, const Int_t col, Orient2D_t bot, Orient2D_t top)
+  {
+    auto metalIdx = layerPair(botLayerIdx).second;
+    auto &prototype = _viaTable.viaProtoType(metalIdx, row, col);
+    prototype.configureMetalWithHeightWithDirection(bot, top);
+    return prototype.lefVia();
+  }
+
+  LefVia via(const Int_t botLayerIdx, const Int_t row, const Int_t col, Int_t botWidth, Int_t botHeight, Int_t topWidth, Int_t topHeight)
+  {
+    auto metalIdx = layerPair(botLayerIdx).second;
+    auto &prototype = _viaTable.viaProtoType(metalIdx, row, col);
+    prototype.configureMetalWidthHeight(botWidth, botHeight, topWidth, topHeight);
+    return prototype.lefVia();
+  }
 
   // for debug
   void logInfo() const;

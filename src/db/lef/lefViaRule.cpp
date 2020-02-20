@@ -120,6 +120,7 @@ bool LefViaRuleTemplate1::constructFromLefParser(const LefDefParser::lefiViaRule
                 metalLayerNames.at(0) = std::string(layerPtr->name());
                 enclosureOverhang1.at(0) = lefToDbUnitCnvter(layerPtr->enclosureOverhang1());
                 enclosureOverhang2.at(0) = lefToDbUnitCnvter(layerPtr->enclosureOverhang2());
+                AssertMsg(enclosureOverhang1.at(0) >= enclosureOverhang2.at(0), " %s %d %d \n", v.name(), enclosureOverhang1.at(0), enclosureOverhang2.at(0));
                 widthLo.at(0) = lefToDbUnitCnvter(layerPtr->widthMin());
                 widthHi.at(0) = lefToDbUnitCnvter(layerPtr->widthMax());
             }
@@ -130,6 +131,7 @@ bool LefViaRuleTemplate1::constructFromLefParser(const LefDefParser::lefiViaRule
                 metalLayerNames.at(1) = std::string(layerPtr->name());
                 enclosureOverhang1.at(1) = lefToDbUnitCnvter(layerPtr->enclosureOverhang1());
                 enclosureOverhang2.at(1) = lefToDbUnitCnvter(layerPtr->enclosureOverhang2());
+                Assert(enclosureOverhang1.at(1) >= enclosureOverhang2.at(1));
                 widthLo.at(1) = lefToDbUnitCnvter(layerPtr->widthMin());
                 widthHi.at(1) = lefToDbUnitCnvter(layerPtr->widthMax());
             }

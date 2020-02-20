@@ -51,6 +51,13 @@ constexpr Float_t EPSILON   = 1e-8;
 constexpr Float_t TIME_SCALE = 1000000.00;
 constexpr Float_t MEM_SCALE  = 1024.0;
 
+enum class Orient2D_t : Byte_t
+{
+    HORIZONTAL = 0,
+    VERTICAL = 1,
+    DEFAULT = 2
+};
+
 
 PROJECT_NAMESPACE_END
 

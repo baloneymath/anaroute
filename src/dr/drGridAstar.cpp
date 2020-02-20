@@ -538,43 +538,43 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
 
       const Pair_t<Point3d<Int_t>, Point3d<Int_t>>* pPrev = (i > 0) ? &vPathVec[i - 1] : nullptr;
       const Pair_t<Point3d<Int_t>, Point3d<Int_t>>* pNext = (i < (Int_t)vPathVec.size() - 1) ? &vPathVec[i + 1] : nullptr;
-      LefViaExtendType topType = DEFAULT, botType = DEFAULT;
+      Orient2D_t topType = Orient2D_t::DEFAULT, botType = Orient2D_t::DEFAULT;
       if (pPrev) {
-        LefViaExtendType* p1 = (pPrev->first.z() == botLayerIdx
+        Orient2D_t* p1 = (pPrev->first.z() == botLayerIdx
                                 or pPrev->second.z() == botLayerIdx) ? &botType : &topType;
         PathDir dir = findDir(pPrev->first, pPrev->second);
         switch(dir) {
           case PathDir::UP:
           case PathDir::DOWN:
-            *p1 = VERTICAL;
+            *p1 = Orient2D_t::VERTICAL;
             break;
           case PathDir::LEFT:
           case PathDir::RIGHT:
-            *p1 = HORIZONTAL;
+            *p1 = Orient2D_t::VERTICAL;
             break;
           case PathDir::VIA_UP:
           case PathDir::VIA_DOWN:
-            *p1 = DEFAULT;
+            *p1 = Orient2D_t::DEFAULT;
             break;
           default: assert(false);
         }
       }
       if (pNext) {
-        LefViaExtendType* p2 = (pNext->first.z() == botLayerIdx
+        Orient2D_t* p2 = (pNext->first.z() == botLayerIdx
                                 or pNext->second.z() == botLayerIdx) ? &botType : &topType;
         PathDir dir = findDir(pNext->first, pNext->second);
         switch(dir) {
           case PathDir::UP:
           case PathDir::DOWN:
-            *p2 = VERTICAL;
+            *p2 = Orient2D_t::VERTICAL;
             break;
           case PathDir::LEFT:
           case PathDir::RIGHT:
-            *p2 = HORIZONTAL;
+            *p2 = Orient2D_t::HORIZONTAL;
             break;
           case PathDir::VIA_UP:
           case PathDir::VIA_DOWN:
-            *p2= DEFAULT;
+            *p2= Orient2D_t::DEFAULT;
             break;
           default: assert(false);
         }
@@ -1005,4 +1005,3 @@ void DrGridAstar::connect2AcsPt(const DrGridAstarNode* pU) {
 }
 
 PROJECT_NAMESPACE_END
-
