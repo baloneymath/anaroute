@@ -68,8 +68,8 @@ Anaroute::Anaroute(int argc, char** argv) {
   //timer.start(TimeUsage::PARTIAL);
   //GrMgr gr(cir);
   //gr.solve();
-  cir.buildSpatialNetGuides();
   //timer.showUsage("Global Routing", TimeUsage::PARTIAL);
+  cir.buildSpatialNetGuides();
 
   // track assignment
   //TaMgr ta(cir);
@@ -101,8 +101,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   wr.writeLayoutGds(_args.get<String_t>("placement_layout"), _args.get<String_t>("out"), bFlatten);
   if (outGuideFile != "")
     wr.writeGrGuide(_args.get<String_t>("out_guide"));
-  //if (outGuideGdsFile != "")
-    //wr.writeGrGuideGds("", _args.get<String_t>("out_guide_gds"));
+  wr.writeGrGuideGds("a.gds");
   if (dumbFile != "")
     wr.writeDumb(_args.get<String_t>("placement_layout"), _args.get<String_t>("fuck"));
 

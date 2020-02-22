@@ -78,18 +78,23 @@ void GrGridRoute::solve() {
 void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
   // initialize grids
   // avoid using masterslice in GR
-  const LefRoutingLayer& lefLayerM1 = _cir.lef().routingLayer(0);
-  const Int_t minSpacing = lefLayerM1.spacingTable().table.size() ?
-                           lefLayerM1.spacingTable().table[0].second[0] :
-                           lefLayerM1.spacing(0);
+  //const LefRoutingLayer& lefLayerM1 = _cir.lef().routingLayer(0);
+  //const Int_t minSpacing = lefLayerM1.spacingTable().table.size() ?
+                           //lefLayerM1.spacingTable().table[0].second[0] :
+                           //lefLayerM1.spacing(0);
   //const Int_t minWidth = lefLayerM1.minWidth();
-  //const Int_t unitLength = minSpacing + minWidth;
-  const Int_t unitLength = minSpacing;
-  const Int_t stepX = unitLength * scaleX;
-  const Int_t stepY = unitLength * scaleY;
+  //const Int_t unitLength = minSpacing;
+  //const Int_t stepX = unitLength * scaleX;
+  //const Int_t stepY = unitLength * scaleY;
   const UInt_t numZ = _cir.lef().numRoutingLayers();
-  const UInt_t numX = _cir.width() / stepX;
-  const UInt_t numY = _cir.height() / stepY;
+  //const UInt_t numX = _cir.width() / stepX;
+  //const UInt_t numY = _cir.height() / stepY;
+  const Int_t diffX = _cir.gridOffsetX() - _cir.xl();
+  const Int_t diffY = _cir.gridOffsetY() - _cir.yl();
+  const Int_t stepX = _cir.gridStep() * scaleX;
+  const Int_t stepY = _cir.gridStep() * scaleY;
+  const UInt_t numX = (_cir.width() - diffX - diffX) / _cir.gridStep() / scaleX;
+  const UInt_t numY = (_cir.height() - diffY - diffY) / _cir.gridStep() / scaleY;
   _gridMap.setNumZ(numZ);
   _gridMap.setNumX(numX);
   _gridMap.setNumY(numY);
@@ -102,8 +107,8 @@ void GrGridRoute::initGrids(const Int_t scaleX, const Int_t scaleY) {
     for (j = 0; j < _gridMap.numGridCellsX(); ++j) {
       for (k = 0; k < _gridMap.numGridCellsY(); ++k) {
         GrGridCell& gridCell = _gridMap.gridCell(i, j, k);
-        gridCell.setWidth(minSpacing);
-        gridCell.setHeight(minSpacing);
+        gridCell.setWidth(stepX);
+        gridCell.setHeight(stepY);
         gridCell.setZ(i);
         Point<Int_t> bl(_cir.xl() + j * stepX, _cir.yl() + k * stepY);
         Point<Int_t> tr(_cir.xl() + j * stepX + stepX, _cir.yl() + k * stepY + stepY);

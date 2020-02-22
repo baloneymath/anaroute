@@ -76,13 +76,21 @@ void NetlistReader::parse(const String_t& filename) {
       netIdx = _cir.str2NetIdx(netName);
       Net& net = _cir.net(netIdx);
       net.addPinIdx(pin.idx());
+      updateNetBBox(net, pin);
       pin.setNetIdx(netIdx);
     }
     else {
       netIdx = _cir.numNets();
       Net net(netName, netIdx);
-      net.addPinIdx(pin.idx()); 
+      net.addPinIdx(pin.idx());
+      updateNetBBox(net, pin);
       pin.setNetIdx(netIdx);
+      if (netName == "GND"
+          or netName == "VDD"
+          or netName == "VSS")
+        net.setPowerGround(true);
+      net.setMinWidth(to_db_unit(100));
+      net.setMinCuts(1);
       _cir.addNet(net);
     }
     _cir.addPin(pin);
@@ -99,6 +107,16 @@ void NetlistReader::setScale() {
 
 Int_t NetlistReader::to_db_unit(const Int_t n) const {
   return n * _scale;
+}
+
+void NetlistReader::updateNetBBox(Net& net, const Pin& pin) {
+  UInt_t i, layerIdx;
+  const Box<Int_t>* cpBox;
+  Pin_ForEachLayerIdx(pin, layerIdx) {
+    Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
+      net.updateBBox(*cpBox);
+    }
+  }
 }
 
 PROJECT_NAMESPACE_END

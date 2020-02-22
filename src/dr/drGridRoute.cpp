@@ -20,11 +20,45 @@ void DrGridRoute::solve() {
   addUnroutedNetsToPQ(pq);
 
   // start routing process with ripup and reroute
-  for (Int_t iter = 0; iter < _param.maxIteration; ++iter) {
-    fprintf(stderr, "DrGridRoute::%s Iteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
+  if (runNRR(pq, _param.maxIteration)) {
+    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
+    return;
+  }
+  
+  // second try
+  fprintf(stderr, "DrGridRoute::%s Second Stage\n", __func__);
+  // reset history map
+  for (auto& historyMap : _vSpatialHistoryMaps) {
+    historyMap.clear();
+  }
+  // reset net fail cnt
+  for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+    _cir.net(i).clearDrFail();
+  }
+  if (runNRR(pq, _param.maxIteration2)) {
+    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
+    return;
+  }
+  
+  // Failed QQ
+  fprintf(stderr, "DrGridRoute::%s Failed!!!!\n", __func__);
+  fprintf(stderr, "Unrouted Nets:");
+  for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+    const Net& net = _cir.net(i);
+    if (!net.bRouted()) {
+      fprintf(stderr, " %s", net.name().c_str());
+    }
+  }
+  fprintf(stderr, "\n");
+}
+
+bool DrGridRoute::runNRR(PairingHeap<Net*, Net_Cmp>& pq, const Int_t maxIteration) {
+  for (Int_t iter = 0; iter < maxIteration; ++iter) {
+    fprintf(stderr, "\nDrGridRoute::%s Iteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
     while (!pq.empty()) {
       Net* pNet = pq.top();
       pq.pop();
+      fprintf(stderr, "DrGridRoute::%s Route net %s\n", __func__, pNet->name().c_str());
       // check sym and self sym
       bool bSym = false;
       bool bSelfSym = false;
@@ -40,66 +74,13 @@ void DrGridRoute::solve() {
     // check DRC violations
     bool bFinish = checkDRC();
     if (bFinish) {
-      break;
+      return true;
     }
     else {
       addUnroutedNetsToPQ(pq);
     }
   }
-  // second try
-  if (!pq.empty()) {
-    fprintf(stderr, "DrGridRoute::%s Second Stage\n", __func__);
-    // reset history map
-    for (auto& historyMap : _vSpatialHistoryMaps) {
-      historyMap.clear();
-    }
-    // reset net fail cnt
-    for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
-      _cir.net(i).clearDrFail();
-    }
-    for (Int_t iter = 0; iter < _param.maxIteration2; ++iter) {
-      fprintf(stderr, "DrGridRoute::%s Second Stage Iteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
-      while (!pq.empty()) {
-        Net* pNet = pq.top();
-        pq.pop();
-        
-        bool bSym = false;
-        bool bSelfSym = false;
-        checkSymSelfSym(*pNet, bSym, bSelfSym);
-        
-        bool bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, true);
-        if (!bSuccess) {
-          bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, false);
-        }
-        assert(bSuccess);
-      }
-      bool bFinish = checkDRC();
-      if (bFinish) {
-        break;
-      }
-      else {
-        addUnroutedNetsToPQ(pq);
-      }
-    }
-  }
-  else {
-    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
-    return;
-  }
-  if (!pq.empty()) {
-    fprintf(stderr, "DrGridRoute::%s Failed!!!!\n", __func__);
-    fprintf(stderr, "Unrouted Nets:");
-    for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
-      const Net& net = _cir.net(i);
-      if (!net.bRouted()) {
-        fprintf(stderr, " %s", net.name().c_str());
-      }
-    }
-    fprintf(stderr, "\n");
-  }
-  else {
-    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
-  }
+  return false;
 }
 
 void DrGridRoute::addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq) {
@@ -188,6 +169,7 @@ void DrGridRoute::ripupSingleNet(Net& net) {
   net.vWires().clear();
   net.addDrFail();
   net.setRouted(false);
+  fprintf(stderr, "DrGridRoute::%s Ripup net %s\n", __func__, net.name().c_str());
   // check sym net
   if (net.hasSymNet()) {
     Net& symNet = _cir.net(net.symNetIdx());
@@ -200,6 +182,7 @@ void DrGridRoute::ripupSingleNet(Net& net) {
     symNet.vWires().clear();
     symNet.addDrFail();
     symNet.setRouted(false);
+    fprintf(stderr, "DrGridRoute::%s Ripup net %s\n", __func__, symNet.name().c_str());
   }
 }
 

@@ -58,4 +58,32 @@ void Net::clearDrFail() {
 void Net::setGuides(const Vector_t<Pair_t<Box<Int_t>, Int_t>>& v) {
   _vGuides = v;
 }
+
+void Net::resetBBox() {
+  _bboxXL = MAX_INT;
+  _bboxYL = MAX_INT;
+  _bboxXH = MIN_INT;
+  _bboxYH = MIN_INT;
+}
+
+void Net::updateBBox(const Box<Int_t>& box) {
+  _bboxXL = std::min(_bboxXL, box.xl());
+  _bboxYL = std::min(_bboxYL, box.yl());
+  _bboxXH = std::max(_bboxXH, box.xh());
+  _bboxYH = std::max(_bboxYH, box.yh());
+}
+
+void Net::setPowerGround(const bool b) {
+  _bPowerGround = b;
+}
+ 
+void Net::setMinWidth(const Int_t w) {
+  _minWidth = w;
+}
+
+void Net::setMinCuts(const Int_t c) {
+  _minCuts = c;
+}
+
+
 PROJECT_NAMESPACE_END

@@ -191,3 +191,11 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
           --placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag4/comp2_mag4.place.gds \
           --symnet $ANAROUTE_DIR/bench_grid/comp2_mag4/comp2.symnet \
           --out $OUT_DIR/gds/comp2_mag4.route.gds 
+
+# Core_test_flow on grid
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $ANAROUTE_DIR/bench_grid/Core_test_flow/Core_test_flow.pin \
+          #--placement_layout $ANAROUTE_DIR/bench_grid/Core_test_flow/Core_test_flow.place.gds \
+          #--symnet $ANAROUTE_DIR/bench_grid/Core_test_flow/Core_test_flow.symnet \
+          #--out $OUT_DIR/gds/Core_test_flow.route.gds 

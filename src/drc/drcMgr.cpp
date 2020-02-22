@@ -91,6 +91,7 @@ bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t laye
         for (Int_t j = 0; j < (Int_t)vSpacings.size(); ++j) {
           if (prl >= layer.spacingTable().vParallelRunLength[j]) {
             prlSpacing = vSpacings[j];
+            //prlSpacing = vSpacings.back();
             break;
           }
         }

@@ -351,7 +351,6 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx) {
       const Int_t costG = pU->costG() + scaledMDist(pU->coord(), pV->coord());
       const Int_t bendCnt = pU->bendCnt() + hasBend(pU, pV);
       if (bNeedUpdate(pV, costG, bendCnt)) {
-        pV->setParent(pU);
         Point3d<Int_t> scaledP(pV->coord().x() * _param.horCost,
                                pV->coord().y() * _param.verCost,
                                pV->coord().z() * _param.viaCost);
@@ -365,13 +364,15 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx) {
           else // add high cost to DRC violations
             costF += _param.drcCost;
         }
+        if (bStackedVia(pU, pV)) {
+          //costF += _param.stackedViaCost;
+          continue;
+        }
         if (bInsideGuide(pV)) {
           costF += _param.guideCost;
         }
-        if (bStackedVia(pU, pV)) {
-          costF += _param.stackedViaCost;
-        }
         costF += history(pV);
+        pV->setParent(pU);
         pV->setCostF(costF);
         pV->setCostG(costG);
         pV->setBendCnt(bendCnt);
@@ -441,11 +442,11 @@ void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, c
     const auto& v = vec.second;
     if (u.z() == v.z()) {
       // get the layer information
-      assert(_cir.lef().bRoutingLayer(u.z()));
-      const auto& layerPair = _cir.lef().layerPair(u.z());
-      const auto& layer = _cir.lef().routingLayer(layerPair.second);
-      const Int_t width = layer.minWidth();
-      //const Int_t width = 200;
+      //assert(_cir.lef().bRoutingLayer(u.z()));
+      //const auto& layerPair = _cir.lef().layerPair(u.z());
+      //const auto& layer = _cir.lef().routingLayer(layerPair.second);
+      //const Int_t width = layer.minWidth();
+      const Int_t width = _net.minWidth();
       const Int_t extension = width / 2;
       // generate the exact wire shape
       Box<Int_t> wire;
@@ -508,11 +509,11 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
     const auto& v = pair.second;
     if (u.z() == v.z()) {
       // get the layer information
-      assert(_cir.lef().bRoutingLayer(u.z()));
-      const auto& layerPair = _cir.lef().layerPair(u.z());
-      const auto& layer = _cir.lef().routingLayer(layerPair.second);
-      const Int_t width = layer.minWidth();
-      //const Int_t width = 200;
+      //assert(_cir.lef().bRoutingLayer(u.z()));
+      //const auto& layerPair = _cir.lef().layerPair(u.z());
+      //const auto& layer = _cir.lef().routingLayer(layerPair.second);
+      //const Int_t width = layer.minWidth();
+      const Int_t width = _net.minWidth();
       const Int_t extension = width / 2;
       // generate the exact wire
       Box<Int_t> wire;
@@ -545,49 +546,64 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
 
       const Pair_t<Point3d<Int_t>, Point3d<Int_t>>* pPrev = (i > 0) ? &vPathVec[i - 1] : nullptr;
       const Pair_t<Point3d<Int_t>, Point3d<Int_t>>* pNext = (i < (Int_t)vPathVec.size() - 1) ? &vPathVec[i + 1] : nullptr;
-      Orient2D_t topType = Orient2D_t::DEFAULT, botType = Orient2D_t::DEFAULT;
+      //Orient2D_t topType = Orient2D_t::DEFAULT, botType = Orient2D_t::DEFAULT;
+      Int_t topViaWidth = -1, topViaHeight = -1;
+      Int_t botViaWidth = -1, botViaHeight = -1;
       if (pPrev) {
-        Orient2D_t* p1 = (pPrev->first.z() == botLayerIdx
-                                or pPrev->second.z() == botLayerIdx) ? &botType : &topType;
+        //Orient2D_t* p1 = (pPrev->first.z() == botLayerIdx
+                                //or pPrev->second.z() == botLayerIdx) ? &botType : &topType;
+        Int_t* w1 = (pPrev->first.z() == botLayerIdx
+                     or pPrev->second.z() == botLayerIdx) ? &botViaWidth : &topViaWidth;
+        Int_t* h1 = (pPrev->first.z() == botLayerIdx
+                     or pPrev->second.z() == botLayerIdx) ? &botViaHeight : &topViaHeight;
         PathDir dir = findDir(pPrev->first, pPrev->second);
         switch(dir) {
           case PathDir::UP:
           case PathDir::DOWN:
-            *p1 = Orient2D_t::VERTICAL;
+            //*p1 = Orient2D_t::VERTICAL;
+            *w1 = _net.minWidth();
             break;
           case PathDir::LEFT:
           case PathDir::RIGHT:
-            *p1 = Orient2D_t::VERTICAL;
+            //*p1 = Orient2D_t::HORIZONTAL;
+            *h1 = _net.minWidth();
             break;
           case PathDir::VIA_UP:
           case PathDir::VIA_DOWN:
-            *p1 = Orient2D_t::DEFAULT;
+            //*p1 = Orient2D_t::DEFAULT;
             break;
           default: assert(false);
         }
       }
       if (pNext) {
-        Orient2D_t* p2 = (pNext->first.z() == botLayerIdx
-                                or pNext->second.z() == botLayerIdx) ? &botType : &topType;
+        //Orient2D_t* p2 = (pNext->first.z() == botLayerIdx
+                                //or pNext->second.z() == botLayerIdx) ? &botType : &topType;
+        Int_t* w2 = (pNext->first.z() == botLayerIdx
+                     or pNext->second.z() == botLayerIdx) ? &botViaWidth : &topViaWidth;
+        Int_t* h2 = (pNext->first.z() == botLayerIdx
+                     or pNext->second.z() == botLayerIdx) ? &botViaHeight : &topViaHeight;
         PathDir dir = findDir(pNext->first, pNext->second);
         switch(dir) {
           case PathDir::UP:
           case PathDir::DOWN:
-            *p2 = Orient2D_t::VERTICAL;
+            //*p2 = Orient2D_t::VERTICAL;
+            *w2 = _net.minWidth();
             break;
           case PathDir::LEFT:
           case PathDir::RIGHT:
-            *p2 = Orient2D_t::HORIZONTAL;
+            //*p2 = Orient2D_t::HORIZONTAL;
+            *h2 = _net.minWidth();
             break;
           case PathDir::VIA_UP:
           case PathDir::VIA_DOWN:
-            *p2= Orient2D_t::DEFAULT;
+            //*p2= Orient2D_t::DEFAULT;
             break;
           default: assert(false);
         }
       }
 
-      const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1, botType, topType);
+      //const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1, botType, topType);
+      const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1, botViaWidth, botViaHeight, topViaWidth, topViaHeight);
       via2LayerBoxes(x, y, via, vRoutedWires);     
       _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
       // add history cost
@@ -711,11 +727,11 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     assert(u.x() == v.x() or u.y() == v.y());
     const Int_t z = u.z();
     // get the layer information
-    assert(_cir.lef().bRoutingLayer(u.z()));
-    const auto& layerPair = _cir.lef().layerPair(u.z());
-    const auto& layer = _cir.lef().routingLayer(layerPair.second);
-    const Int_t width = layer.minWidth();
-    //const Int_t width = 200;
+    //assert(_cir.lef().bRoutingLayer(u.z()));
+    //const auto& layerPair = _cir.lef().layerPair(u.z());
+    //const auto& layer = _cir.lef().routingLayer(layerPair.second);
+    //const Int_t width = layer.minWidth();
+    const Int_t width = _net.minWidth();
     const Int_t extension = width / 2;
     // generate exact wire shape
     Box<Int_t> wire;
@@ -748,9 +764,6 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     }
   }
   else {
-    // prohibit stacking vias
-    //if (bStackedVia(pU, pV))
-      //return true;
     // generate via and check min area and adj edges
     assert(u.x() == v.x() and u.y() == v.y());
     const Int_t x = u.x();
@@ -783,11 +796,11 @@ bool DrGridAstar::checkMinArea(const DrGridAstarNode* pU, const DrGridAstarNode*
   const DrGridAstarNode* pN = pU;
   Vector_t<Box<Int_t>> vPrePath;
   // get the layer information
-  assert(_cir.lef().bRoutingLayer(layerIdx));
-  const auto& layerPair = _cir.lef().layerPair(layerIdx);
-  const auto& layer = _cir.lef().routingLayer(layerPair.second);
-  const Int_t width = layer.minWidth();
-  //const Int_t width = 200;
+  //assert(_cir.lef().bRoutingLayer(layerIdx));
+  //const auto& layerPair = _cir.lef().layerPair(layerIdx);
+  //const auto& layer = _cir.lef().routingLayer(layerPair.second);
+  //const Int_t width = layer.minWidth();
+  const Int_t width = _net.minWidth();
   const Int_t extension = width / 2;
 
   while (pN->pParent() and pN->pParent()->coord().z() == layerIdx) {
@@ -995,11 +1008,11 @@ void DrGridAstar::connect2AcsPt(const DrGridAstarNode* pU) {
   const auto& pt = pU->coord();
   const auto& acsPt = _pinAcsMap.at(pt).gridPt();
 
-  assert(_cir.lef().bRoutingLayer(pt.z()));
-  const auto& layerPair = _cir.lef().layerPair(pt.z());
-  const auto& layer = _cir.lef().routingLayer(layerPair.second);
-  const Int_t width = layer.minWidth();
-  //const Int_t width = 200;
+  //assert(_cir.lef().bRoutingLayer(pt.z()));
+  //const auto& layerPair = _cir.lef().layerPair(pt.z());
+  //const auto& layer = _cir.lef().routingLayer(layerPair.second);
+  //const Int_t width = layer.minWidth();
+  const Int_t width = _net.minWidth();
   const Int_t extension = width / 2;
 
   Box<Int_t> wire;

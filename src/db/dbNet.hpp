@@ -47,10 +47,18 @@ class Net {
   Vector_t<Pair_t<Box<Int_t>, Int_t>>&        vGuides()            { return _vGuides; }
   const Vector_t<Pair_t<Box<Int_t>, Int_t>>&  vGuides()      const { return _vGuides; }
   // detailed routing
-  Int_t                       drFailCnt()                    const { return _drFailCnt; }
-  bool                        bRouted()                      const { return _bRouted; }
+  Int_t                                       drFailCnt()    const { return _drFailCnt; }
+  bool                                        bRouted()      const { return _bRouted; }
   Vector_t<Pair_t<Box<Int_t>, Int_t>>&        vWires()             { return _vWires; }
   const Vector_t<Pair_t<Box<Int_t>, Int_t>>&  vWires()       const { return _vWires; }
+
+  // net ordering
+  Box<Int_t>         bbox()  const { return Box<Int_t>(_bboxXL, _bboxYL, _bboxXH, _bboxYH); }
+
+  // for performance driven and electrical consideration
+  bool    bPowerGround()  const { return _bPowerGround; }
+  Int_t   minWidth()      const { return _minWidth; }
+  Int_t   minCuts()       const { return _minCuts; }
 
   //////////////////////////////////
   //  Setter                      //
@@ -68,6 +76,13 @@ class Net {
   void clearDrFail();
   void setGuides(const Vector_t<Pair_t<Box<Int_t>, Int_t>>& v);
 
+  void resetBBox();
+  void updateBBox(const Box<Int_t>& box);
+
+  void setPowerGround(const bool b = true);
+  void setMinWidth(const Int_t w);
+  void setMinCuts(const Int_t c);
+
  private:
   String_t                            _name;
   UInt_t                              _idx;
@@ -81,6 +96,17 @@ class Net {
   Int_t                               _drFailCnt;
   Vector_t<Pair_t<Box<Int_t>, Int_t>> _vGuides; // from global routing
   Vector_t<Pair_t<Box<Int_t>, Int_t>> _vWires;
+
+  // for net ordering
+  Int_t _bboxXL = MAX_INT; // bounding box of pin locations
+  Int_t _bboxYL = MAX_INT; // bounding box of pin locations
+  Int_t _bboxXH = MIN_INT; // bounding box of pin locations
+  Int_t _bboxYH = MIN_INT; // bounding box of pin locations
+
+  // for performance driven and electrical consideration
+  bool    _bPowerGround = false;
+  Int_t   _minWidth;
+  Int_t   _minCuts;
 };
 
 //////////////////////////////////

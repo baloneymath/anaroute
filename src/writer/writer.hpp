@@ -31,7 +31,8 @@ class Writer {
 
   // guide
   void writeGrGuide(const String_t& filename) const;
-  void writeGrGuideGds(const String_t& netName, const String_t& filename) const;
+  void writeGrGuideGds(const String_t& netName, const String_t& filename) const; // for single net
+  void writeGrGuideGds(const String_t& filename) const;
   
   // ....
   void writeDumb(const String_t& placementFilename, const String_t& outputFilename);

@@ -28,6 +28,8 @@ class NetlistReader {
 
   void setScale();
   Int_t to_db_unit(const Int_t n) const;
+  void updateNetBBox(Net& net, const Pin& pin);
+
 };
 
 PROJECT_NAMESPACE_END

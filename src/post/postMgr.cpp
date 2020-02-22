@@ -24,16 +24,16 @@ void PostMgr::patchJogs() {
   // add boxes (pin shapes and routed wires)
   UInt_t i, j;
   const Net* cpNet;
-  const Blk* pBlk;
-  const Pair_t<Box<Int_t>, Int_t>* pWire;
+  const Blk* cpBlk;
+  const Pair_t<Box<Int_t>, Int_t>* cpWire;
 
-  Cir_ForEachBlk(_cir, pBlk, i) {
-    vvBoxes[pBlk->layerIdx()].emplace_back(pBlk->box());
+  Cir_ForEachBlk(_cir, cpBlk, i) {
+    vvBoxes[cpBlk->layerIdx()].emplace_back(cpBlk->box());
   }
   Cir_ForEachNet(_cir, cpNet, i) {
-    Net_ForEachRoutedWire((*cpNet), pWire, j) {
-      const auto& box = pWire->first;
-      const Int_t layerIdx = pWire->second;
+    Net_ForEachRoutedWire((*cpNet), cpWire, j) {
+      const auto& box = cpWire->first;
+      const Int_t layerIdx = cpWire->second;
       // don't need to add cut layer shapes
       if (_cir.lef().bRoutingLayer(layerIdx)) {
         vvBoxes[layerIdx].emplace_back(box);
@@ -102,9 +102,9 @@ void PostMgr::patchJogs() {
   Cir_ForEachNet(_cir, pNet, i) {
     Vector_t<Vector_t<Box<Int_t>>> vvWires;
     vvWires.resize(_cir.lef().numLayers());
-    Net_ForEachRoutedWire((*pNet), pWire, j) {
-      const auto& box = pWire->first;
-      const Int_t layerIdx = pWire->second;
+    Net_ForEachRoutedWire((*pNet), cpWire, j) {
+      const auto& box = cpWire->first;
+      const Int_t layerIdx = cpWire->second;
       vvWires[layerIdx].emplace_back(box);
     } 
     for (Int_t layerIdx = 0; layerIdx < (Int_t)vvWires.size(); ++layerIdx) {

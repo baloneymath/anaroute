@@ -37,20 +37,42 @@ class DrGridRoute {
   /////////////////////////////////////////
   struct Net_Cmp {
     bool operator() (const Net* pn1, const Net* pn2) {
-      Int_t c1 = pinWeight      * pn1->numPins() +
-                 symWeight      * pn1->hasSymNet() +
-                 selfSymWeight  * pn1->bSelfSym() +
-                 failWeight     * pn1->drFailCnt();
-      Int_t c2 = pinWeight      * pn2->numPins() +
-                 symWeight      * pn2->hasSymNet() +
-                 selfSymWeight  * pn2->bSelfSym() +
-                 failWeight     * pn2->drFailCnt();
-      return c1 < c2;
+      //Int_t c1 = pinWeight      * pn1->numPins() +
+                 //symWeight      * pn1->hasSymNet() +
+                 //selfSymWeight  * pn1->bSelfSym() +
+                 //failWeight     * pn1->drFailCnt() +
+                 //PGWeight       * pn1->bPowerGround();
+      //Int_t c2 = pinWeight      * pn2->numPins() +
+                 //symWeight      * pn2->hasSymNet() +
+                 //selfSymWeight  * pn2->bSelfSym() +
+                 //failWeight     * pn2->drFailCnt() +
+                 //PGWeight       * pn2->bPowerGround();
+      //return c1 < c2;
+      if (pn1->bPowerGround() != pn2->bPowerGround()) {
+        return pn1->bPowerGround() > pn2->bPowerGround();
+      }
+      else if (pn1->bSelfSym() != pn2->bSelfSym()) {
+        return pn1->bSelfSym() < pn2->bSelfSym();
+      }
+      else if (pn1->hasSymNet() != pn2->hasSymNet()) {
+        return pn1->hasSymNet() < pn2->hasSymNet();
+      }
+      else if (pn1->bbox().hpwl() != pn2->bbox().hpwl()) {
+        return pn1->bbox().hpwl() > pn2->bbox().hpwl();
+      }
+      else if (pn1->drFailCnt() != pn2->drFailCnt()) {
+        return pn1->drFailCnt() < pn2->drFailCnt();
+      }
+      else if (pn1->numPins() != pn2->numPins()) {
+        return pn1->numPins() < pn2->numPins();
+      }
+      return true;
     }
-    Int_t pinWeight = 1;
-    Int_t symWeight = 10;
-    Int_t selfSymWeight = 10;
-    Int_t failWeight = 20;
+    //Int_t pinWeight = 1;
+    //Int_t symWeight = 10;
+    //Int_t selfSymWeight = 10;
+    //Int_t failWeight = 20;
+    //Int_t PGWeight = -5000;
   };
 
   struct Param {
@@ -66,7 +88,9 @@ class DrGridRoute {
   void addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq);
 
   void checkSymSelfSym(const Net& net, bool& bSym, bool& bSelfSym);
-  
+
+  bool runNRR(PairingHeap<Net*, Net_Cmp>& pq, const Int_t maxIteration);
+
   bool routeSingleNet(Net& n, const bool bSym, const bool bSelfSym, const bool bStrictDRC);
 
   bool checkDRC();

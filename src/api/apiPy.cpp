@@ -12,9 +12,9 @@
 #include "src/db/dbCir.hpp"
 #include "src/parser/parser.hpp"
 #include "src/gr/grMgr.hpp"
-#include "src/ta/taMgr.hpp"
 #include "src/dr/drMgr.hpp"
 #include "src/drc/drcMgr.hpp"
+#include "src/post/postMgr.hpp"
 #include "src/writer/writer.hpp"
 
 namespace py = pybind11;
@@ -109,14 +109,37 @@ namespace apiPy {
       _par.correctPinNBlkLoc();
       _cir.buildSpatial();
       _cir.markBlks();
-      GrMgr gr(_cir);
-      gr.solve();
+      //GrMgr gr(_cir);
+      //gr.solve();
       _cir.buildSpatialNetGuides();
-      TaMgr ta(_cir);
-      ta.solve();
       DrcMgr drc(_cir);
       DrMgr dr(_cir, drc);
       dr.solve();
+      PostMgr post(_cir);
+      post.solve();
+    }
+
+    void init() {
+      _par.correctPinNBlkLoc();
+      _cir.buildSpatial();
+      _cir.markBlks();
+    }
+
+    void solveGR() {
+      GrMgr gr(_cir);
+      gr.solve();
+    }
+
+    void solveDR() {
+      _cir.buildSpatialNetGuides();
+      DrcMgr drc(_cir);
+      DrMgr dr(_cir, drc);
+      dr.solve();
+    }
+
+    void postProcess() {
+      PostMgr post(_cir);
+      post.solve();
     }
 
     // write
@@ -156,6 +179,10 @@ void initPyAPI(py::module& m) {
     .def("addSymNet", py::overload_cast<const pro::UInt_t, const pro::UInt_t>(&apiPy::AnaroutePy::addSymNet))
     .def("addIOPort", &apiPy::AnaroutePy::addIOPort)
     .def("solve", &apiPy::AnaroutePy::solve)
+    .def("init", &apiPy::AnaroutePy::init)
+    .def("solveGR", &apiPy::AnaroutePy::solveGR)
+    .def("solveDR", &apiPy::AnaroutePy::solveDR)
+    .def("postProcess", &apiPy::AnaroutePy::postProcess)
     .def("writeLayoutGds", &apiPy::AnaroutePy::writeLayoutGds)
     .def("writeDumb", &apiPy::AnaroutePy::writeDumb);
 

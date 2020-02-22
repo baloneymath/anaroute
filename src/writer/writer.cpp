@@ -27,6 +27,11 @@ void Writer::writeGrGuideGds(const String_t& netName, const String_t& filename) 
   _grGuidew.writeGds(netName, filename);
 }
 
+void Writer::writeGrGuideGds(const String_t& filename) const {
+  fprintf(stdout, "Writing Global Routing Guides (GDS) %s\n", filename.c_str());
+  _grGuidew.writeGds(filename);
+}
+
 // ....
 void Writer::writeDumb(const String_t& placementFilename, const String_t& outputFilename) {
   fprintf(stdout, "Writing Dumb File %s\n", outputFilename.c_str());

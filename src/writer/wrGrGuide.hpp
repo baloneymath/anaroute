@@ -21,6 +21,7 @@ class GrGuideWriter {
  
   void write(const String_t& filename) const;
   void writeGds(const String_t& netName, const String_t& filename) const;
+  void writeGds(const String_t& filename) const;
 
  private:
   const CirDB& _cir;
