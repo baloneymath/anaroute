@@ -21,7 +21,7 @@ class DrMgr {
     : _cir(c), _drcMgr(d) {}
   ~DrMgr() {}
 
-  void solve(const bool bGrid = false);
+  void solve(const bool bGrid = true);
   void runGridlessRoute();
   void runGridRoute();
 

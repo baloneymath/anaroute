@@ -87,7 +87,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   timer.start(TimeUsage::PARTIAL);
   DrcMgr drc(cir);
   DrMgr dr(cir, drc);
-  dr.solve(true);
+  dr.solve();
   timer.showUsage("Detailed Routing", TimeUsage::PARTIAL);
 
   // post processing

@@ -42,8 +42,7 @@ void DrGridAstar::initSelfSym()
 {
   assert(_net.bSelfSym());
   UInt_t i, pinIdx, layerIdx;
-  for (i = 0; i < _net.numPins(); ++i)
-  {
+  for (i = 0; i < _net.numPins(); ++i) {
     pinIdx = _net.pinIdx(i);
     const auto &pin = _cir.pin(pinIdx);
     bool inLeft = false;
