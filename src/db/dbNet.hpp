@@ -21,7 +21,12 @@ class Routable {
            const Int_t netIdx = -1,
            const Int_t symNetIdx = -1,
            const Int_t symNetRoutableIdx = -1)
-    : _bSelfSym(bSelfSym), _idx(idx), _netIdx(netIdx), _symNetIdx(symNetIdx), _symNetRoutableIdx(-1) {}
+    : _bSelfSym(bSelfSym),
+      _idx(idx),
+      _netIdx(netIdx),
+      _symNetIdx(symNetIdx),
+      _symNetRoutableIdx(symNetRoutableIdx),
+      _bRouted(false) {}
   ~Routable() {}
 
   //////////////////////////////////
@@ -46,6 +51,8 @@ class Routable {
   Int_t   symNetIdx()         const { return _symNetIdx; }
   Int_t   symNetRoutableIdx() const { return _symNetRoutableIdx; }
   
+  bool    bRouted()           const { return _bRouted; }
+
   //////////////////////////////////
   //  Setter                      //
   //////////////////////////////////
@@ -58,6 +65,8 @@ class Routable {
   void addRoutableIdx(const Int_t i) { _vRoutableIndices.emplace_back(i); }
   void addWireIdx(const Int_t i) { _vWireIndices.emplace_back(i); }
 
+  void setRouted(const bool b = true) { _bRouted = true; }
+
  private:
   Vector_t<Int_t> _vPinIndices;
   Vector_t<Int_t> _vRoutableIndices; // idx of the routables of the net
@@ -68,6 +77,8 @@ class Routable {
   Int_t   _netIdx;
   Int_t   _symNetIdx;
   Int_t   _symNetRoutableIdx;
+
+  bool    _bRouted;
 
 };
 

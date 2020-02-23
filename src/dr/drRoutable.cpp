@@ -32,7 +32,11 @@ void DrRoutable::constructRoutables() {
         //cerr << net.routable(j).routableIdx(k) << " ";
       //cerr << endl;
     //}
-    //cerr << endl;
+    //cerr << "  Schedule: ";
+    //for (Int_t j = 0; j < net.numRoutables(); ++j) {
+      //cerr << net.routableSchedule(j) << " ";
+    //}
+    //cerr << endl << endl;
   }
 }
 
@@ -114,6 +118,7 @@ void DrRoutable::constructSelfSymNetRoutables(Net& net) {
     vRoutables.emplace_back(roRest); // idx 1
     vRoutableSchedule.emplace_back(roRest.idx()); // roRest = roSelfSym + some pins
   }
+  assert(net.numRoutables() == (Int_t)net.vRoutableSchedule().size());
 }
 
 void DrRoutable::constructSymNetRoutables(Net& net) {

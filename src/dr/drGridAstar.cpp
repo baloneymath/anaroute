@@ -40,6 +40,7 @@ bool DrGridAstar::run() {
 
 void DrGridAstar::initSelfSym()
 {
+  assert(_net.bSelfSym());
   UInt_t i, pinIdx, layerIdx;
   for (i = 0; i < _net.numPins(); ++i)
   {
@@ -137,8 +138,7 @@ void DrGridAstar::init() {
   }
   // Add dummy pin at the sym axis for self-symmetric nets
   // Init access points pointing to the left
-  if (!_bSelfSymHasPinInBothSide && _bSelfSym)
-  {
+  if (!_bSelfSymHasPinInBothSide && _bSelfSym) {
     UInt_t dummyIdx = _vPinIdx.size();
     _vPinIdx.emplace_back(MAX_INT);
     Int_t xWidth = _cir.gridStep();
