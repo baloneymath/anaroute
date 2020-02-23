@@ -14,6 +14,63 @@
 
 PROJECT_NAMESPACE_START
 
+class Routable {
+ public:
+  Routable(const bool bSelfSym = false,
+           const Int_t idx = -1,
+           const Int_t netIdx = -1,
+           const Int_t symNetIdx = -1,
+           const Int_t symNetRoutableIdx = -1)
+    : _bSelfSym(bSelfSym), _idx(idx), _netIdx(netIdx), _symNetIdx(symNetIdx), _symNetRoutableIdx(-1) {}
+  ~Routable() {}
+
+  //////////////////////////////////
+  //  Getter                      //
+  //////////////////////////////////
+  Vector_t<Int_t>& vPinIndices()      { return _vPinIndices; }
+  Vector_t<Int_t>& vRoutableIndices() { return _vRoutableIndices; }
+  Vector_t<Int_t>& vWireIndices()     { return _vWireIndices; }
+  const Vector_t<Int_t>& vPinIndices()      const { return _vPinIndices; }
+  const Vector_t<Int_t>& vRoutableIndices() const { return _vRoutableIndices; }
+  const Vector_t<Int_t>& vWireIndices()     const { return _vWireIndices; }
+  
+  Int_t   numPins()                   const { return _vPinIndices.size(); }
+  Int_t   numRoutables()              const { return _vRoutableIndices.size(); }
+  Int_t   pinIdx(const Int_t i)       const { return _vPinIndices[i]; }
+  Int_t   routableIdx(const Int_t i)  const { return _vRoutableIndices[i]; }
+
+  bool    bSelfSym()          const { return _bSelfSym; }
+  bool    hasSymNet()         const { return _symNetIdx != -1; }
+  Int_t   idx()               const { return _idx; }
+  Int_t   netIdx()            const { return _netIdx; }
+  Int_t   symNetIdx()         const { return _symNetIdx; }
+  Int_t   symNetRoutableIdx() const { return _symNetRoutableIdx; }
+  
+  //////////////////////////////////
+  //  Setter                      //
+  //////////////////////////////////
+  void setSelfSym(const bool b = true) { _bSelfSym = b; }
+  void setIdx(const Int_t i) { _idx = i; }
+  void setNetIdx(const Int_t i) { _netIdx = i; }
+  void setSymNetIdx(const Int_t i) { _symNetIdx = i; }
+  void setSymNetRoutableIdx(const Int_t i) { _symNetRoutableIdx = i; }
+  void addPinIdx(const Int_t i) { _vPinIndices.emplace_back(i); }
+  void addRoutableIdx(const Int_t i) { _vRoutableIndices.emplace_back(i); }
+  void addWireIdx(const Int_t i) { _vWireIndices.emplace_back(i); }
+
+ private:
+  Vector_t<Int_t> _vPinIndices;
+  Vector_t<Int_t> _vRoutableIndices; // idx of the routables of the net
+  Vector_t<Int_t> _vWireIndices; // idx of _vWires in Net
+  
+  bool    _bSelfSym;
+  Int_t   _idx;
+  Int_t   _netIdx;
+  Int_t   _symNetIdx;
+  Int_t   _symNetRoutableIdx;
+
+};
+
 class Net {
  public:
   Net(const String_t& n = "", const UInt_t idx = MAX_UINT)
@@ -59,6 +116,16 @@ class Net {
   bool    bPowerGround()  const { return _bPowerGround; }
   Int_t   minWidth()      const { return _minWidth; }
   Int_t   minCuts()       const { return _minCuts; }
+
+  // for not-quite-symmetric structure
+  Int_t                       numRoutables()                  const { return _vRoutables.size(); }
+  Int_t                       routableSchedule(const Int_t i) const { return _vRoutableSchedule[i]; }
+  Routable&                   routable(const Int_t i)               { return _vRoutables[i]; }
+  Vector_t<Routable>&         vRoutables()                          { return _vRoutables; }
+  Vector_t<Int_t>&            vRoutableSchedule()                   { return _vRoutableSchedule; }
+  const Routable&             routable(const Int_t i)         const { return _vRoutables[i]; }
+  const Vector_t<Routable>&   vRoutables()                    const { return _vRoutables; }
+  const Vector_t<Int_t>&      vRoutableSchedule()             const { return _vRoutableSchedule; }
 
   //////////////////////////////////
   //  Setter                      //
@@ -107,6 +174,10 @@ class Net {
   bool    _bPowerGround = false;
   Int_t   _minWidth;
   Int_t   _minCuts;
+
+  // for not-quite-symmetric structure
+  Vector_t<Routable>  _vRoutables;
+  Vector_t<Int_t>     _vRoutableSchedule;
 };
 
 //////////////////////////////////

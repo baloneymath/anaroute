@@ -130,6 +130,7 @@ set(SRC
   src/dr/drGridAstar.cpp
   src/dr/drAstar.cpp
   src/dr/drViaSelector.cpp
+  src/dr/drRoutable.cpp
   src/drc/drcMgr.cpp
   src/writer/writer.cpp
   src/writer/wrLayout.cpp

@@ -85,5 +85,4 @@ void Net::setMinCuts(const Int_t c) {
   _minCuts = c;
 }
 
-
 PROJECT_NAMESPACE_END

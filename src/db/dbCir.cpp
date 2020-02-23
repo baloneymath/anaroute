@@ -422,6 +422,81 @@ void CirDB::addPatchWire(const Box<Int_t>& box, const Int_t layerIdx) {
   _vvPatchWires[layerIdx].emplace_back(box);
 }
 
+bool CirDB::bSatisfySymCondition(const Net& net, const Int_t symAxisX) const {
+  if (!net.hasSymNet())
+    return false;
+  const Net& symNet = this->net(net.symNetIdx());
+  Vector_t<Vector_t<Box<Int_t>>> vvBoxes1(this->lef().numLayers());
+  Vector_t<Vector_t<Box<Int_t>>> vvBoxes2(this->lef().numLayers());
+  
+  // init net1 net2 pin shapes
+  auto addPinShapes = [&] (const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes) {
+    for (const auto idx : net.vPinIndices()) {
+      const Pin& pin = this->pin(idx);
+      UInt_t i, layerIdx;
+      const Box<Int_t>* cpBox;
+      Pin_ForEachLayerIdx(pin, layerIdx) {
+        Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
+          vvBoxes[layerIdx].emplace_back(*cpBox);
+        }
+      }
+    }
+  };
+  addPinShapes(net, vvBoxes1);
+  addPinShapes(symNet, vvBoxes2);
+  // search net sym shapes in symNet
+  for (UInt_t i = 0; i < vvBoxes2.size(); ++i) {
+    if (vvBoxes1[i].size() != vvBoxes2[i].size())
+      return false;
+    const auto& vBoxes1 = vvBoxes1[i];
+    auto& vBoxes2 = vvBoxes2[i];
+    std::sort(vBoxes2.begin(), vBoxes2.end());
+    for (const auto& box : vBoxes1) {
+      Box<Int_t> symBox;
+      symBox.setXL(2 * symAxisX - box.xh());
+      symBox.setYL(box.yl());
+      symBox.setXH(2 * symAxisX - box.xl());
+      symBox.setYH(box.yh());
+      if (!std::binary_search(vBoxes2.begin(), vBoxes2.end(), symBox)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool CirDB::bSatisfySelfSymCondition(const Net& net, const Int_t symAxisX) const {
+  if (!net.bSelfSym())
+    return false;
+  Vector_t<Vector_t<Box<Int_t>>> vvBoxes(this->lef().numLayers());
+  // init pin shapes
+  for (const auto idx : net.vPinIndices()) {
+    const Pin& pin = this->pin(idx);
+    UInt_t i, layerIdx;
+    const Box<Int_t>* cpBox;
+    Pin_ForEachLayerIdx(pin, layerIdx) {
+      Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
+        vvBoxes[layerIdx].emplace_back(*cpBox);
+      }
+    }
+  }
+  // make sure there exist a sym box of each box
+  for (auto& vBoxes : vvBoxes) {
+    std::sort(vBoxes.begin(), vBoxes.end());
+    for (const auto& box : vBoxes) {
+      Box<Int_t> symBox;
+      symBox.setXL(2 * symAxisX - box.xh());
+      symBox.setYL(box.yl());
+      symBox.setXH(2 * symAxisX - box.xl());
+      symBox.setYH(box.yh());
+      if (!std::binary_search(vBoxes.begin(), vBoxes.end(), symBox)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 // for debug
 void CirDB::printInfo() const {
   FILE* fout = stdout;

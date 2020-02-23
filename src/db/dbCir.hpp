@@ -169,6 +169,10 @@ class CirDB {
   void addMaskWire(const Box<Int_t>& box, const Int_t layerIdx);
   void addPatchWire(const Box<Int_t>& box, const Int_t layerIdx);
 
+  // for net checking
+  bool bSatisfySymCondition(const Net& net, const Int_t symAxisX) const;
+  bool bSatisfySelfSymCondition(const Net& net, const Int_t symAxisX) const;
+
   // for debug
   void printInfo() const;
   void visualize() const;

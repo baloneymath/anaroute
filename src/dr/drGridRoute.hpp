@@ -37,17 +37,6 @@ class DrGridRoute {
   /////////////////////////////////////////
   struct Net_Cmp {
     bool operator() (const Net* pn1, const Net* pn2) {
-      //Int_t c1 = pinWeight      * pn1->numPins() +
-                 //symWeight      * pn1->hasSymNet() +
-                 //selfSymWeight  * pn1->bSelfSym() +
-                 //failWeight     * pn1->drFailCnt() +
-                 //PGWeight       * pn1->bPowerGround();
-      //Int_t c2 = pinWeight      * pn2->numPins() +
-                 //symWeight      * pn2->hasSymNet() +
-                 //selfSymWeight  * pn2->bSelfSym() +
-                 //failWeight     * pn2->drFailCnt() +
-                 //PGWeight       * pn2->bPowerGround();
-      //return c1 < c2;
       if (pn1->bPowerGround() != pn2->bPowerGround()) {
         return pn1->bPowerGround() > pn2->bPowerGround();
       }
@@ -68,11 +57,6 @@ class DrGridRoute {
       }
       return true;
     }
-    //Int_t pinWeight = 1;
-    //Int_t symWeight = 10;
-    //Int_t selfSymWeight = 10;
-    //Int_t failWeight = 20;
-    //Int_t PGWeight = -5000;
   };
 
   struct Param {
@@ -100,9 +84,6 @@ class DrGridRoute {
   
   void addWireHistoryCost(const Int_t cost, const Int_t layerIdx, const Box<Int_t>& wire);
   void addViaHistoryCost(const Int_t cost, const Int_t x, const Int_t y, const LefVia& via);
-
-  bool bSatisfySymCondition(const Net& net);
-  bool bSatisfySelfSymCondition(const Net& net);
 
 };
 

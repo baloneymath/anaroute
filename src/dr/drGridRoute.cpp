@@ -100,7 +100,7 @@ void DrGridRoute::checkSymSelfSym(const Net& net, bool& bSym, bool& bSelfSym) {
   if (net.hasSymNet()
       and net.drFailCnt() < _param.maxSymTry
       and _cir.net(net.symNetIdx()).drFailCnt() < _param.maxSymTry) {
-    if (bSatisfySymCondition(net)) {
+    if (_cir.bSatisfySymCondition(net, _cir.symAxisX())) {
       bSym = true;
     } 
     else {
@@ -109,7 +109,7 @@ void DrGridRoute::checkSymSelfSym(const Net& net, bool& bSym, bool& bSelfSym) {
   }
   else if (net.bSelfSym()
            and net.drFailCnt() < _param.maxSelfSymTry) {
-    if (bSatisfySelfSymCondition(net)) {
+    if (_cir.bSatisfySelfSymCondition(net, _cir.symAxisX())) {
       bSelfSym = true;
     }
     else {
@@ -204,78 +204,6 @@ void DrGridRoute::addViaHistoryCost(const Int_t cost, const Int_t x, const Int_t
     box.shift(x, y);
     addWireHistoryCost(cost, via.topLayerIdx(), box);
   }
-}
-
-bool DrGridRoute::bSatisfySymCondition(const Net& net) {
-  const Int_t symAxisX = _cir.symAxisX();
-  const Net& symNet = _cir.net(net.symNetIdx());
-  Vector_t<Box<Int_t>> vBoxes1, vBoxes2;
-  // init net1 pin shapes
-  for (const auto idx : net.vPinIndices()) {
-    const Pin& pin = _cir.pin(idx);
-    UInt_t i, layerIdx;
-    const Box<Int_t>* cpBox;
-    Pin_ForEachLayerIdx(pin, layerIdx) {
-      Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
-        vBoxes1.emplace_back(*cpBox);
-      }
-    }
-  }
-  // init net2 pin shapes
-  for (const auto idx : symNet.vPinIndices()) {
-    const Pin& pin = _cir.pin(idx);
-    UInt_t i, layerIdx;
-    const Box<Int_t>* cpBox;
-    Pin_ForEachLayerIdx(pin, layerIdx) {
-      Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
-        vBoxes2.emplace_back(*cpBox);
-      }
-    }
-  }
-  // search net sym shapes in symNet
-  if (vBoxes1.size() != vBoxes2.size())
-    return false;
-  std::sort(vBoxes2.begin(), vBoxes2.end());
-  for (const auto& box : vBoxes1) {
-    Box<Int_t> symBox;
-    symBox.setXL(2 * symAxisX - box.xh());
-    symBox.setYL(box.yl());
-    symBox.setXH(2 * symAxisX - box.xl());
-    symBox.setYH(box.yh());
-    if (!std::binary_search(vBoxes2.begin(), vBoxes2.end(), symBox)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool DrGridRoute::bSatisfySelfSymCondition(const Net& net) {
-  const Int_t symAxisX = _cir.symAxisX();
-  Vector_t<Box<Int_t>> vBoxes;
-  // init pin shapes
-  for (const auto idx : net.vPinIndices()) {
-    const Pin& pin = _cir.pin(idx);
-    UInt_t i, layerIdx;
-    const Box<Int_t>* cpBox;
-    Pin_ForEachLayerIdx(pin, layerIdx) {
-      Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
-        vBoxes.emplace_back(*cpBox);
-      }
-    }
-  }
-  // make sure there exist a sym box of each box
-  std::sort(vBoxes.begin(), vBoxes.end());
-  for (const auto& box : vBoxes) {
-    Box<Int_t> symBox;
-    symBox.setXL(2 * symAxisX - box.xh());
-    symBox.setYL(box.yl());
-    symBox.setXH(2 * symAxisX - box.xl());
-    symBox.setYH(box.yh());
-    if (!std::binary_search(vBoxes.begin(), vBoxes.end(), symBox)) {
-      return false;
-    }
-  }
-  return true;
 }
 
 PROJECT_NAMESPACE_END

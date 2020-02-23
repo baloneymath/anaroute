@@ -27,8 +27,11 @@ class PostMgr {
 
   void patchJogs();
 
+
+
   bool clockwise(const Point<Int_t>& p0, const Point<Int_t>& p1, const Point<Int_t>& p2) const;
   bool counterClockwise(const Point<Int_t>& p0, const Point<Int_t>& p1, const Point<Int_t>& p2) const;
+
 
 };
 
