@@ -552,7 +552,7 @@ namespace boost
     namespace polygon
     {
         template<typename CoordType>
-        struct geometry_concept<PROJECT_NAMESPACE::Box<CoordType>> {typedef rectangle_concept type; };
+        struct geometry_concept<PROJECT_NAMESPACE::Box<CoordType>> { typedef rectangle_concept type; };
 
         template<typename CoordType>
         struct rectangle_traits<PROJECT_NAMESPACE::Box<CoordType>, typename gtl_same_type<typename PROJECT_NAMESPACE::Box<CoordType>::interval_type, typename PROJECT_NAMESPACE::Box<CoordType>::interval_type>::type>
@@ -601,10 +601,6 @@ namespace boost
                     );
             }
         };
-/*
-        template<typename CoordType>
-        struct polygon_traits<PROJECT_NAMESPACE::Box<CoordType>>
-        */
     };
 }; // boost
 #endif /// _GEO_BOX_HPP_
