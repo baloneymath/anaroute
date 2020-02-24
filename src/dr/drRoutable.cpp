@@ -16,6 +16,7 @@ void DrRoutable::constructRoutables() {
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
     Net& net = _cir.net(i);
     constructNetRoutables(net);
+    //constructNormalNetRoutables(net);
     //cerr << "Net: " << net.name() << endl;
     //cerr << "Pins: ";
     //for (auto pinIdx : net.vPinIndices())

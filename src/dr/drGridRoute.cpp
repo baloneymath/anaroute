@@ -54,20 +54,15 @@ void DrGridRoute::solve() {
 
 bool DrGridRoute::runNRR(PairingHeap<Net*, Net_Cmp>& pq, const Int_t maxIteration) {
   for (Int_t iter = 0; iter < maxIteration; ++iter) {
-    fprintf(stderr, "\nDrGridRoute::%s Iteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
+    fprintf(stderr, "\nDrGridRoute::%s\tIteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
     while (!pq.empty()) {
       Net* pNet = pq.top();
       pq.pop();
-      fprintf(stderr, "DrGridRoute::%s Route net %s\n", __func__, pNet->name().c_str());
-      // check sym and self sym
-      bool bSym = false;
-      bool bSelfSym = false;
-      checkSymSelfSym(*pNet, bSym, bSelfSym);
 
       // start Astar routing (Hard DRC)
-      bool bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, true);
+      bool bSuccess = routeSingleNet(*pNet, true);
       if (!bSuccess) {
-        bSuccess = routeSingleNet(*pNet, bSym, bSelfSym, false);
+        bSuccess = routeSingleNet(*pNet, false);
       }
       assert(bSuccess);
     }
@@ -96,32 +91,35 @@ void DrGridRoute::addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq) {
   }
 }
 
-void DrGridRoute::checkSymSelfSym(const Net& net, bool& bSym, bool& bSelfSym) {
-  if (net.hasSymNet()
-      and net.drFailCnt() < _param.maxSymTry
-      and _cir.net(net.symNetIdx()).drFailCnt() < _param.maxSymTry) {
-    if (_cir.bSatisfySymCondition(net, _cir.symAxisX())) {
-      bSym = true;
-    } 
-    else {
-      fprintf(stderr, "DrGridRoute::%s WARNING: Net %s %s cannot be symmetric\n", __func__, net.name().c_str(), _cir.net(net.symNetIdx()).name().c_str());
+void DrGridRoute::checkSymSelfSym(const Net& net, const Routable& ro, bool& bSym, bool& bSelfSym) {
+  bSym = ro.hasSymNet();
+  bSelfSym = ro.bSelfSym();
+  if (net.hasSymNet()) {
+    if (net.drFailCnt() >= _param.maxSymTry
+        or _cir.net(net.symNetIdx()).drFailCnt() >= _param.maxSymTry) {
+      bSym = false;
     }
   }
-  else if (net.bSelfSym()
-           and net.drFailCnt() < _param.maxSelfSymTry) {
-    if (_cir.bSatisfySelfSymCondition(net, _cir.symAxisX())) {
-      bSelfSym = true;
-    }
-    else {
-      fprintf(stderr, "DrGridRoute::%s WARNING: Net %s cannot be self-symmetric\n", __func__, net.name().c_str());
+  if (net.bSelfSym()) {
+    if (net.drFailCnt() >= _param.maxSelfSymTry) {
+      bSelfSym = false;
     }
   }
-
 }
 
-bool DrGridRoute::routeSingleNet(Net& n, const bool bSym, const bool bSelfSym, const bool bStrictDRC) {
-  DrGridAstar kernel(_cir, n, this->_drc, *this, bSym, bSelfSym, bStrictDRC);
-  return kernel.run();
+bool DrGridRoute::routeSingleNet(Net& net, const bool bStrictDRC) {
+  for (Int_t i = 0; i < net.numRoutables(); ++i) {
+    auto& ro = net.routable(i);
+    // check sym and self sym
+    bool bSym = false;
+    bool bSelfSym = false;
+    checkSymSelfSym(net, ro, bSym, bSelfSym);
+
+    DrGridAstar kernel(_cir, net, ro, this->_drc, *this, bSym, bSelfSym, bStrictDRC);
+    if (!kernel.run())
+      return false;
+  }
+  return true;
 }
 
 bool DrGridRoute::checkDRC() {
@@ -168,7 +166,7 @@ void DrGridRoute::ripupSingleNet(Net& net) {
   }
   net.vWires().clear();
   net.addDrFail();
-  net.setRouted(false);
+  net.clearRouting();
   fprintf(stderr, "DrGridRoute::%s Ripup net %s\n", __func__, net.name().c_str());
   // check sym net
   if (net.hasSymNet()) {
@@ -181,7 +179,7 @@ void DrGridRoute::ripupSingleNet(Net& net) {
     }
     symNet.vWires().clear();
     symNet.addDrFail();
-    symNet.setRouted(false);
+    symNet.clearRouting();
     fprintf(stderr, "DrGridRoute::%s Ripup net %s\n", __func__, symNet.name().c_str());
   }
 }

@@ -497,6 +497,27 @@ bool CirDB::bSatisfySelfSymCondition(const Net& net, const Int_t symAxisX) const
   return true;
 }
 
+void CirDB::checkNetSymSelfSym() {
+  fprintf(stderr, "\n");
+  for (UInt_t i = 0; i < this->numNets(); ++i) {
+    const auto& net = this->net(i);
+    if (net.hasSymNet()) {
+      if (!bSatisfySymCondition(net, _symAxisX)) {
+        fprintf(stderr, "WARNING: Net %s %s not totally symmetric\n",
+                net.name().c_str(),
+                this->net(net.symNetIdx()).name().c_str());
+      }
+    }
+    else if (net.bSelfSym()) {
+      if (!bSatisfySelfSymCondition(net, _symAxisX)) {
+        fprintf(stderr, "WARNING: Net %s not totally self-symmetric\n",
+                net.name().c_str());
+      }
+    }
+  }
+  fprintf(stderr, "\n");
+}
+
 // for debug
 void CirDB::printInfo() const {
   FILE* fout = stdout;

@@ -172,6 +172,7 @@ class CirDB {
   // for net checking
   bool bSatisfySymCondition(const Net& net, const Int_t symAxisX) const;
   bool bSatisfySelfSymCondition(const Net& net, const Int_t symAxisX) const;
+  void checkNetSymSelfSym();
 
   // for debug
   void printInfo() const;

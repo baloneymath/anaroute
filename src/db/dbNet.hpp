@@ -161,6 +161,15 @@ class Net {
   void setMinWidth(const Int_t w);
   void setMinCuts(const Int_t c);
 
+  void clearRouting() {
+    for (auto& ro : _vRoutables) {
+      ro.vWireIndices().clear();
+      ro.setRouted(false);
+    }
+    _vWires.clear();
+    _bRouted = false;
+  }
+
  private:
   String_t                            _name;
   UInt_t                              _idx;

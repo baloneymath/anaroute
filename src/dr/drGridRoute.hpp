@@ -71,16 +71,16 @@ class DrGridRoute {
   /////////////////////////////////////////
   void addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq);
 
-  void checkSymSelfSym(const Net& net, bool& bSym, bool& bSelfSym);
+  void checkSymSelfSym(const Net& net, const Routable& ro, bool& bSym, bool& bSelfSym);
 
   bool runNRR(PairingHeap<Net*, Net_Cmp>& pq, const Int_t maxIteration);
 
-  bool routeSingleNet(Net& n, const bool bSym, const bool bSelfSym, const bool bStrictDRC);
+  bool routeSingleNet(Net& net, const bool bStrictDRC);
 
   bool checkDRC();
   bool checkSingleNetDRC(const Net& net);
   
-  void ripupSingleNet(Net& n);
+  void ripupSingleNet(Net& net);
   
   void addWireHistoryCost(const Int_t cost, const Int_t layerIdx, const Box<Int_t>& wire);
   void addViaHistoryCost(const Int_t cost, const Int_t x, const Int_t y, const LefVia& via);

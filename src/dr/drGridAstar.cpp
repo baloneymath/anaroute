@@ -20,7 +20,16 @@ PROJECT_NAMESPACE_START
 
 bool DrGridAstar::run() {
   
+  fprintf(stderr, "DrGridAstar::%s\tRoute net %s, Sym: %d, SelfSym: %d, StrictDRC: %d \n",
+          __func__,
+          _net.name().c_str(),
+          _bSym,
+          _bSelfSym,
+          _bStrictDRC);
+  
   if (_net.bRouted())
+    return true;
+  if (_ro.bRouted())
     return true;
 
   init();
@@ -31,6 +40,7 @@ bool DrGridAstar::run() {
 
   // ripup or not
   if (!bSuccess) {
+    fprintf(stderr, "DrGridAstar::%s\tERROR: Route net %s failed!\n", __func__, _net.name().c_str());
     ripup();
     return false;
   }
@@ -40,10 +50,10 @@ bool DrGridAstar::run() {
 
 void DrGridAstar::initSelfSym()
 {
-  assert(_net.bSelfSym());
+  assert(_ro.numRoutables() == 0);
   UInt_t i, pinIdx, layerIdx;
-  for (i = 0; i < _net.numPins(); ++i) {
-    pinIdx = _net.pinIdx(i);
+  for (i = 0; i < (UInt_t)_ro.numPins(); ++i) {
+    pinIdx = _ro.pinIdx(i);
     const auto &pin = _cir.pin(pinIdx);
     bool inLeft = false;
     bool inRight = false;
@@ -85,32 +95,33 @@ void DrGridAstar::initSelfSym()
 void DrGridAstar::init() {
   _vPinIdx.clear();
   _bSelfSymHasPinInBothSide = false;
-  if (_bSelfSym)
-  {
+  if (_bSelfSym) {
     initSelfSym();
   }
-  else
-  {
-    for (UInt_t ii = 0; ii < _net.numPins(); ++ii)
-    {
-      _vPinIdx.emplace_back(_net.pinIdx(ii));
+  else {
+    assert(!_ro.bSelfSym());
+    for (Int_t ii = 0; ii < _ro.numPins(); ++ii) {
+      _vPinIdx.emplace_back(_ro.pinIdx(ii));
     }
-    _compDS.init(_net.numPins());
-    _vCompBoxes.resize(_net.numPins());
-    _vCompAcsPts.resize(_net.numPins());
-    _vCompSpatialBoxes.resize(_net.numPins());
+    for (Int_t ii = 0; ii < _ro.numRoutables(); ++ii) {
+      _vRoutableIdx.emplace_back(_ro.routableIdx(ii));
+    }
+    _compDS.init(_ro.numPins() + _ro.numRoutables());
+    _vCompBoxes.resize(_ro.numPins() + _ro.numRoutables());
+    _vCompAcsPts.resize(_ro.numPins() + _ro.numRoutables());
+    _vCompSpatialBoxes.resize(_ro.numPins() + _ro.numRoutables());
   }
 
-  UInt_t i, j, pinIdx, layerIdx;
+  UInt_t i, j, k, layerIdx;
   Int_t yRangeLo = MAX_INT;
   Int_t yRangeHi = MIN_INT;
   const Box<Int_t>* cpBox;
   const AcsPt* cpPt;
   for (i = 0; i < _vPinIdx.size(); ++ i) {
-    pinIdx = _vPinIdx[i];
     _vCompAcsPts[i].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
     _vCompAcsPts[i].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
-    const Pin& pin = _cir.pin(pinIdx);
+    const Int_t pinIdx = _vPinIdx[i];
+    const auto& pin = _cir.pin(pinIdx);
     Pin_ForEachLayerIdx(pin, layerIdx) {
       Pin_ForEachLayerBox(pin, layerIdx, cpBox, j) {
         yRangeLo = std::min(yRangeLo, cpBox->yl());
@@ -122,29 +133,62 @@ void DrGridAstar::init() {
 
     Pin_ForEachAcsPt(pin, cpPt, j) {
       Point3d<Int_t> pt = cpPt->gridPt();
-      //switch (cpPt->dir()) {
-        //case AcsPt::DirType::NORTH: pt.setY(pt.y() + _cir.gridStep()); break;
-        //case AcsPt::DirType::SOUTH: pt.setY(pt.y() - _cir.gridStep()); break;
-        //case AcsPt::DirType::EAST: pt.setX(pt.x() + _cir.gridStep()); break;
-        //case AcsPt::DirType::WEST: pt.setX(pt.x() - _cir.gridStep()); break;
-        //case AcsPt::DirType::UP: assert(false);
-        //case AcsPt::DirType::DOWN: assert(false);
-        //default: assert(false);
-      //}
       _vCompAcsPts[i].insert(pt);
       _pinAcsMap[pt] = *cpPt;
     }
   }
+  // currently must be only one routable in a routable
+  assert(_vRoutableIdx.size() <= 1);
+  for (i = 0; i < _vRoutableIdx.size(); ++i) {
+    const Int_t compIdx = i + _vPinIdx.size();
+    _vCompAcsPts[compIdx].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
+    _vCompAcsPts[compIdx].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
+    
+    const Int_t routableIdx = _vRoutableIdx[i];
+    const auto& routable = _net.routable(routableIdx);
+    
+    for (j = 0; j < (UInt_t)routable.numPins(); ++j) {
+      const Int_t pinIdx = routable.pinIdx(i);
+      const auto& pin = _cir.pin(pinIdx);
+      Pin_ForEachLayerIdx(pin, layerIdx) {
+        Pin_ForEachLayerBox(pin, layerIdx, cpBox, k) {
+          yRangeLo = std::min(yRangeLo, cpBox->yl());
+          yRangeHi = std::max(yRangeHi, cpBox->yh());
+          _vCompBoxes[compIdx].emplace_back((*cpBox), layerIdx);
+          _vCompSpatialBoxes[compIdx][layerIdx].insert(*cpBox);
+        }
+      }
+      Pin_ForEachAcsPt(pin, cpPt, k) {
+        Point3d<Int_t> pt = cpPt->gridPt();
+        _vCompAcsPts[compIdx].insert(pt);
+        _pinAcsMap[pt] = *cpPt;
+      }
+
+    }
+    for (j = 0; j < routable.vWireIndices().size(); ++j) {
+      const Int_t wireIdx = routable.vWireIndices()[j];
+      const auto& wire = _net.vWires()[wireIdx];
+      const auto& box = wire.first;
+      const Int_t layerIdx = wire.second;
+      if (!_cir.lef().bRoutingLayer(layerIdx))
+        continue;
+      yRangeLo = std::min(yRangeLo, box.yl());
+      yRangeHi = std::max(yRangeHi, box.yh());
+      _vCompBoxes[compIdx].emplace_back(box, layerIdx);
+      _vCompSpatialBoxes[compIdx][layerIdx].insert(box);
+      addAcsPts(compIdx, layerIdx, box);
+    }
+    
+  }
   // Add dummy pin at the sym axis for self-symmetric nets
   // Init access points pointing to the left
   if (!_bSelfSymHasPinInBothSide && _bSelfSym) {
+    assert(_ro.bSelfSym());
     UInt_t dummyIdx = _vPinIdx.size();
     _vPinIdx.emplace_back(MAX_INT);
     Int_t xWidth = _cir.gridStep();
-    Box<Int_t> dummyPinRect(_cir.symAxisX() - xWidth,
-               yRangeLo,
-               _cir.symAxisX() + xWidth,
-               yRangeHi);
+    Box<Int_t> dummyPinRect(_cir.symAxisX() - xWidth, yRangeLo,
+                            _cir.symAxisX() + xWidth, yRangeHi);
     _vCompAcsPts[dummyIdx].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
     _vCompAcsPts[dummyIdx].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
     
@@ -250,7 +294,6 @@ bool DrGridAstar::route() {
     const Int_t srcIdx = pair.first;
     const Int_t tarIdx = pair.second;
     if (!routeSubNet(srcIdx, tarIdx)) {
-      fprintf(stderr, "DrGridAstar::%s ERROR: Route net %s failed!\n", __func__, _net.name().c_str());
       return false;
     }
   }
@@ -833,22 +876,36 @@ void DrGridAstar::resetAllNodes() {
 void DrGridAstar::saveResult2Net() {
   for (const auto& vRoutedWires : _vvRoutedWires) {
     for (const auto& pair : vRoutedWires) {
+      _ro.vWireIndices().emplace_back(_net.vWires().size());
       _net.vWires().emplace_back(pair);
     }
   }
-  _net.setRouted(true);
+  _ro.setRouted(true);
+  bool bNetRouted = true;
+  for (Int_t i = 0; i < _net.numRoutables(); ++i) {
+    bNetRouted &= _net.routable(i).bRouted();
+  }
+  _net.setRouted(bNetRouted);
+
   if (_bSym) {
     Net& symNet = _cir.net(_net.symNetIdx());
+    Routable& symRo = symNet.routable(_ro.symNetRoutableIdx());
     for (const auto& vRoutedWires : _vvRoutedWires) {
       for (const auto& pair : vRoutedWires) {
         const Box<Int_t>& wire = pair.first;
         const Int_t layerIdx = pair.second;
         Box<Int_t> symWire(wire);
         symWire.flipX(_cir.symAxisX());
+        symRo.vWireIndices().emplace_back(symNet.vWires().size());
         symNet.vWires().emplace_back(symWire, layerIdx);
       }
     }
-    symNet.setRouted(true);
+    symRo.setRouted(true);
+    bool bNetRouted = true;
+    for (Int_t i = 0; i < symNet.numRoutables(); ++i) {
+      bNetRouted &= symNet.routable(i).bRouted();
+    }
+    symNet.setRouted(bNetRouted);
   }
   if (_bSelfSym)
   {
@@ -858,8 +915,10 @@ void DrGridAstar::saveResult2Net() {
         const Int_t layerIdx = pair.second;
         Box<Int_t> symWire(wire);
         symWire.flipX(_cir.symAxisX());
-        if (symWire != wire)
+        if (symWire != wire) {
+          _ro.vWireIndices().emplace_back(_net.vWires().size());
           _net.vWires().emplace_back(symWire, layerIdx);
+        }
       }
     }
   }

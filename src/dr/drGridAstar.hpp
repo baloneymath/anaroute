@@ -20,9 +20,9 @@ PROJECT_NAMESPACE_START
 
 class DrGridAstar {
  public:
-  DrGridAstar(CirDB& c, Net& n, DrcMgr& d, DrGridRoute& dr,
+  DrGridAstar(CirDB& c, Net& n, Routable& ro, DrcMgr& d, DrGridRoute& dr,
               const bool bSym, const bool bSelfSym, const bool bStrictDRC)
-    : _cir(c), _net(n), _drc(d), _dr(dr),
+    : _cir(c), _net(n), _ro(ro), _drc(d), _dr(dr),
       _bSym(bSym), _bSelfSym(bSelfSym), _bStrictDRC(bStrictDRC) {
     _vAllNodesMap.resize(_cir.lef().numLayers());
     for (auto& m : _vAllNodesMap) {
@@ -44,6 +44,7 @@ class DrGridAstar {
  private:
   CirDB&        _cir;
   Net&          _net;
+  Routable&     _ro;
   DrcMgr&       _drc;
   DrGridRoute&  _dr;
   const bool    _bSym;
@@ -57,8 +58,8 @@ class DrGridAstar {
   Vector_t<UMap_t<Int_t, Spatial<Int_t>>>                         _vCompSpatialBoxes;
   Vector_t<Pair_t<UInt_t, UInt_t>>                                _vSubNets;
   
-  // self-symmetric
-  Vector_t<UInt_t> _vPinIdx; ///< The vector of pins appear in the left of the symmetric axis
+  Vector_t<UInt_t>  _vPinIdx; ///< The vector of pins appear in the left of the symmetric axis
+  Vector_t<UInt_t>  _vRoutableIdx;
   bool _bSelfSymHasPinInBothSide = false;
 
   // pin acs
@@ -99,6 +100,9 @@ class DrGridAstar {
   /////////////////////////////////////////
   void  init();
   void  initSelfSym();
+  void  initFromRoutable(const Routable& ro);
+  void  initSelfSymFromRoutable(const Routable& ro);
+
   void  splitSubNetMST();
   bool  route();
   bool  routeSubNet(Int_t srcIdx, Int_t tarIdx);
