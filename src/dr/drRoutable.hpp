@@ -21,7 +21,7 @@ class DrRoutable {
 
   void constructRoutables();
 
-  void constructNetRoutables(Net& net);
+  void constructNetRoutables(Net& net, const bool bSym, const bool bSelfSym);
   void constructNormalNetRoutables(Net& net);
   void constructSelfSymNetRoutables(Net& net);
   void constructSymNetRoutables(Net& net);

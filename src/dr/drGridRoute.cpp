@@ -8,6 +8,7 @@
 
 #include "drGridRoute.hpp"
 #include "drGridAstar.hpp"
+#include "drRoutable.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -108,12 +109,32 @@ void DrGridRoute::checkSymSelfSym(const Net& net, const Routable& ro, bool& bSym
 }
 
 bool DrGridRoute::routeSingleNet(Net& net, const bool bStrictDRC) {
+  
+  if (net.hasSymNet()) {
+    Net& symNet = _cir.net(net.symNetIdx());
+    if (net.drFailCnt() >= _param.maxSymTry
+        or symNet.drFailCnt() >= _param.maxSymTry) {
+      net.clearRoutables();
+      symNet.clearRoutables();
+      DrRoutable drRo(_cir);
+      drRo.constructNetRoutables(net, false, false);
+    }
+  }
+  if (net.bSelfSym()) {
+    if (net.drFailCnt() >= _param.maxSelfSymTry) {
+      net.clearRoutables();
+      DrRoutable drRo(_cir);
+      drRo.constructNetRoutables(net, false, false);
+    }
+  }
+  
   for (Int_t i = 0; i < net.numRoutables(); ++i) {
     auto& ro = net.routable(i);
     // check sym and self sym
     bool bSym = false;
     bool bSelfSym = false;
     checkSymSelfSym(net, ro, bSym, bSelfSym);
+
 
     DrGridAstar kernel(_cir, net, ro, this->_drc, *this, bSym, bSelfSym, bStrictDRC);
     if (!kernel.run())
@@ -164,7 +185,6 @@ void DrGridRoute::ripupSingleNet(Net& net) {
     bool bExist = _cir.removeSpatialRoutedWire(net.idx(), layerIdx, wire);
     assert(bExist);
   }
-  net.vWires().clear();
   net.addDrFail();
   net.clearRouting();
   fprintf(stderr, "DrGridRoute::%s Ripup net %s\n", __func__, net.name().c_str());
@@ -177,7 +197,6 @@ void DrGridRoute::ripupSingleNet(Net& net) {
       bool bExist = _cir.removeSpatialRoutedWire(symNet.idx(), layerIdx, wire);
       assert(bExist);
     }
-    symNet.vWires().clear();
     symNet.addDrFail();
     symNet.clearRouting();
     fprintf(stderr, "DrGridRoute::%s Ripup net %s\n", __func__, symNet.name().c_str());

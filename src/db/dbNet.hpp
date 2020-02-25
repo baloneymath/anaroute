@@ -65,7 +65,7 @@ class Routable {
   void addRoutableIdx(const Int_t i) { _vRoutableIndices.emplace_back(i); }
   void addWireIdx(const Int_t i) { _vWireIndices.emplace_back(i); }
 
-  void setRouted(const bool b = true) { _bRouted = true; }
+  void setRouted(const bool b = true) { _bRouted = b; }
 
  private:
   Vector_t<Int_t> _vPinIndices;
@@ -160,6 +160,11 @@ class Net {
   void setPowerGround(const bool b = true);
   void setMinWidth(const Int_t w);
   void setMinCuts(const Int_t c);
+
+  void clearRoutables() {
+    _vRoutables.clear();
+    _vRoutableSchedule.clear();
+  }
 
   void clearRouting() {
     for (auto& ro : _vRoutables) {

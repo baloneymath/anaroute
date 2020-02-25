@@ -27,10 +27,12 @@ bool DrGridAstar::run() {
           _bSelfSym,
           _bStrictDRC);
   
-  if (_net.bRouted())
+  if (_net.bRouted()) {
     return true;
-  if (_ro.bRouted())
+  }
+  if (_ro.bRouted()) {
     return true;
+  }
 
   init();
   splitSubNetMST();

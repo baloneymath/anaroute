@@ -15,7 +15,7 @@ PROJECT_NAMESPACE_START
 void DrRoutable::constructRoutables() {
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
     Net& net = _cir.net(i);
-    constructNetRoutables(net);
+    constructNetRoutables(net, net.hasSymNet(), net.bSelfSym());
     //constructNormalNetRoutables(net);
     //cerr << "Net: " << net.name() << endl;
     //cerr << "Pins: ";
@@ -41,16 +41,16 @@ void DrRoutable::constructRoutables() {
   }
 }
 
-void DrRoutable::constructNetRoutables(Net& net) {
-  if (!net.bSelfSym() and !net.hasSymNet()) {
+void DrRoutable::constructNetRoutables(Net& net, const bool bSym, const bool bSelfSym) {
+  if (!bSym and !bSelfSym) {
     constructNormalNetRoutables(net);
   }
-  else if (net.bSelfSym()) {
-    assert(!net.hasSymNet());
+  else if (bSelfSym) {
+    assert(!bSym);
     constructSelfSymNetRoutables(net);
   }
-  else { // sym net
-    assert(!net.bSelfSym());
+  else if (bSym) { // sym net
+    assert(!bSelfSym);
     constructSymNetRoutables(net);
   }
 }
@@ -124,8 +124,8 @@ void DrRoutable::constructSelfSymNetRoutables(Net& net) {
 
 void DrRoutable::constructSymNetRoutables(Net& net) {
   Net& symNet = _cir.net(net.symNetIdx());
-  if (symNet.idx() < net.idx()) {
-    assert(symNet.numRoutables() != 0);
+  if (net.numRoutables() > 0) {
+    assert(symNet.numRoutables() > 0);
     return;
   }
   // init pin shapes for both nets
