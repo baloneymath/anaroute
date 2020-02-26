@@ -28,7 +28,7 @@ class DrGridAstar {
     for (auto& m : _vAllNodesMap) {
       m.set_empty_key(Point<Int_t>(-1, -1));
     }
-    _param.viaCost = _cir.gridStep() * 4;
+    _param.viaCost = _cir.gridStep() * 3;
   }
   
   ~DrGridAstar() {
