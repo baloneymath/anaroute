@@ -44,8 +44,23 @@ namespace apiPy {
       _cir.setXH(xh);
       _cir.setYH(yh);
     }
-    void addNet(const String_t& netName) {
+    void setGridStep(const Int_t s) {
+      _cir.setGridStep(s);
+    }
+    void setGridOffsetX(const Int_t x) {
+      _cir.setGridOffsetX(x);
+    }
+    void setGridOffsetY(const Int_t y) {
+      _cir.setGridOffsetY(y);
+    }
+    void setSymAxisX(const Int_t x) {
+      _cir.setSymAxisX(x);
+    }
+    void addNet(const String_t& netName, const Int_t minWidth, const Int_t minCuts, const bool bPG) {
       Net net(netName, _cir.numNets());
+      net.setPowerGround(bPG);
+      net.setMinWidth(minWidth);
+      net.setMinCuts(minCuts);
       _cir.addNet(net);
     }
     void addPin(const String_t& pinName) {
@@ -61,6 +76,14 @@ namespace apiPy {
       pin.setNetName(net.name());
       pin.setNetIdx(net.idx());
       net.addPinIdx(pin.idx());
+      // update bbox
+      UInt_t i, layerIdx;
+      const Box<Int_t>* cpBox;
+      Pin_ForEachLayerIdx(pin, layerIdx) {
+        Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
+          net.updateBBox(*cpBox);
+        }
+      }
     }
     void addPin2Net(const UInt_t pinIdx, const UInt_t netIdx) {
       Net& net = _cir.net(netIdx);
@@ -68,6 +91,14 @@ namespace apiPy {
       pin.setNetName(net.name());
       pin.setNetIdx(net.idx());
       net.addPinIdx(pin.idx());
+      // update bbox
+      UInt_t i, layerIdx;
+      const Box<Int_t>* cpBox;
+      Pin_ForEachLayerIdx(pin, layerIdx) {
+        Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
+          net.updateBBox(*cpBox);
+        }
+      }
     }
     /// note: layerIdx should be metal layer, ex. 1 for M1, 2 for M2 ... 
     void addShape2Pin(const String_t& pinName, const UInt_t layerIdx, const Int_t xl, const Int_t yl, const Int_t xh, const Int_t yh) {
@@ -97,6 +128,14 @@ namespace apiPy {
       Net& n2 = _cir.net(i2);
       n1.setSymNetIdx(n2.idx());
       n2.setSymNetIdx(n1.idx());
+    }
+    void addSelfSymNet(const String_t& n) {
+      Net& net = _cir.net(n);
+      net.setSelfSym();
+    }
+    void addSelfSymNet(const UInt_t i) {
+      Net& net = _cir.net(i);
+      net.setSelfSym();
     }
     void addIOPort(const String_t& netName) {
       _cir.net(netName).setIOPort();
@@ -168,7 +207,11 @@ void initPyAPI(py::module& m) {
     .def("parseSymNet", &apiPy::AnaroutePy::parseSymNet)
     .def("parseIOPin", &apiPy::AnaroutePy::parseIOPin)
     .def("setCirBBox", &apiPy::AnaroutePy::setCirBBox)
-    .def("addNet", &apiPy::AnaroutePy::addNet)
+    .def("setGridStep", &apiPy::AnaroutePy::setGridStep)
+    .def("setGridOffsetX", &apiPy::AnaroutePy::setGridOffsetX)
+    .def("setGridOffsetY", &apiPy::AnaroutePy::setGridOffsetY)
+    .def("setSymAxisX", &apiPy::AnaroutePy::setSymAxisX)
+    .def("addNet", py::overload_cast<const pro::String_t&, const pro::Int_t, const pro::Int_t, const bool>(&apiPy::AnaroutePy::addNet))
     .def("addPin", &apiPy::AnaroutePy::addPin)
     .def("addPin2Net", py::overload_cast<const pro::String_t&, const pro::String_t&>(&apiPy::AnaroutePy::addPin2Net))
     .def("addPin2Net", py::overload_cast<const pro::UInt_t, const pro::UInt_t>(&apiPy::AnaroutePy::addPin2Net))
@@ -177,6 +220,8 @@ void initPyAPI(py::module& m) {
     .def("addBlk", &apiPy::AnaroutePy::addBlk)
     .def("addSymNet", py::overload_cast<const pro::String_t&, const pro::String_t&>(&apiPy::AnaroutePy::addSymNet))
     .def("addSymNet", py::overload_cast<const pro::UInt_t, const pro::UInt_t>(&apiPy::AnaroutePy::addSymNet))
+    .def("addSelfSymNet", py::overload_cast<const pro::String_t&>(&apiPy::AnaroutePy::addSelfSymNet))
+    .def("addSelfSymNet", py::overload_cast<const pro::UInt_t>(&apiPy::AnaroutePy::addSelfSymNet))
     .def("addIOPort", &apiPy::AnaroutePy::addIOPort)
     .def("solve", &apiPy::AnaroutePy::solve)
     .def("init", &apiPy::AnaroutePy::init)
