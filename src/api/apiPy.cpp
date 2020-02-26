@@ -11,6 +11,7 @@
 #include "src/global/global.hpp"
 #include "src/db/dbCir.hpp"
 #include "src/parser/parser.hpp"
+#include "src/acs/acsMgr.hpp"
 #include "src/gr/grMgr.hpp"
 #include "src/dr/drMgr.hpp"
 #include "src/drc/drcMgr.hpp"
@@ -145,14 +146,16 @@ namespace apiPy {
     // solve
     /////////////////////////////////////
     void solve() {
-      _par.correctPinNBlkLoc();
-      _cir.buildSpatial();
-      _cir.markBlks();
       _cir.resizeVVPinIndices(_cir.lef().numLayers());
       _cir.resizeVVBlkIndices(_cir.lef().numLayers());
+      _cir.buildSpatial();
+      _cir.markBlks();
+      _cir.checkNetSymSelfSym();
       //GrMgr gr(_cir);
       //gr.solve();
       _cir.buildSpatialNetGuides();
+      AcsMgr acs(_cir);
+      acs.computeAcs();
       DrcMgr drc(_cir);
       DrMgr dr(_cir, drc);
       dr.solve();
@@ -161,11 +164,14 @@ namespace apiPy {
     }
 
     void init() {
+      _cir.resizeVVPinIndices(_cir.lef().numLayers());
+      _cir.resizeVVBlkIndices(_cir.lef().numLayers());
       _par.correctPinNBlkLoc();
       _cir.buildSpatial();
       _cir.markBlks();
-      _cir.resizeVVPinIndices(_cir.lef().numLayers());
-      _cir.resizeVVBlkIndices(_cir.lef().numLayers());
+      _cir.checkNetSymSelfSym();
+      AcsMgr acs(_cir);
+      acs.computeAcs();
     }
 
     void solveGR() {
