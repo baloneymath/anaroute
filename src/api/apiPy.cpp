@@ -148,6 +148,8 @@ namespace apiPy {
       _par.correctPinNBlkLoc();
       _cir.buildSpatial();
       _cir.markBlks();
+      _cir.resizeVVPinIndices(_cir.lef().numLayers());
+      _cir.resizeVVBlkIndices(_cir.lef().numLayers());
       //GrMgr gr(_cir);
       //gr.solve();
       _cir.buildSpatialNetGuides();
@@ -162,6 +164,8 @@ namespace apiPy {
       _par.correctPinNBlkLoc();
       _cir.buildSpatial();
       _cir.markBlks();
+      _cir.resizeVVPinIndices(_cir.lef().numLayers());
+      _cir.resizeVVBlkIndices(_cir.lef().numLayers());
     }
 
     void solveGR() {
