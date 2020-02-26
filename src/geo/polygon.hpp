@@ -21,8 +21,8 @@
 #ifndef _GEO_POLYGON_HPP_
 #define _GEO_POLYGON_HPP_
 
-//#define _GEO_POLYGON_USING_POLYGON90
-#define _GEO_POLYGON_USING_POLYGON
+#define _GEO_POLYGON_USING_POLYGON90
+//#define _GEO_POLYGON_USING_POLYGON
 
 #include "src/global/namespace.hpp"
 #include "point.hpp"
@@ -184,7 +184,7 @@ namespace boost { namespace polygon {
 #if defined(_GEO_POLYGON_USING_POLYGON90)
   // Here we register the polygon as boost:polygon polygon90 concept 
   // One of the key difference in data between 90 and polygon is that polygon90 is using compact representation
-  // For example, if compact coordinates are x1, y1, x2, y2,
+  // For example, if compact coordinates are x1, y1, e 2, y2,
   // its points in polygon is (x1, y1) (x2, y1) (x2 y2).
   // In other words, also we can register Polygon as Polygon90, 
   // its efficiency would be lower than using native compact data structure.
@@ -200,28 +200,45 @@ namespace boost { namespace polygon {
   struct polygon_90_traits<PROJECT_NAMESPACE::Polygon<CoordType>>
   {
     typedef CoordType coordinate_type;
-    typedef typename std::vector<CoordType>::const_iterator compact_iterator_type;
     typedef typename PROJECT_NAMESPACE::Polygon<CoordType>::RingType::const_iterator pointer_iterator_type;
     typedef typename PROJECT_NAMESPACE::Polygon<CoordType>::PointType PointType;
+    typedef iterator_points_to_compact<pointer_iterator_type, PointType> compact_iterator_type;
 
     static inline compact_iterator_type begin_compact(const PROJECT_NAMESPACE::Polygon<CoordType> &t)
     {
+      return compact_iterator_type(t.outer().begin());
+    }
+    static inline compact_iterator_type end_compact(const PROJECT_NAMESPACE::Polygon<CoordType> &t)
+    {
+      return compact_iterator_type(t.outer().end());
+    }
+    static inline unsigned int size(const PROJECT_NAMESPACE::Polygon<CoordType> &t)
+    {
+      return t.outer().size();
+    }
+    static inline winding_direction winding(const PROJECT_NAMESPACE::Polygon<CoordType> &t)
+    {
+      return boost::polygon::winding_direction::clockwise_winding; // Clockwise
     }
   };
 
   template<typename CoordType>
-  struct polygon_mutable_traits<PROJECT_NAMESPACE::Polygon<CoordType>>
+  struct polygon_90_mutable_traits<PROJECT_NAMESPACE::Polygon<CoordType>>
   {
+    typedef typename PROJECT_NAMESPACE::Polygon<CoordType>::PointType PointType;
     template<typename iT>
-    static inline PROJECT_NAMESPACE::Polygon<CoordType> & set_points(PROJECT_NAMESPACE::Polygon<CoordType> &t,
+    static inline PROJECT_NAMESPACE::Polygon<CoordType> & set_compact(PROJECT_NAMESPACE::Polygon<CoordType> &t,
         iT input_begin, iT input_end)
     {
+      using iter_type =  iterator_compact_to_points<iT, PointType>;
       t.outer().clear();
-      while (input_begin != input_end)
+      auto iter = iter_type(input_begin, input_end);
+      auto end = iter_type(input_end, input_end);
+      while (iter != end)
       {
-        t.outer().emplace_back(PROJECT_NAMESPACE::Polygon<CoordType>::PointType);
-        boost::polygon::assign(t.outer().back(), *input_begin);
-        ++input_begin;
+        t.outer().emplace_back(PROJECT_NAMESPACE::Point<CoordType>());
+        boost::polygon::assign(t.outer().back(), *iter);
+        ++iter;
       }
       return t;
     }

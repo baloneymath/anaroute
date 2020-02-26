@@ -137,7 +137,7 @@ namespace boost { namespace polygon {
     struct point_traits<PROJECT_NAMESPACE::Point<CoordType>>
     {
         typedef CoordType coordinate_type;
-        static inline coordinate_type set(PROJECT_NAMESPACE::Point<CoordType> &point, orientation_2d orient)
+        static inline coordinate_type get(const PROJECT_NAMESPACE::Point<CoordType> &point, orientation_2d orient)
         {
             if (orient== HORIZONTAL)
             {
