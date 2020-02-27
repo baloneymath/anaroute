@@ -85,4 +85,22 @@ void Net::setMinCuts(const Int_t c) {
   _minCuts = c;
 }
 
+void Net::clearRoutables() {
+  _vRoutables.clear();
+  _vRoutableSchedule.clear();
+}
+
+void Net::clearRouting() {
+  for (auto& ro : _vRoutables) {
+    ro.vWireIndices().clear();
+    ro.setRouted(false);
+  }
+  _vWires.clear();
+  _bRouted = false;
+}
+
+void Net::setSymAxisX(const Int_t x) {
+  _symAxisX = x;
+}
+
 PROJECT_NAMESPACE_END

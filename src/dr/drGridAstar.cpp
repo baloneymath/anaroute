@@ -64,11 +64,11 @@ void DrGridAstar::initSelfSym()
       for (UInt_t boxIdx = 0; boxIdx < pin.numBoxes(layerIdx); ++boxIdx)
       {
         const auto &box = pin.box(layerIdx, boxIdx);
-        if (box.xl() < _cir.symAxisX())
+        if (box.xl() < _net.symAxisX())
         {
           inLeft = true;
         }
-        if (box.xh() > _cir.symAxisX())
+        if (box.xh() > _net.symAxisX())
         {
           inRight = true;
         }
@@ -189,8 +189,8 @@ void DrGridAstar::init() {
     UInt_t dummyIdx = _vPinIdx.size();
     _vPinIdx.emplace_back(MAX_INT);
     Int_t xWidth = _cir.gridStep();
-    Box<Int_t> dummyPinRect(_cir.symAxisX() - xWidth, yRangeLo,
-                            _cir.symAxisX() + xWidth, yRangeHi);
+    Box<Int_t> dummyPinRect(_net.symAxisX() - xWidth, yRangeLo,
+                            _net.symAxisX() + xWidth, yRangeHi);
     _vCompAcsPts[dummyIdx].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
     _vCompAcsPts[dummyIdx].set_deleted_key(Point3d<Int_t>(MAX_INT, MAX_INT, MAX_INT));
     
@@ -200,7 +200,7 @@ void DrGridAstar::init() {
         _vCompSpatialBoxes[dummyIdx][layerIdx].insert(dummyPinRect);
       }
     }
-    Int_t gridX = (_cir.symAxisX() - _cir.gridOffsetX()) / _cir.gridStep();
+    Int_t gridX = (_net.symAxisX() - _cir.gridOffsetX()) / _cir.gridStep();
     Int_t gridYLo = std::ceil(static_cast<Float_t>(yRangeLo - _cir.gridOffsetY()) / _cir.gridStep());
     Int_t gridYHi = std::floor(static_cast<Float_t>(yRangeHi - _cir.gridOffsetY()) / _cir.gridStep());
     for (Int_t yIdx = gridYLo; yIdx <= gridYHi; ++yIdx)
@@ -570,13 +570,13 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       // add symmetric wire to spatial routed wire, for DRC
       if (_bSym) {
         Box<Int_t> symWire(wire);
-        symWire.flipX(_cir.symAxisX());
+        symWire.flipX(_net.symAxisX());
         _cir.addSpatialRoutedWire(_net.symNetIdx(), u.z(), symWire);
         _dr.addWireHistoryCost(_param.historyCost, u.z(), symWire);
       }
       if (_bSelfSym) {
         Box<Int_t> symWire(wire);
-        symWire.flipX(_cir.symAxisX());
+        symWire.flipX(_net.symAxisX());
         _cir.addSpatialRoutedWire(_net.idx(), u.z(), symWire);
         _dr.addWireHistoryCost(_param.historyCost, u.z(), symWire);
       }
@@ -654,12 +654,12 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       _dr.addViaHistoryCost(_param.historyCost, x, y, via);
       // add symmetric via to spatial routed wire, for DRC
       if (_bSym) {
-        const Int_t symX = 2 * _cir.symAxisX() - x;
+        const Int_t symX = 2 * _net.symAxisX() - x;
         _cir.addSpatialRoutedVia(_net.symNetIdx(), symX, y, via);
         _dr.addViaHistoryCost(_param.historyCost, symX, y, via);
       }
       if (_bSelfSym) {
-        const Int_t symX = 2 * _cir.symAxisX() - x;
+        const Int_t symX = 2 * _net.symAxisX() - x;
         _cir.addSpatialRoutedVia(_net.idx(), symX, y, via);
         _dr.addViaHistoryCost(_param.historyCost, symX, y, via);
       }
@@ -789,7 +789,7 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     // check symmetric DRC
     if (_bSym) {
       Box<Int_t> symWire(wire);
-      symWire.flipX(_cir.symAxisX());
+      symWire.flipX(_net.symAxisX());
       if (!_drc.checkWireRoutingLayerSpacing(_net.symNetIdx(), z, symWire))
         return true;
       if (!_drc.checkWireEolSpacing(_net.symNetIdx(), z, symWire))
@@ -800,7 +800,7 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     if (_bSelfSym)
     {
       Box<Int_t> symWire(wire);
-      symWire.flipX(_cir.symAxisX());
+      symWire.flipX(_net.symAxisX());
       if (!_drc.checkWireRoutingLayerSpacing(_net.idx(), z, symWire))
         return true;
       if (!_drc.checkWireEolSpacing(_net.idx(), z, symWire))
@@ -822,12 +822,12 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
       return true;
     
     if (_bSym) {
-      const Int_t symX = 2 * _cir.symAxisX() - x;
+      const Int_t symX = 2 * _net.symAxisX() - x;
       if (!_drc.checkViaSpacing(_net.symNetIdx(), symX, y, via))
         return true;
     }
     if (_bSelfSym) {
-      const Int_t symX = 2 * _cir.symAxisX() - x;
+      const Int_t symX = 2 * _net.symAxisX() - x;
       if (!_drc.checkViaSpacing(_net.idx(), symX, y, via))
         return true;
     }
@@ -897,7 +897,7 @@ void DrGridAstar::saveResult2Net() {
         const Box<Int_t>& wire = pair.first;
         const Int_t layerIdx = pair.second;
         Box<Int_t> symWire(wire);
-        symWire.flipX(_cir.symAxisX());
+        symWire.flipX(_net.symAxisX());
         symRo.vWireIndices().emplace_back(symNet.vWires().size());
         symNet.vWires().emplace_back(symWire, layerIdx);
       }
@@ -916,7 +916,7 @@ void DrGridAstar::saveResult2Net() {
         const Box<Int_t>& wire = pair.first;
         const Int_t layerIdx = pair.second;
         Box<Int_t> symWire(wire);
-        symWire.flipX(_cir.symAxisX());
+        symWire.flipX(_net.symAxisX());
         if (symWire != wire) {
           _ro.vWireIndices().emplace_back(_net.vWires().size());
           _net.vWires().emplace_back(symWire, layerIdx);
@@ -935,14 +935,14 @@ void DrGridAstar::ripup() {
       assert(bExist);
       if (_bSym) {
         Box<Int_t> symWire(wire);
-        symWire.flipX(_cir.symAxisX());
+        symWire.flipX(_net.symAxisX());
         bool bExist = _cir.removeSpatialRoutedWire(_net.symNetIdx(), layerIdx, symWire);
         assert(bExist);
       }
       if (_bSelfSym)
       {
         Box<Int_t> symWire(wire);
-        symWire.flipX(_cir.symAxisX());
+        symWire.flipX(_net.symAxisX());
         bool bExist = _cir.removeSpatialRoutedWire(_net.idx(), layerIdx, symWire);
         assert(bExist);
       }
@@ -1081,12 +1081,12 @@ void DrGridAstar::connect2AcsPt(const DrGridAstarNode* pU) {
   _cir.addSpatialRoutedWire(_net.idx(), pt.z(), wire);
   if (_bSym) {
     Box<Int_t> symWire(wire);
-    symWire.flipX(_cir.symAxisX());
+    symWire.flipX(_net.symAxisX());
     _cir.addSpatialRoutedWire(_net.symNetIdx(), pt.z(), symWire);
   }
   if (_bSelfSym) {
     Box<Int_t> symWire(wire);
-    symWire.flipX(_cir.symAxisX());
+    symWire.flipX(_net.symAxisX());
     _cir.addSpatialRoutedWire(_net.idx(), pt.z(), symWire);
   }
 }

@@ -131,6 +131,7 @@ set(SRC
   src/dr/drAstar.cpp
   src/dr/drViaSelector.cpp
   src/dr/drRoutable.cpp
+  src/dr/drSymmetry.cpp
   src/drc/drcMgr.cpp
   src/writer/writer.cpp
   src/writer/wrLayout.cpp

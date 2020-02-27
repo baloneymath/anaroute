@@ -138,6 +138,8 @@ class Net {
   const Vector_t<Routable>&   vRoutables()                    const { return _vRoutables; }
   const Vector_t<Int_t>&      vRoutableSchedule()             const { return _vRoutableSchedule; }
 
+  Int_t                       symAxisX()                      const { return _symAxisX; }
+
   //////////////////////////////////
   //  Setter                      //
   //////////////////////////////////
@@ -161,19 +163,10 @@ class Net {
   void setMinWidth(const Int_t w);
   void setMinCuts(const Int_t c);
 
-  void clearRoutables() {
-    _vRoutables.clear();
-    _vRoutableSchedule.clear();
-  }
+  void clearRoutables();
+  void clearRouting();
 
-  void clearRouting() {
-    for (auto& ro : _vRoutables) {
-      ro.vWireIndices().clear();
-      ro.setRouted(false);
-    }
-    _vWires.clear();
-    _bRouted = false;
-  }
+  void setSymAxisX(const Int_t x);
 
  private:
   String_t                            _name;
@@ -203,6 +196,7 @@ class Net {
   // for not-quite-symmetric structure
   Vector_t<Routable>  _vRoutables;
   Vector_t<Int_t>     _vRoutableSchedule;
+  Int_t               _symAxisX;
 };
 
 //////////////////////////////////

@@ -9,6 +9,7 @@
 #include "drMgr.hpp"
 #include "drGridlessRoute.hpp"
 #include "drGridRoute.hpp"
+#include "drSymmetry.hpp"
 #include "drRoutable.hpp"
 
 PROJECT_NAMESPACE_START
@@ -27,6 +28,10 @@ void DrMgr::runGridlessRoute() {
 }
 
 void DrMgr::runGridRoute() {
+
+  DrSymmetry sym(_cir);
+  sym.solve();
+
   DrRoutable ro(_cir);
   ro.constructRoutables();
 

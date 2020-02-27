@@ -6,7 +6,7 @@ ANAROUTE_DIR="$HAO/projects/anaroute"
 BENCH_DIR="../bench_new"
 OUT_DIR="./out"
 GDB="gdb --args"
-#GDB=""
+GDB=""
 
 # Comparator
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -201,13 +201,13 @@ GDB="gdb --args"
           #--out $OUT_DIR/gds/Core_test_flow.route.gds 
 
 # comp2 magical on grid 5
-#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          #--design_file $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.pin \
-          #--placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.place.gds \
-          #--symnet $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.symnet \
-          #--iopin $ANAROUTE_DIR/bench_grid/com2_mag5/comp2.iopin \
-          #--out $OUT_DIR/gds/comp2_mag5.route.gds 
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          --design_file $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.pin \
+          --placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.place.gds \
+          --symnet $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.symnet \
+          --iopin $ANAROUTE_DIR/bench_grid/com2_mag5/comp2.iopin \
+          --out $OUT_DIR/gds/comp2_mag5.route.gds 
 
 # Core_test_flow on grid
 $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \

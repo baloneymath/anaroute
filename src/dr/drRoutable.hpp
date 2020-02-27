@@ -26,8 +26,21 @@ class DrRoutable {
   void constructSelfSymNetRoutables(Net& net);
   void constructSymNetRoutables(Net& net);
 
+  // for cross sym
+  bool bCrossSymNet(const Net& net);
+  bool bCrossSymAxisX(const Net& net);
+  void constructCrossSymNetRoutables(Net& net);
+
+  // for debug
+  void printNetRoutableInfo(const Net& net);
+
  private:
   CirDB& _cir;
+
+  // helper
+  void addPinShapes(const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes);
+  bool bExistTotallySymPin(const Pin& pin, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes);
+  bool bPinOnLeft(const Pin& pin);
 };
 
 PROJECT_NAMESPACE_END
