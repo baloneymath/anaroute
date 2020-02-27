@@ -31,7 +31,10 @@ void DrRoutable::constructNetRoutables(Net& net, const bool bSym, const bool bSe
   }
   else if (bSym) { // sym net
     assert(!bSelfSym);
-    constructSymNetRoutables(net);
+    if (bCrossSymNet(net))
+      constructCrossSymNetRoutables(net);
+    else
+      constructSymNetRoutables(net);
   }
 }
 
@@ -139,7 +142,7 @@ void DrRoutable::constructSymNetRoutables(Net& net) {
   auto& vRoutableSchedule2 = symNet.vRoutableSchedule();
   
   if (roSym1.numPins() > 0) {
-    assert(roSym2.numPins() > 0);
+    assert(roSym2.numPins() ==  roSym1.numPins());
     roSym1.setIdx(vRoutables1.size());
     roSym2.setIdx(vRoutables2.size());
     roSym1.setSymNetRoutableIdx(roSym2.idx());
@@ -150,21 +153,23 @@ void DrRoutable::constructSymNetRoutables(Net& net) {
     vRoutableSchedule2.emplace_back(roSym2.idx());
   }
   
-  if (roRest1.numPins() > 0) {
-    roRest1.setIdx(vRoutables1.size());
-    if (roRest1.idx() != 0) {
-      assert(roSym1.numPins() > 0);
-      roRest1.addRoutableIdx(roSym1.idx());
-    }
+  roRest1.setIdx(vRoutables1.size());
+  if (roRest1.idx() != 0) {
+    assert(roSym1.numPins() > 0);
+    roRest1.addRoutableIdx(roSym1.idx());
+  }
+  if (roRest1.numPins() > 0
+      or roRest1.numRoutables() > 1) {
     vRoutables1.emplace_back(roRest1);
     vRoutableSchedule1.emplace_back(roRest1.idx());
   }
-  if (roRest2.numPins() > 0) {
-    roRest2.setIdx(vRoutables2.size());
-    if (roRest2.idx() != 0) {
-      assert(roSym2.numPins() > 0);
-      roRest2.addRoutableIdx(roSym2.idx());
-    }
+  roRest2.setIdx(vRoutables2.size());
+  if (roRest2.idx() != 0) {
+    assert(roSym2.numPins() > 0);
+    roRest2.addRoutableIdx(roSym2.idx());
+  }
+  if (roRest2.numPins() > 0
+      or roRest2.numRoutables() > 1) {
     vRoutables2.emplace_back(roRest2);
     vRoutableSchedule2.emplace_back(roRest2.idx());
   }
@@ -227,14 +232,84 @@ void DrRoutable::constructCrossSymNetRoutables(Net& net) {
     if (bExistTotallySymPin(pin, vvBoxes2)) {
       if (bPinOnLeft(pin))
         roSym1[0].addPinIdx(pinIdx);
-      else
+      else if (bPinOnRight(pin))
         roSym1[1].addPinIdx(pinIdx);
+      else // pin intersects with sym axis
+        roRest1.addPinIdx(pinIdx);
     }
     else {
       roRest1.addPinIdx(pinIdx);
     }
   }
-  // TODO
+  for (const auto pinIdx : symNet.vPinIndices()) {
+    const Pin& pin = _cir.pin(pinIdx);
+    if (bExistTotallySymPin(pin, vvBoxes1)) {
+      if (bPinOnLeft(pin))
+        roSym2[0].addPinIdx(pinIdx);
+      else if (bPinOnRight(pin))
+        roSym2[1].addPinIdx(pinIdx);
+      else // pin intersects with sym axis
+        roRest2.addPinIdx(pinIdx);
+    }
+    else {
+      roRest2.addPinIdx(pinIdx);
+    }
+  }
+  assert(roSym1[0].numPins() == roSym2[1].numPins());
+  assert(roSym1[1].numPins() == roSym2[0].numPins());
+  assert(roSym1[0].numRoutables() == 0);
+  assert(roSym1[1].numRoutables() == 0);
+  assert(roSym2[0].numRoutables() == 0);
+  assert(roSym2[1].numRoutables() == 0);
+  
+  // add routables to nets
+  auto& vRoutables1 = net.vRoutables();
+  auto& vRoutables2 = symNet.vRoutables();
+  auto& vRoutableSchedule1 = net.vRoutableSchedule();
+  auto& vRoutableSchedule2 = symNet.vRoutableSchedule();
+  
+  for (const auto i : {0, 1}) {
+    auto& ro1 = roSym1[i];
+    auto& ro2 = roSym2[i ^ 1];
+    if (ro1.numPins() > 0) {
+      assert(ro2.numPins() == ro1.numPins());
+      ro1.setIdx(vRoutables1.size());
+      ro2.setIdx(vRoutables2.size());
+      ro1.setSymNetRoutableIdx(ro2.idx());
+      ro2.setSymNetRoutableIdx(ro1.idx());
+      vRoutables1.emplace_back(ro1);
+      vRoutables2.emplace_back(ro2);
+      vRoutableSchedule1.emplace_back(ro1.idx());
+      vRoutableSchedule2.emplace_back(ro2.idx());
+    }
+  }
+  // roRest must exist to connect two routables
+  roRest1.setIdx(vRoutables1.size());
+  if (roRest1.idx() != 0) {
+    for (const auto i : {0, 1}) {
+      if (roSym1[i].numPins() > 0) {
+        roRest1.addRoutableIdx(roSym1[i].idx());
+      }
+    }
+  }
+  if (roRest1.numPins() > 0
+      or roRest1.numRoutables() > 1) {
+    vRoutables1.emplace_back(roRest1);
+    vRoutableSchedule1.emplace_back(roRest1.idx());
+  }
+  roRest2.setIdx(vRoutables2.size());
+  if (roRest2.idx() != 0) {
+    for (const auto i : {0, 1}) {
+      if (roSym2[i].numPins() > 0) {
+        roRest2.addRoutableIdx(roSym2[i].idx());
+      }
+    }
+  }
+  if (roRest2.numPins() > 0
+      or roRest2.numRoutables() > 1) {
+    vRoutables2.emplace_back(roRest2);
+    vRoutableSchedule2.emplace_back(roRest2.idx());
+  }
 }
 
 void DrRoutable::addPinShapes(const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes) {
@@ -283,8 +358,27 @@ bool DrRoutable::bPinOnLeft(const Pin& pin) {
   return true;
 }
 
+bool DrRoutable::bPinOnRight(const Pin& pin) {
+  const Net& net = _cir.net(pin.netIdx());
+  UInt_t i, layerIdx;
+  const Box<Int_t>* cpBox;
+  Pin_ForEachLayerIdx(pin, layerIdx) {
+    Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
+      if (cpBox->xl() <= net.symAxisX())
+        return false;
+    }
+  }
+  return true;
+}
+
 void DrRoutable::printNetRoutableInfo(const Net& net) {
-  cerr << "Net: " << net.name() << endl;
+  cerr << "Net: " << net.name() << " ";
+  if (bCrossSymNet(net))
+    cerr << " cross sym" << endl;
+  else if (net.hasSymNet())
+    cerr << " sym" << endl;
+  else if (net.bSelfSym())
+    cerr << " self sym" << endl;
   cerr << "Pins: ";
   for (auto pinIdx : net.vPinIndices())
     cerr << pinIdx << " ";

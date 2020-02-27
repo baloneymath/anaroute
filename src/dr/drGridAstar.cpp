@@ -139,8 +139,6 @@ void DrGridAstar::init() {
       _pinAcsMap[pt] = *cpPt;
     }
   }
-  // currently must be only one routable in a routable
-  assert(_vRoutableIdx.size() <= 1);
   for (i = 0; i < _vRoutableIdx.size(); ++i) {
     const Int_t compIdx = i + _vPinIdx.size();
     _vCompAcsPts[compIdx].set_empty_key(Point3d<Int_t>(MIN_INT, MIN_INT, MIN_INT));
@@ -150,7 +148,7 @@ void DrGridAstar::init() {
     const auto& routable = _net.routable(routableIdx);
     
     for (j = 0; j < (UInt_t)routable.numPins(); ++j) {
-      const Int_t pinIdx = routable.pinIdx(i);
+      const Int_t pinIdx = routable.pinIdx(j);
       const auto& pin = _cir.pin(pinIdx);
       Pin_ForEachLayerIdx(pin, layerIdx) {
         Pin_ForEachLayerBox(pin, layerIdx, cpBox, k) {
