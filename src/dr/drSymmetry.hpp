@@ -21,11 +21,16 @@ class DrSymmetry {
 
   void solve();
 
-  Float_t computeDegreeOfSym(const Net& net1, const Net& net2);
-  Float_t computeDegreeOfSelfSym(const Net& net);
+  void    bestMatching(const Net& net1, const Net& net2, Int_t& bestSymAxisX, Float_t& maxDegSymPre);
+  Float_t degSymPre(const Net& net1, const Net& net2, const Int_t symAxisX);
+  Float_t degSelfSymPre(const Net& net, const Int_t symAxisX);
 
  private:
   CirDB& _cir;
+
+  // helper
+  void addPinShapes(const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes);
+  bool bExistTotallySymPin(const Pin& pin, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes);
 };
 
 PROJECT_NAMESPACE_END

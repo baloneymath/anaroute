@@ -11,6 +11,7 @@
 #include "src/geo/kdtree.hpp"
 #include "src/acs/acsMgr.hpp"
 #include "src/geo/box2polygon.hpp"
+#include "src/graph/mst.hpp"
 
 #include <lemon/maps.h>
 #include <lemon/kruskal.h>
@@ -215,26 +216,18 @@ void DrGridAstar::init() {
 }
 
 void DrGridAstar::splitSubNetMST() {
-  // init graph, vertex and edge sets
-  lemon::ListGraph graph;
-  Vector_t<lemon::ListGraph::Node> vGraphNodes;
-  Vector_t<lemon::ListGraph::Edge> vGraphEdges;
-  lemon::ListGraph::EdgeMap<Int_t> edgeCostMap(graph);
-
-  // compute cost value of each edge
-  Vector_t<Int_t> vEdgeCostValues;
+  // init pins
   UInt_t i, j;
   UInt_t numRealPins = _vCompBoxes.size();
   if (!_bSelfSymHasPinInBothSide and _bSelfSym)
   {
     --numRealPins; // Remove the dummy
   }
-  for (i = 0; i < numRealPins; ++i) {
-    vGraphNodes.emplace_back(graph.addNode());
-  }
+
+  // compute cost value of each edge
+  MinimumSpanningTree<Int_t> mst(numRealPins);
   for (i = 0; i < numRealPins; ++i) {
     for (j = i + 1; j < numRealPins; ++j) {
-      vGraphEdges.emplace_back(graph.addEdge(vGraphNodes[i], vGraphNodes[j]));
       Int_t minDist = MAX_INT;
       for (const auto& u : _vCompBoxes[i]) {
         for (const auto& v : _vCompBoxes[j]) {
@@ -245,24 +238,11 @@ void DrGridAstar::splitSubNetMST() {
         }
       }
       AssertMsg(minDist != MAX_INT, "net %s check i %d j %d \n", _net.name().c_str(), i, j);
-      vEdgeCostValues.emplace_back(minDist);
+      mst.addEdge(i, j, minDist);
     }
   }
-  assert(vEdgeCostValues.size() == vGraphEdges.size()); 
-  for (i = 0; i < vGraphEdges.size(); ++i) {
-    edgeCostMap.set(vGraphEdges[i], vEdgeCostValues[i]);
-  }
-
-  // solve graph MST
-  Vector_t<lemon::ListGraph::Edge> vResEdges;
-  lemon::kruskal(graph, edgeCostMap, std::back_inserter(vResEdges));
-  assert(vResEdges.size() == _vCompBoxes.size() - 1 or (!_bSelfSymHasPinInBothSide and _bSelfSym)); // |E| == |V| - 1
   
-  // save the MST result
-  for (i = 0; i < vResEdges.size(); ++i) {
-    lemon::ListGraph::Edge& edge = vResEdges[i];
-    _vSubNets.emplace_back(graph.id(graph.u(edge)), graph.id(graph.v(edge)));
-  }
+  mst.solve(_vSubNets);
 
   // Handle the dummy case
   if (!_bSelfSymHasPinInBothSide and _bSelfSym)

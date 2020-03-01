@@ -56,7 +56,7 @@ class DrGridAstar {
   Vector_t<Vector_t<Pair_t<Box<Int_t>, Int_t>>>                   _vCompBoxes;
   Vector_t<DenseHashSet<Point3d<Int_t>, Point3d<Int_t>::hasher>>  _vCompAcsPts;
   Vector_t<UMap_t<Int_t, Spatial<Int_t>>>                         _vCompSpatialBoxes;
-  Vector_t<Pair_t<UInt_t, UInt_t>>                                _vSubNets;
+  Vector_t<Pair_t<Int_t, Int_t>>                                  _vSubNets;
   
   Vector_t<UInt_t>  _vPinIdx; ///< The vector of pins appear in the left of the symmetric axis
   Vector_t<UInt_t>  _vRoutableIdx;
