@@ -8,14 +8,56 @@
 
 #include "drSymmetry.hpp"
 #include "src/graph/bipartite.hpp"
-#include "src/graph/matching.hpp"
+
+using namespace std;
 
 PROJECT_NAMESPACE_START
 
 void DrSymmetry::solve() {
+  //for (UInt_t i = 0; i < _cir.numNets(); ++i) {
+    //Net& net = _cir.net(i);
+    //net.setSymAxisX(_cir.symAxisX());
+  //}
+ 
+  BipartiteWeightedMatching<Float_t> bp(_cir.numNets(), _cir.numNets());
+
+  Vector_t<Vector_t<Int_t>> vvAxis;
+  vvAxis.resize(_cir.numNets());
+  for (auto& vec : vvAxis)
+    vec.resize(_cir.numNets(), -1);
+
   for (UInt_t i = 0; i < _cir.numNets(); ++i) {
-    Net& net = _cir.net(i);
-    net.setSymAxisX(_cir.symAxisX());
+    Net& net1 = _cir.net(i);
+    for (UInt_t j = 0; j < _cir.numNets(); ++j) {
+      Net& net2 = _cir.net(j);
+      Int_t bestSymAxisX = 0;
+      Float_t degSym = 0;
+      bestMatching(net1, net2, bestSymAxisX, degSym);
+      
+      vvAxis[i][j] = bestSymAxisX;
+      bp.addEdge(i, j, degSym);
+    }
+  }
+  
+  Vector_t<Pair_t<Int_t, Int_t>> vEdges;
+  bp.solve(vEdges);
+  for (const auto pair : vEdges) {
+    const Int_t symAxisX = vvAxis[pair.first][pair.second];
+    assert(symAxisX != -1);
+    if (pair.first == pair.second) {
+      Net& net = _cir.net(pair.first);
+      net.setSymAxisX(symAxisX);
+      net.setSelfSym();
+    }
+    else {
+      Net& net1 = _cir.net(pair.first);
+      Net& net2 = _cir.net(pair.second);
+      net1.setSymAxisX(symAxisX);
+      net2.setSymAxisX(symAxisX);
+      net1.setSymNetIdx(net2.idx());
+      net2.setSymNetIdx(net1.idx());
+    }
+    
   }
 }
 
@@ -60,7 +102,7 @@ Float_t DrSymmetry::degSymPre(const Net& net1, const Net& net2, const Int_t symA
   Int_t match = 0;
   for (const Int_t pinIdx : net1.vPinIndices()) {
     const Pin& pin = _cir.pin(pinIdx);
-    if (bExistTotallySymPin(pin, vvBoxes))
+    if (bExistTotallySymPin(pin, symAxisX, vvBoxes))
       ++match;
   }
   const Int_t numPins = std::max(net1.numPins(), net2.numPins());
@@ -77,7 +119,7 @@ Float_t DrSymmetry::degSelfSymPre(const Net& net, const Int_t symAxisX) {
   Int_t match = 0;
   for (const Int_t pinIdx : net.vPinIndices()) {
     const Pin& pin = _cir.pin(pinIdx);
-    if (bExistTotallySymPin(pin, vvBoxes))
+    if (bExistTotallySymPin(pin, symAxisX, vvBoxes))
       ++match;
   }
   Float_t ratio = (Float_t)match / net.numPins();
@@ -101,14 +143,13 @@ void DrSymmetry::addPinShapes(const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vv
   }
 }
 
-bool DrSymmetry::bExistTotallySymPin(const Pin& pin, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes) {
-  const Net& net = _cir.net(pin.netIdx());
+bool DrSymmetry::bExistTotallySymPin(const Pin& pin, const Int_t symAxisX, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes) {
   UInt_t i, layerIdx;
   const Box<Int_t>* cpBox;
   Pin_ForEachLayerIdx(pin, layerIdx) {
     Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
       Box<Int_t> symBox(*cpBox);
-      symBox.flipX(net.symAxisX());
+      symBox.flipX(symAxisX);
       if (!std::binary_search(vvSymBoxes[layerIdx].begin(), vvSymBoxes[layerIdx].end(), symBox)) {
         return false;
       }

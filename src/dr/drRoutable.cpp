@@ -15,9 +15,11 @@ PROJECT_NAMESPACE_START
 void DrRoutable::constructRoutables() {
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
     Net& net = _cir.net(i);
-    constructNetRoutables(net, net.hasSymNet(), net.bSelfSym());
-    //constructNormalNetRoutables(net);
-    //printNetRoutableInfo(net);
+    if (net.numPins() > 1) {
+      constructNetRoutables(net, net.hasSymNet(), net.bSelfSym());
+      //constructNormalNetRoutables(net);
+      //printNetRoutableInfo(net);
+    }
   }
 }
 
@@ -374,11 +376,11 @@ bool DrRoutable::bPinOnRight(const Pin& pin) {
 void DrRoutable::printNetRoutableInfo(const Net& net) {
   cerr << "Net: " << net.name() << " ";
   if (bCrossSymNet(net))
-    cerr << " cross sym" << endl;
+    cerr << "cross sym " << _cir.net(net.symNetIdx()).name() << endl;
   else if (net.hasSymNet())
-    cerr << " sym" << endl;
+    cerr << "sym " << _cir.net(net.symNetIdx()).name() << endl;
   else if (net.bSelfSym())
-    cerr << " self sym" << endl;
+    cerr << "self sym" << endl;
   cerr << "Pins: ";
   for (auto pinIdx : net.vPinIndices())
     cerr << pinIdx << " ";

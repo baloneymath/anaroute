@@ -205,24 +205,24 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
           --design_file $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.pin \
           --placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.place.gds \
-          --symnet $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.symnet \
           --iopin $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.iopin \
           --out $OUT_DIR/gds/comp2_mag5.route.gds 
+          #--symnet $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.symnet \
 
 # Core_test_flow on grid
 $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
           --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
           --design_file $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.pin \
           --placement_layout $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.place.gds \
-          --symnet $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.symnet \
           --iopin $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.iopin \
           --out $OUT_DIR/gds/Core_test_flow_2.route.gds 
+          #--symnet $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.symnet \
 
 # OTA_XT_MAGICAL_2 on grid
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
           #--design_file $ANAROUTE_DIR/bench_grid/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.pin \
           #--placement_layout $ANAROUTE_DIR/bench_grid/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.place.gds \
-          #--symnet $ANAROUTE_DIR/bench_grid/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.symnet \
           #--iopin $ANAROUTE_DIR/bench_grid/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.iopin \
           #--out $OUT_DIR/gds/OTA_XT_MAGICAL_2.route.gds 
+          #--symnet $ANAROUTE_DIR/bench_grid/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.symnet \

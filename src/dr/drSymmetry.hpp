@@ -30,7 +30,7 @@ class DrSymmetry {
 
   // helper
   void addPinShapes(const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes);
-  bool bExistTotallySymPin(const Pin& pin, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes);
+  bool bExistTotallySymPin(const Pin& pin, const Int_t symAxisX, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes);
 };
 
 PROJECT_NAMESPACE_END
