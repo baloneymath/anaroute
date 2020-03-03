@@ -13,13 +13,16 @@ using namespace std;
 
 PROJECT_NAMESPACE_START
 
-void DrSymmetry::solve() {
+void DrSymmetry::solve(const bool bUseSymFile) {
+  if (bUseSymFile) {
+    for (UInt_t i = 0; i < _cir.numNets(); ++i) {
+      Net& net = _cir.net(i);
+      net.setSymAxisX(_cir.symAxisX());
+    }
+    return;
+  }
+  
   fprintf(stderr, "DrSymmetry::%s Start max symmetric detection\n", __func__);
-  //for (UInt_t i = 0; i < _cir.numNets(); ++i) {
-    //Net& net = _cir.net(i);
-    //net.setSymAxisX(_cir.symAxisX());
-  //}
-  //return;
 
   MaxWeightedMatching<Float_t> mx(2 * _cir.numNets());
 

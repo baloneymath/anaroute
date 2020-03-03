@@ -44,6 +44,9 @@ Anaroute::Anaroute(int argc, char** argv) {
   //const String_t outGuideGdsFile  = _args.get<String_t>("out_guide_gds");
   const String_t dumbFile         = _args.get<String_t>("fuck");
   const bool     bFlatten         = _args.exist("flatten");
+  
+  bool bUseGrid = true;
+  bool bUseSymFile = false;
 
   // parse files
   timer.start(TimeUsage::PARTIAL);
@@ -53,8 +56,10 @@ Anaroute::Anaroute(int argc, char** argv) {
   par.parseGds(placeFile);
   //par.parseIspd08(designFile);
   par.parseNetlist(designFile);
-  if (symnetFile != "")
+  if (symnetFile != "") {
     par.parseSymNet(symnetFile);
+    bUseSymFile = true;
+  }
   if (iopinFile != "")
     par.parseIOPin(iopinFile);
   //par.correctPinNBlkLoc(); // patch for placement bugs
@@ -88,7 +93,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   timer.start(TimeUsage::PARTIAL);
   DrcMgr drc(cir);
   DrMgr dr(cir, drc);
-  dr.solve();
+  dr.solve(bUseGrid, bUseSymFile);
   timer.showUsage("Detailed Routing", TimeUsage::PARTIAL);
 
   // post processing

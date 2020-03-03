@@ -19,7 +19,7 @@ class DrSymmetry {
     : _cir(cir) {}
   ~DrSymmetry() {}
 
-  void solve();
+  void solve(const bool bUseSymFile);
 
   void    bestMatching(const Net& net1, const Net& net2, Int_t& bestSymAxisX, Float_t& maxDegSymPre);
   Float_t degSymPre(const Net& net1, const Net& net2, const Int_t symAxisX);
