@@ -306,7 +306,9 @@ void CirDB::markBlks() {
           Blk& blk = _vBlks[idx];
           const Box<Int_t>& blkBox = blk.box();
           if (Box<Int_t>::bCover(box, blkBox)) {
+              //or Box<Int_t>::bCover(blkBox, box)) {
             blk.setDummy();
+            //std::cerr << blkBox << std::endl;
           }
           blk.setPinIdx(pPin->idx());
         }

@@ -153,6 +153,9 @@ bool DrGridRoute::checkDRC() {
     Net& net = _cir.net(i);
     if (!checkSingleNetDRC(net)) {
       ripupSingleNet(net);
+      //for (Int_t j = 0; j < (Int_t)_cir.numNets(); ++j) {
+        //ripupSingleNet(_cir.net(j));
+      //}
       bValid = false;
     }
   }

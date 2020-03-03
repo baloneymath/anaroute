@@ -19,9 +19,9 @@ class Blk {
   friend class CirDB;
  public:
   Blk()
-    : _idx(MAX_UINT), _layerIdx(MAX_UINT), _bDummy(false), _pinIdx(MAX_UINT) {}
-  Blk(const UInt_t i, const UInt_t l, const Box<Int_t>& b)
-    : _idx(i), _layerIdx(l), _box(b), _bDummy(false), _pinIdx(MAX_UINT) {}
+    : _idx(MAX_UINT), _layerIdx(MAX_UINT), _bDummy(false), _pinIdx(MAX_UINT), _bLVS(false) {}
+  Blk(const UInt_t i, const UInt_t l, const Box<Int_t>& b, const bool bLVS = false)
+    : _idx(i), _layerIdx(l), _box(b), _bDummy(false), _pinIdx(MAX_UINT), _bLVS(bLVS) {}
   ~Blk() {}
   
   ////////////////////////////////////////
@@ -43,7 +43,8 @@ class Blk {
 
   // 
   bool bDummy() const { return _bDummy; }
-  void setDummy() { _bDummy = true; }
+
+  bool bLVS() const { return _bLVS; }
 
  private:
   UInt_t                _idx;
@@ -52,6 +53,8 @@ class Blk {
   bool                  _bDummy;
   UInt_t                _pinIdx;
   
+  bool                  _bLVS;
+
   ////////////////////////////////////////
   //   Setter                           //
   ////////////////////////////////////////
@@ -59,6 +62,8 @@ class Blk {
   void setLayerIdx(const UInt_t i) { _layerIdx = i; }
   void setBox(const Box<Int_t>& b) { _box = b; }
   void setPinIdx(const UInt_t i) { _pinIdx = i; }
+  void setDummy() { _bDummy = true; }
+  void setLVS() { _bLVS = true; }
 };
 
 PROJECT_NAMESPACE_END

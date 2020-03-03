@@ -106,8 +106,8 @@ void GdsReader::saveShapesAsBlockages() {
   for (const auto& poly : _vPolygonLayers) {
     geo::polygon2Box(poly.pts, vBoxes);
     for (const auto& box : vBoxes) {
-      auto __addBlk = [&] (const UInt_t idx, const UInt_t layerIdx, const auto& box) {
-        Blk b(idx, layerIdx, box);
+      auto __addBlk = [&] (const UInt_t idx, const UInt_t layerIdx, const auto& box, const bool bLVS = false) {
+        Blk b(idx, layerIdx, box, bLVS);
         _cir.addBlk(layerIdx, b);
         if (b.xl() < _cir.xl()) {
           _cir.setXL(b.xl());
@@ -126,8 +126,14 @@ void GdsReader::saveShapesAsBlockages() {
         // dummy blks
         for (const auto& blk : vBlks) {
           if (Box<Int_t>::bCover(blk, box)) {
-            for (UInt_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx)
-              __addBlk(cnt++, layerIdx, box);
+            for (UInt_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx) {
+              if (_cir.lef().bRoutingLayer(layerIdx)) {
+                Box<Int_t> lvsBox1(box.xl(), box.yl(), box.xh(), box.centerY());
+                Box<Int_t> lvsBox2(box.xl(), box.centerY(), box.xh(), box.yh());
+                __addBlk(cnt++, layerIdx, lvsBox1, true);
+                __addBlk(cnt++, layerIdx, lvsBox2, true);
+              }
+            }
           }
         }
       }

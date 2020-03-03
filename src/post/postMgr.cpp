@@ -28,7 +28,9 @@ void PostMgr::patchJogs() {
   const Pair_t<Box<Int_t>, Int_t>* cpWire;
 
   Cir_ForEachBlk(_cir, cpBlk, i) {
-    vvBoxes[cpBlk->layerIdx()].emplace_back(cpBlk->box());
+    assert(_cir.lef().bRoutingLayer(cpBlk->layerIdx()));
+    if (!cpBlk->bLVS())
+      vvBoxes[cpBlk->layerIdx()].emplace_back(cpBlk->box());
   }
   Cir_ForEachNet(_cir, cpNet, i) {
     Net_ForEachRoutedWire((*cpNet), cpWire, j) {

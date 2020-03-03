@@ -96,6 +96,8 @@ void DrRoutable::constructSelfSymNetRoutables(Net& net) {
 void DrRoutable::constructSymNetRoutables(Net& net) {
   Net& symNet = _cir.net(net.symNetIdx());
   if (net.numRoutables() > 0) {
+    //std::cerr << net.name() << " " << symNet.name() << std::endl;
+    //std::cerr << net.numRoutables() << " " << symNet.numRoutables() << std::endl;
     assert(symNet.numRoutables() > 0);
     return;
   }

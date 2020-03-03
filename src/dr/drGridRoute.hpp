@@ -40,6 +40,9 @@ class DrGridRoute {
       if (pn1->bPowerGround() != pn2->bPowerGround()) {
         return pn1->bPowerGround() > pn2->bPowerGround();
       }
+      else if (pn1->drFailCnt() != pn2->drFailCnt()) {
+        return pn1->drFailCnt() < pn2->drFailCnt();
+      }
       else if (pn1->bSelfSym() != pn2->bSelfSym()) {
         return pn1->bSelfSym() < pn2->bSelfSym();
       }
@@ -48,9 +51,6 @@ class DrGridRoute {
       }
       else if (pn1->bbox().hpwl() != pn2->bbox().hpwl()) {
         return pn1->bbox().hpwl() > pn2->bbox().hpwl();
-      }
-      else if (pn1->drFailCnt() != pn2->drFailCnt()) {
-        return pn1->drFailCnt() < pn2->drFailCnt();
       }
       else if (pn1->numPins() != pn2->numPins()) {
         return pn1->numPins() < pn2->numPins();

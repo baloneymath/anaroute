@@ -7,19 +7,21 @@
  **/
 
 #include "drSymmetry.hpp"
-#include "src/graph/bipartite.hpp"
+#include "src/graph/matching.hpp"
 
 using namespace std;
 
 PROJECT_NAMESPACE_START
 
 void DrSymmetry::solve() {
+  fprintf(stderr, "DrSymmetry::%s Start max symmetric detection\n", __func__);
   //for (UInt_t i = 0; i < _cir.numNets(); ++i) {
     //Net& net = _cir.net(i);
     //net.setSymAxisX(_cir.symAxisX());
   //}
- 
-  BipartiteWeightedMatching<Float_t> bp(_cir.numNets(), _cir.numNets());
+  //return;
+
+  MaxWeightedMatching<Float_t> mx(2 * _cir.numNets());
 
   Vector_t<Vector_t<Int_t>> vvAxis;
   vvAxis.resize(_cir.numNets());
@@ -28,34 +30,53 @@ void DrSymmetry::solve() {
 
   for (UInt_t i = 0; i < _cir.numNets(); ++i) {
     Net& net1 = _cir.net(i);
-    for (UInt_t j = 0; j < _cir.numNets(); ++j) {
+    for (UInt_t j = i; j < _cir.numNets(); ++j) {
       Net& net2 = _cir.net(j);
       Int_t bestSymAxisX = 0;
       Float_t degSym = 0;
       bestMatching(net1, net2, bestSymAxisX, degSym);
       
       vvAxis[i][j] = bestSymAxisX;
-      bp.addEdge(i, j, degSym);
+      vvAxis[j][i] = bestSymAxisX;
+      if (j == i) {
+        mx.addEdge(i, i + _cir.numNets(), degSym);
+      }
+      else {
+        mx.addEdge(i, j, degSym);
+      }
     }
   }
   
   Vector_t<Pair_t<Int_t, Int_t>> vEdges;
-  bp.solve(vEdges);
+  mx.solve(vEdges);
+
   for (const auto pair : vEdges) {
-    const Int_t symAxisX = vvAxis[pair.first][pair.second];
+    Int_t netIdx1 = pair.first;
+    Int_t netIdx2 = pair.second;
+    if (netIdx1 >= (Int_t)_cir.numNets())
+      netIdx1 -= _cir.numNets();
+    if (netIdx2 >= (Int_t)_cir.numNets())
+      netIdx2 -= _cir.numNets();
+
+    const Int_t symAxisX = vvAxis[netIdx1][netIdx2];
     assert(symAxisX != -1);
-    if (pair.first == pair.second) {
-      Net& net = _cir.net(pair.first);
+    if (netIdx1 == netIdx2) {
+      Net& net = _cir.net(netIdx1);
       net.setSymAxisX(symAxisX);
       net.setSelfSym();
+      fprintf(stderr, "DrSymmetry::%s Self-sym %s\n", __func__, net.name().c_str());
+      //cerr << net.name() << endl;
+      
     }
     else {
-      Net& net1 = _cir.net(pair.first);
-      Net& net2 = _cir.net(pair.second);
+      Net& net1 = _cir.net(netIdx1);
+      Net& net2 = _cir.net(netIdx2);
       net1.setSymAxisX(symAxisX);
       net2.setSymAxisX(symAxisX);
       net1.setSymNetIdx(net2.idx());
       net2.setSymNetIdx(net1.idx());
+      fprintf(stderr, "DrSymmetry::%s Sym %s %s\n", __func__, net1.name().c_str(), net2.name().c_str());
+      //cerr << net1.name() << " " << net2.name() << endl;
     }
     
   }
