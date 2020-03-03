@@ -145,7 +145,7 @@ namespace apiPy {
     /////////////////////////////////////
     // solve
     /////////////////////////////////////
-    void solve(const bool bUseSymFile) {
+    void solve(const bool bUseSymFile = false) {
       _cir.resizeVVPinIndices(_cir.lef().numLayers());
       _cir.resizeVVBlkIndices(_cir.lef().numLayers());
       _cir.buildSpatial();
