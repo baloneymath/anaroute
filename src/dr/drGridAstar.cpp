@@ -200,6 +200,9 @@ void DrGridAstar::init() {
       }
     }
     Int_t gridX = (_net.symAxisX() - _cir.gridOffsetX()) / _cir.gridStep();
+    if ((_net.symAxisX() - _cir.gridOffsetX()) % _cir.gridStep() != 0) {
+      ++gridX;
+    }
     Int_t gridYLo = std::ceil(static_cast<Float_t>(yRangeLo - _cir.gridOffsetY()) / _cir.gridStep());
     Int_t gridYHi = std::floor(static_cast<Float_t>(yRangeHi - _cir.gridOffsetY()) / _cir.gridStep());
     for (Int_t yIdx = gridYLo; yIdx <= gridYHi; ++yIdx)

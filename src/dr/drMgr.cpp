@@ -11,6 +11,7 @@
 #include "drGridRoute.hpp"
 #include "drSymmetry.hpp"
 #include "drRoutable.hpp"
+#include "drPower.hpp"
 
 PROJECT_NAMESPACE_START
 

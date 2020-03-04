@@ -67,7 +67,7 @@ void DrSymmetry::solve(const bool bUseSymFile) {
       Net& net = _cir.net(netIdx1);
       net.setSymAxisX(symAxisX);
       net.setSelfSym();
-      fprintf(stderr, "DrSymmetry::%s Self-sym %s\n", __func__, net.name().c_str());
+      fprintf(stderr, "DrSymmetry::%s Self-sym: %s\n", __func__, net.name().c_str());
       //cerr << net.name() << endl;
       
     }
@@ -78,7 +78,7 @@ void DrSymmetry::solve(const bool bUseSymFile) {
       net2.setSymAxisX(symAxisX);
       net1.setSymNetIdx(net2.idx());
       net2.setSymNetIdx(net1.idx());
-      fprintf(stderr, "DrSymmetry::%s Sym %s %s\n", __func__, net1.name().c_str(), net2.name().c_str());
+      fprintf(stderr, "DrSymmetry::%s Sym:      %s %s\n", __func__, net1.name().c_str(), net2.name().c_str());
       //cerr << net1.name() << " " << net2.name() << endl;
     }
     
