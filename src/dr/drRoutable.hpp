@@ -25,11 +25,16 @@ class DrRoutable {
   void constructNormalNetRoutables(Net& net);
   void constructSelfSymNetRoutables(Net& net);
   void constructSymNetRoutables(Net& net);
+  void constructPowerRoutables(Net& net);
+  
 
   // for cross sym
   bool bCrossSymNet(const Net& net);
   bool bCrossSymAxisX(const Net& net);
   void constructCrossSymNetRoutables(Net& net);
+
+  // for power
+
 
   // for debug
   void printNetRoutableInfo(const Net& net);

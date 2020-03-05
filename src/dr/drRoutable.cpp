@@ -179,6 +179,10 @@ void DrRoutable::constructSymNetRoutables(Net& net) {
   }
 }
 
+void DrRoutable::constructPowerRoutables(Net& net) {
+
+}
+
 
 bool DrRoutable::bCrossSymNet(const Net& net) {
   if (!net.hasSymNet())

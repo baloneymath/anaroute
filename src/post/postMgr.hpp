@@ -25,12 +25,25 @@ class PostMgr {
  private:
   CirDB& _cir;
 
+  Int_t _cnt = 0;
+
   void patchJogs();
 
+  void initPolygons(Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygons);
+  bool patchConcaveJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygons);
+  bool patchConvexJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygons);
+  void addMetal2Net();
 
+  enum class JogOrient_t {
+    NE = 0,
+    SE = 1,
+    SW = 2,
+    NW = 3,
+    INVALID = 4
+  };
 
-  bool clockwise(const Point<Int_t>& p0, const Point<Int_t>& p1, const Point<Int_t>& p2) const;
-  bool counterClockwise(const Point<Int_t>& p0, const Point<Int_t>& p1, const Point<Int_t>& p2) const;
+  bool clockwise(const Point<Int_t>& p0, const Point<Int_t>& p1, const Point<Int_t>& p2, JogOrient_t& orient);
+  bool counterClockwise(const Point<Int_t>& p0, const Point<Int_t>& p1, const Point<Int_t>& p2, JogOrient_t& orient);
 
 
 };
