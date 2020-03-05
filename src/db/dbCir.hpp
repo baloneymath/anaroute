@@ -148,8 +148,8 @@ class CirDB {
   bool existSpatialPin(const UInt_t layerIdx, const Box<Int_t>& box);
   bool existSpatialBlk(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr);
   bool existSpatialBlk(const UInt_t layerIdx, const Box<Int_t>& box);
-  bool querySpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vNetIndices);
-  bool querySpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vNetIndices);
+  bool querySpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vNetIndices, Vector_t<Box<Int_t>>& vWires);
+  bool querySpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vNetIndices, Vector_t<Box<Int_t>>& vWires);
   bool existSpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl,const Point<Int_t>& tr);
   bool existSpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box);
   bool existSpatialRoutedWireNet(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, const UInt_t netIdx);
