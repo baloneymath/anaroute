@@ -35,6 +35,7 @@ namespace apiPy {
     void parseIspd08(const String_t& filename) { _par.parseIspd08(filename); }
     void parseSymNet(const String_t& filename) { _par.parseSymNet(filename); }
     void parseIOPin(const String_t& filename) { _par.parseIOPin(filename); }
+    void setCircuitName(const String_t &cirName) { _cir.setName(cirName); }
 
     /////////////////////////////////////
     // add data
@@ -156,6 +157,7 @@ namespace apiPy {
       _cir.buildSpatialNetGuides();
       AcsMgr acs(_cir);
       acs.computeAcs();
+      _cir.visualize();
       DrcMgr drc(_cir);
       DrMgr dr(_cir, drc);
       dr.solve(true, bUseSymFile);
@@ -239,7 +241,8 @@ void initPyAPI(py::module& m) {
     .def("solveDR", &apiPy::AnaroutePy::solveDR)
     .def("postProcess", &apiPy::AnaroutePy::postProcess)
     .def("writeLayoutGds", &apiPy::AnaroutePy::writeLayoutGds)
-    .def("writeDumb", &apiPy::AnaroutePy::writeDumb);
+    .def("writeDumb", &apiPy::AnaroutePy::writeDumb)
+    .def("setCircuitName", &apiPy::AnaroutePy::setCircuitName);
 
 }
 

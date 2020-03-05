@@ -52,6 +52,10 @@ namespace geo
     template<typename CoordType>
     void box2Polygon(const Vector_t<Box<CoordType>> &vBoxes, Vector_t<Polygon<CoordType>> &polygonVec)
     {
+      if (vBoxes.size() == 0)
+      {
+          return;
+      }
       auto polygonSet = box2NativePolygon(vBoxes);
       polygonSet.get_polygons(polygonVec);
     }
@@ -59,6 +63,10 @@ namespace geo
     template<typename CoordType>
     inline void boxes2Boxes(const Vector_t<Box<CoordType>> &vBoxes, Vector_t<Box<CoordType>> &results)
     {
+        if (vBoxes.size() == 0)
+        {
+            return;
+        }
         auto polygon = box2NativePolygon(vBoxes);
         polygon.get_rectangles(results);
     }
@@ -67,6 +75,10 @@ namespace geo
     template<typename CoordType>
     inline void boxes2BoxesEmplace(Vector_t<Box<CoordType>> &vBoxes)
     {
+        if (vBoxes.size() == 0)
+        {
+            return;
+        }
         auto polygon = box2NativePolygon(vBoxes);
         vBoxes.clear();
         polygon.get_rectangles(vBoxes);

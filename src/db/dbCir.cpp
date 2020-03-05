@@ -578,7 +578,8 @@ void CirDB::printInfo() const {
 }
 
 void CirDB::visualize() const {
-  GdsWriter gw("init.gds");
+  std::string gdsName = this->_name  + "_init.gds";
+  GdsWriter gw(gdsName);
   gw.initWriter();
   gw.createLib("TOP", 2000, 1e-6/2000);
   gw.writeCellBgn("INTERCONNECTION");

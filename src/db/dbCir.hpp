@@ -33,6 +33,7 @@ class CirDB {
   //  Getter                      //
   //////////////////////////////////
   const String_t&   name()  const { return _name; }
+  void   setName(const String_t & name)  { _name = name; }
   
   // Lef
   LefDB&            lef()         { return _lef; }
