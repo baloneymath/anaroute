@@ -16,7 +16,7 @@
 PROJECT_NAMESPACE_START
 
 void DrMgr::solve(const bool bGrid, const bool bUseSymFile) {
-  fprintf(stderr, "DrMgr::%s Start Detailed Routing\n", __func__);
+  fprintf(stderr, "\nDrMgr::%s Start Detailed Routing\n", __func__);
   if (bGrid)
     runGridRoute(bUseSymFile);
   else

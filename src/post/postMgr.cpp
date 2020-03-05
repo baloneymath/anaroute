@@ -112,9 +112,8 @@ bool PostMgr::patchConcaveJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolyg
                          std::max({pt0.y(), pt1.y(), pt2.y()}));
           JogOrient_t orient;
           if (counterClockwise(pt0, pt1, pt2, orient)) { // concave
-            fprintf(stderr, "PostMgr::%s Jog-%d  %d (%d %d) (%d %d) (%d %d) ",
+            fprintf(stderr, "PostMgr::%s Jog-%d  %d (%d %d) (%d %d) (%d %d) concave\n",
                     __func__, ++_cnt, i, pt0.x(), pt0.y(), pt1.x(), pt1.y(), pt2.x(), pt2.y());
-            fprintf(stderr, "concave\n");
             _cir.addPatchWire(box, i);
             hasJog = true;
             assert(orient != JogOrient_t::INVALID);
@@ -161,9 +160,8 @@ bool PostMgr::patchConvexJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygo
                          std::max({pt0.y(), pt1.y(), pt2.y()}));
           JogOrient_t orient;
           if (clockwise(pt0, pt1, pt2, orient)) { // convex
-            fprintf(stderr, "PostMgr::%s Jog-%d  %d (%d %d) (%d %d) (%d %d) ",
+            fprintf(stderr, "PostMgr::%s  Jog-%d  %d (%d %d) (%d %d) (%d %d) convex\n",
                     __func__, ++_cnt, i, pt0.x(), pt0.y(), pt1.x(), pt1.y(), pt2.x(), pt2.y());
-            fprintf(stderr, "convex\n");
             hasJog = true;
             //_cir.addMaskWire(box, i);
             switch(orient) {
