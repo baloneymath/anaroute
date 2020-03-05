@@ -163,6 +163,10 @@ bool DrGridRoute::checkDRC() {
 }
 
 bool DrGridRoute::checkSingleNetDRC(const Net& net) {
+  // check same net
+  //if (!_drc.checkSameNetRoutingLayerSpacing(net.idx()))
+    //return false;
+  // check other nets
   for (const auto& pair : net.vWires()) {
     const auto& wire = pair.first;
     const Int_t layerIdx = pair.second;

@@ -7,6 +7,10 @@
  **/
 
 #include "drcMgr.hpp"
+#include "src/geo/segment.hpp"
+#include "src/geo/box2polygon.hpp"
+
+using namespace std;
 
 PROJECT_NAMESPACE_START
 
@@ -25,7 +29,8 @@ bool DrcMgr::checkWireRoutingLayerShort(const UInt_t netIdx, const UInt_t layerI
   }
   // check other net's wires
   Vector_t<UInt_t> vNetIndices;
-  _cir.querySpatialRoutedWire(layerIdx, b, vNetIndices);
+  Vector_t<Box<Int_t>> vBoxes;
+  _cir.querySpatialRoutedWire(layerIdx, b, vNetIndices, vBoxes);
   for (const UInt_t idx : vNetIndices) {
     if (idx != netIdx)
       return false;
@@ -45,7 +50,8 @@ bool DrcMgr::checkWireCutLayerShort(const UInt_t netIdx, const UInt_t layerIdx, 
   // no pin in cut layers
   // check other net's wire (via)
   Vector_t<UInt_t> vNetIndices;
-  _cir.querySpatialRoutedWire(layerIdx, b, vNetIndices);
+  Vector_t<Box<Int_t>> vBoxes;
+  _cir.querySpatialRoutedWire(layerIdx, b, vNetIndices, vBoxes);
   for (const UInt_t idx : vNetIndices) {
     if (idx != netIdx)
       return false;
@@ -115,13 +121,34 @@ bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t laye
     const Pin& pin = _cir.pin(pinIdx);
     if (pin.netIdx() != netIdx)
       return false;
+    else {
+      // same net
+      //UInt_t i;
+      //const Box<Int_t>* cpBox;
+      //Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
+        //const Box<Int_t>& box = *cpBox;
+        //if (Box<Int_t>::bConnect(box, checkBox)) {
+          //if (!Box<Int_t>::bConnect(box, b))
+            //return false;
+        //}
+      //}
+    }
   }
   // check other net's wires
   Vector_t<UInt_t> vNetIndices;
-  _cir.querySpatialRoutedWire(layerIdx, checkBox, vNetIndices);
-  for (const UInt_t idx : vNetIndices) {
+  Vector_t<Box<Int_t>> vBoxes;
+  _cir.querySpatialRoutedWire(layerIdx, checkBox, vNetIndices, vBoxes);
+  assert(vNetIndices.size() == vBoxes.size());
+  for (Int_t i = 0; i < (Int_t)vNetIndices.size(); ++i) {
+    const UInt_t idx = vNetIndices[i];
     if (idx != netIdx)
       return false;
+    else {
+      // same net
+      //const auto& box = vBoxes[i];
+      //if (!Box<Int_t>::bConnect(box, b))
+        //return false;
+    }
   }
   // check blk
   Vector_t<UInt_t> vBlkIndices;
@@ -133,8 +160,15 @@ bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t laye
     //}
     if (blk.pinIdx() == MAX_UINT)
       return false;
-    else if (netIdx != _cir.pin(blk.pinIdx()).netIdx())
-      return false;
+    else {
+      const UInt_t blkNetIdx = _cir.pin(blk.pinIdx()).netIdx();
+      if (netIdx != blkNetIdx)
+        return false;
+      //else {
+        //if (!Box<Int_t>::bConnect(blk.box(), b))
+          //return false;
+      //}
+    }
   }
   return true;
 }
@@ -151,7 +185,8 @@ bool DrcMgr::checkWireCutLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx
   // no pin in cut layers
   // check other net's wire (via)
   Vector_t<UInt_t> vNetIndices;
-  _cir.querySpatialRoutedWire(layerIdx, checkBox, vNetIndices);
+  Vector_t<Box<Int_t>> vBoxes;
+  _cir.querySpatialRoutedWire(layerIdx, checkBox, vNetIndices, vBoxes);
   for (const UInt_t idx : vNetIndices) {
     if (idx != netIdx)
       return false;
@@ -185,6 +220,56 @@ bool DrcMgr::checkViaSpacing(const UInt_t netIdx, const Int_t x, const Int_t y, 
       return false;
   }
   return true;
+}
+
+bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
+  const Net& net = _cir.net(netIdx);
+  Vector_t<Vector_t<Box<Int_t>>> vvBoxes(_cir.lef().numLayers());
+  Vector_t<Vector_t<Polygon<Int_t>>> vvPolygons(_cir.lef().numLayers());
+  
+  // construct net polygon
+  UInt_t i, j, layerIdx, pinIdx;
+  const Box<Int_t>* cpBox;
+  const Pair_t<Box<Int_t>, Int_t>* cpWire;
+  Net_ForEachPinIdx(net, pinIdx, i) {
+    const auto& pin = _cir.pin(pinIdx);
+    Pin_ForEachLayerIdx(pin, layerIdx) {
+      Pin_ForEachLayerBox(pin, layerIdx, cpBox, j) {
+        vvBoxes[layerIdx].emplace_back(*cpBox);
+      }
+    }
+  }
+  Net_ForEachRoutedWire(net, cpWire, i) {
+    const auto& box = cpWire->first;
+    const Int_t layerIdx = cpWire->second;
+    vvBoxes[layerIdx].emplace_back(box);
+  }
+  for (i = 0; i < vvBoxes.size(); ++i) {
+    const auto& vBoxes = vvBoxes.at(i);
+    if (vBoxes.empty())
+      continue;
+    if (_cir.lef().bCutLayer(i))
+      continue;
+    assert(_cir.lef().bRoutingLayer(i));
+    geo::box2Polygon<Int_t>(vBoxes, vvPolygons[i]);
+    const auto& vPolygons = vvPolygons.at(i);
+    for (const auto& polygon : vPolygons) {
+      const auto& ring = polygon.outer();
+      for (j = 0; j + 1 < ring.size(); ++j) {
+        const auto& pt0 = ring[j];
+        const auto& pt1 = ring[j + 1];
+        Segment<Int_t> seg(pt0, pt1);
+        if (seg.bHorizontal()) {
+
+        }
+        else {
+          assert(seg.bVertical());
+        }
+      }
+    }
+  }
+  
+  return true; 
 }
 
 PROJECT_NAMESPACE_END

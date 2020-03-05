@@ -250,31 +250,48 @@ bool CirDB::existSpatialBlk(const UInt_t layerIdx, const Box<Int_t>& box) {
   return querySpatialBlk(layerIdx, box, vTmp);
 }
 
-bool CirDB::querySpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vNetIndices) {
+bool CirDB::querySpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vNetIndices, Vector_t<Box<Int_t>>& vWires) {
   assert(layerIdx >= 0 and layerIdx < _vSpatialPins.size());
-  _vSpatialRoutedWires[layerIdx].query(bl, tr, vNetIndices);
-  return !vNetIndices.empty();
+  Vector_t<spatial::b_value<Int_t, UInt_t>> vRet;
+  _vSpatialRoutedWires[layerIdx].queryBoth(bl, tr, vRet);
+  vNetIndices.reserve(vRet.size());
+  vWires.reserve(vRet.size());
+  for (const auto& pair : vRet) {
+    vNetIndices.emplace_back(pair.second);
+    vWires.emplace_back(pair.first.min_corner(), pair.first.max_corner());
+  }
+  return !vRet.empty();
 }
 
-bool CirDB::querySpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vNetIndices) {
+bool CirDB::querySpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vNetIndices, Vector_t<Box<Int_t>>& vWires) {
   assert(layerIdx >= 0 and layerIdx < _vSpatialPins.size());
-  _vSpatialRoutedWires[layerIdx].query(box, vNetIndices);
-  return !vNetIndices.empty();
+  Vector_t<spatial::b_value<Int_t, UInt_t>> vRet;
+  _vSpatialRoutedWires[layerIdx].queryBoth(box, vRet);
+  vNetIndices.reserve(vRet.size());
+  vWires.reserve(vRet.size());
+  for (const auto& pair : vRet) {
+    vNetIndices.emplace_back(pair.second);
+    vWires.emplace_back(pair.first.min_corner(), pair.first.max_corner());
+  }
+  return !vRet.empty();
 }
 
 bool CirDB::existSpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl,const Point<Int_t>& tr) {
   Vector_t<UInt_t> vTmp;
-  return querySpatialRoutedWire(layerIdx, bl, tr, vTmp);
+  Vector_t<Box<Int_t>> vTmp2;
+  return querySpatialRoutedWire(layerIdx, bl, tr, vTmp, vTmp2);
 }
 
 bool CirDB::existSpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box) {
   Vector_t<UInt_t> vTmp;
-  return querySpatialRoutedWire(layerIdx, box, vTmp);
+  Vector_t<Box<Int_t>> vTmp2;
+  return querySpatialRoutedWire(layerIdx, box, vTmp, vTmp2);
 }
 
 bool CirDB::existSpatialRoutedWireNet(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, const UInt_t netIdx) {
   Vector_t<UInt_t> vNetIndices;
-  querySpatialRoutedWire(layerIdx, bl, tr, vNetIndices);
+  Vector_t<Box<Int_t>> vWires;
+  querySpatialRoutedWire(layerIdx, bl, tr, vNetIndices, vWires);
   for (const UInt_t idx : vNetIndices) {
     if (idx == netIdx)
       return true;
@@ -284,7 +301,8 @@ bool CirDB::existSpatialRoutedWireNet(const UInt_t layerIdx, const Point<Int_t>&
 
 bool CirDB::existSpatialRoutedWireNet(const UInt_t layerIdx, const Box<Int_t>& box, const UInt_t netIdx) {
   Vector_t<UInt_t> vNetIndices;
-  querySpatialRoutedWire(layerIdx, box, vNetIndices);
+  Vector_t<Box<Int_t>> vWires;
+  querySpatialRoutedWire(layerIdx, box, vNetIndices, vWires);
   for (const UInt_t idx : vNetIndices) {
     if (idx == netIdx)
       return true;

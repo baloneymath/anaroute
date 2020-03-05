@@ -44,6 +44,7 @@ class DrcMgr {
   /////////////////////////////////////////
   //    Net level checking               //
   /////////////////////////////////////////
+  bool checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const;
 
  private:
   CirDB& _cir;
