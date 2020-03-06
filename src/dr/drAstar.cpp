@@ -893,16 +893,15 @@ void DrAstar::nearestTarBoxDist(const Point3d<Int_t>& u, const UInt_t tarIdx, In
   unscaledDist = MAX_INT;
   if (_vCompBoxes[tarIdx].size() > 10) {
     const Point<Int_t> u2d(u.x(), u.y());
-    Vector_t<spatial::b_box<Int_t>> vNearestBoxes;
+    Vector_t<Box<Int_t>> vNearestBoxes;
     Vector_t<Pair_t<Box<Int_t>, Int_t>> vLayerBoxes;
     for (const auto& pair : _vCompSpatialBoxes[tarIdx]) {
       const UInt_t layerIdx = pair.first;
       auto& spatial = _vCompSpatialBoxes[tarIdx].at(layerIdx);
       if (!spatial.empty())
         spatial.nearestSearch(u2d, 1, vNearestBoxes);
-      for (const spatial::b_box<Int_t>& b : vNearestBoxes) {
-        Box<Int_t> box(b.min_corner(), b.max_corner());
-        vLayerBoxes.emplace_back(box, layerIdx);
+      for (const auto& b : vNearestBoxes) {
+        vLayerBoxes.emplace_back(b, layerIdx);
       }
     }
     for (const Pair_t<Box<Int_t>, Int_t>& pair : vLayerBoxes) {
@@ -962,7 +961,7 @@ bool DrAstar::bInsideGuide(const DrAstarNode* pV) {
   const Point3d<Int_t>& v = pV->coord();
   assert(v.z() < (Int_t)_vSpatialNetGuides.size() and v.z() > 0);
   const Point<Int_t> v2d(v.x(), v.y());
-  return _vSpatialNetGuides[v.z()].find(v2d, v2d);
+  return _vSpatialNetGuides[v.z()].exist(v2d, v2d);
 }
 
 void DrAstar::add2Path(const Int_t i, const Point3d<Int_t>& u, List_t<Point3d<Int_t>>& lPathPts) {
@@ -978,15 +977,15 @@ bool DrAstar::bConnected2TarBox(const DrAstarNode* pU, const UInt_t tarIdx) {
   //if (u.z() != v.z()) {
     //Box<Int_t> wire;
     //toWire(u, u, wire);
-    //return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
+    //return _vCompSpatialBoxes[tarIdx][u.z()].exist(wire);
   //}
   //else {
     //Box<Int_t> wire;
     //toWire(u, v, wire);
-    //return _vCompSpatialBoxes[tarIdx][u.z()].find(wire);
+    //return _vCompSpatialBoxes[tarIdx][u.z()].exist(wire);
   //}
   const Point<Int_t> u2d(u.x(), u.y());
-  return _vCompSpatialBoxes[tarIdx][u.z()].find(u2d, u2d);
+  return _vCompSpatialBoxes[tarIdx][u.z()].exist(u2d, u2d);
   //const Vector_t<Pair_t<Box<Int_t>, Int_t>>& vTarBoxes = _vCompBoxes[tarIdx];
   //for (const Pair_t<Box<Int_t>, Int_t>& pair : vTarBoxes) {
     //if (pair.second == u.z() and Box<Int_t>::bConnect(pair.first, wire)) {

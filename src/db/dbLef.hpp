@@ -141,6 +141,11 @@ class LefDB {
     return prototype.lefVia();
   }
 
+  ////////////////////////////////////////
+  //   Spacings                         //
+  ////////////////////////////////////////
+  Int_t prlSpacing(const Int_t layerIdx, const Int_t wireWidth, const Int_t prl = 0);
+
   // for debug
   void logInfo() const;
 

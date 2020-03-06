@@ -138,14 +138,14 @@ public:
   bool    erase(const Point<T>& min_corner, const Point<T>& max_corner)   	{ return _rtree.remove({min_corner, max_corner}); }
   
   // query
-  void    query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  void    query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  bool    find(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  bool    find(const Box<T>& rect, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    query(const Box<T>& rect, Vector_t<Box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  bool    exist(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  bool    exist(const Box<T>& rect, spatial::QueryType qt = spatial::QueryType::intersects) const;
 
   // kNN search
-  void    nearestSearch(const Point<T>& pt, const UInt_t k, Vector_t<spatial::b_box<T>>& ret);
-  void    nearestSearch(const Box<T>& box, const UInt_t k, Vector_t<spatial::b_box<T>>& ret);
+  void    nearestSearch(const Point<T>& pt, const UInt_t k, Vector_t<Box<T>>& ret);
+  void    nearestSearch(const Box<T>& box, const UInt_t k, Vector_t<Box<T>>& ret);
 };
 
 template<typename T, typename Value>
@@ -198,27 +198,28 @@ public:
   // query
   void    query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Value>& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
   void    query(const Box<T>& rect, Vector_t<Value>& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  void    queryBox(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  void    queryBox(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  void    queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  void    queryBoth(const Box<T>& rect, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  bool    find(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt = spatial::QueryType::intersects) const;
-  bool    find(const Box<T>& rect, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBox(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBox(const Box<T>& rect, Vector_t<Box<T> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Pair_t<Box<T>, Value> >& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  void    queryBoth(const Box<T>& rect, Vector_t<Pair_t<Box<T>, Value>>& ret, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  bool    exist(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt = spatial::QueryType::intersects) const;
+  bool    exist(const Box<T>& rect, spatial::QueryType qt = spatial::QueryType::intersects) const;
 
   // kNN search
   void    nearestSearch(const Point<T>& pt, const UInt_t k, Vector_t<Value>& ret);
   void    nearestSearch(const Box<T>& box, const UInt_t k, Vector_t<Value>& ret);
-  void    nearestSearchBox(const Point<T>& pt, const UInt_t k, Vector_t<spatial::b_box<T>>& ret);
-  void    nearestSearchBox(const Box<T>& box, const UInt_t k, Vector_t<spatial::b_box<T>>& ret);
-  void    nearestSearchBoth(const Point<T>& pt, const UInt_t k, Vector_t<spatial::b_value<T, Value>>& ret);
-  void    nearestSearchBoth(const Box<T>& box, const UInt_t k, Vector_t<spatial::b_value<T, Value>>& ret);
+  void    nearestSearchBox(const Point<T>& pt, const UInt_t k, Vector_t<Box<T>>& ret);
+  void    nearestSearchBox(const Box<T>& box, const UInt_t k, Vector_t<Box<T>>& ret);
+  void    nearestSearchBoth(const Point<T>& pt, const UInt_t k, Vector_t<Pair_t<Box<T>, Value>>& ret);
+  void    nearestSearchBoth(const Box<T>& box, const UInt_t k, Vector_t<Pair_t<Box<T>, Value>>& ret);
 
 };
 
 ////////// Spatial Implementation /////////////
 template<typename T>
-void Spatial<T>::query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt) const {
-  spatial::SearchCallback<spatial::b_box<T> > callback(ret);
+void Spatial<T>::query(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Box<T> >& ret, spatial::QueryType qt) const {
+  Vector_t<spatial::b_box<T>> vTmp;
+  spatial::SearchCallback<spatial::b_box<T> > callback(vTmp);
   spatial::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
     case spatial::QueryType::contains :
@@ -238,11 +239,15 @@ void Spatial<T>::query(const Point<T>& min_corner, const Point<T>& max_corner, V
     default:
       assert(false);
   }
+  ret.reserve(vTmp.size());
+  for (const auto& b : vTmp)
+    ret.emplace_back(b.min_corner(), b.max_corner());
 }
 
 template<typename T>
-void Spatial<T>::query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt) const {
-  spatial::SearchCallback<spatial::b_box<T> > callback(ret);
+void Spatial<T>::query(const Box<T>& rect, Vector_t<Box<T> >& ret, spatial::QueryType qt) const {
+  Vector_t<spatial::b_box<T>> vTmp;
+  spatial::SearchCallback<spatial::b_box<T> > callback(vTmp);
   spatial::b_box<T> query_box(rect.min_corner(), rect.max_corner());
   switch (qt) {
     case spatial::QueryType::contains :
@@ -262,32 +267,43 @@ void Spatial<T>::query(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, sp
     default:
       assert(false);
   }
+  ret.reserve(vTmp.size());
+  for (const auto& b : vTmp)
+    ret.emplace_back(b.min_corner(), b.max_corner());
 }
 
 template<typename T>
-bool Spatial<T>::find(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt) const {
-  Vector_t<spatial::b_box<T>> ret;
+bool Spatial<T>::exist(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt) const {
+  Vector_t<Box<T>> ret;
   query(min_corner, max_corner, ret, qt);
   return !ret.empty();
 }
 
 template<typename T>
-bool Spatial<T>::find(const Box<T>& rect, spatial::QueryType qt) const {
-  Vector_t<spatial::b_box<T>> ret;
+bool Spatial<T>::exist(const Box<T>& rect, spatial::QueryType qt) const {
+  Vector_t<Box<T>> ret;
   query(rect, ret, qt);
   return !ret.empty();
 }
 
 template<typename T>
-void Spatial<T>::nearestSearch(const Point<T>& pt, const UInt_t k, Vector_t<spatial::b_box<T>>& ret) {
-  spatial::SearchCallback<spatial::b_box<T> > callback(ret);
+void Spatial<T>::nearestSearch(const Point<T>& pt, const UInt_t k, Vector_t<Box<T>>& ret) {
+  Vector_t<spatial::b_box<T>> vTmp;
+  spatial::SearchCallback<spatial::b_box<T> > callback(vTmp);
   _rtree.query(spatial::bgi::nearest(pt, k), boost::make_function_output_iterator(callback));
+  ret.reserve(vTmp.size());
+  for (const auto& b : vTmp)
+    ret.emplace_back(b.min_corner(), b.max_corner());
 }
 
 template<typename T>
-void Spatial<T>::nearestSearch(const Box<T>& box, const UInt_t k, Vector_t<spatial::b_box<T>>& ret) {
-  spatial::SearchCallback<spatial::b_box<T> > callback(ret);
+void Spatial<T>::nearestSearch(const Box<T>& box, const UInt_t k, Vector_t<Box<T>>& ret) {
+  Vector_t<spatial::b_box<T>> vTmp;
+  spatial::SearchCallback<spatial::b_box<T> > callback(vTmp);
   _rtree.query(spatial::bgi::nearest(box, k), boost::make_function_output_iterator(callback));
+  ret.reserve(vTmp.size());
+  for (const auto& b : vTmp)
+    ret.emplace_back(b.min_corner(), b.max_corner());
 }
 
 ////////// SpatialMap Implementation /////////////
@@ -340,8 +356,9 @@ void SpatialMap<T, Value>::query(const Box<T>& rect, Vector_t<Value>& ret, spati
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::queryBox(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt) const {
-  spatial::SearchCallback_first<spatial::b_box<T> > callback(ret);
+void SpatialMap<T, Value>::queryBox(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Box<T> >& ret, spatial::QueryType qt) const {
+  Vector_t<spatial::b_box<T>> vTmp;
+  spatial::SearchCallback_first<spatial::b_box<T> > callback(vTmp);
   spatial::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
     case spatial::QueryType::contains :
@@ -361,11 +378,15 @@ void SpatialMap<T, Value>::queryBox(const Point<T>& min_corner, const Point<T>& 
     default:
       assert(false);
   }
+  ret.reserve(vTmp.size());
+  for (const auto& b : vTmp)
+    ret.emplace_back(b.min_corner(), b.max_corner());
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::queryBox(const Box<T>& rect, Vector_t<spatial::b_box<T> >& ret, spatial::QueryType qt) const {
-  spatial::SearchCallback_first<spatial::b_box<T> > callback(ret);
+void SpatialMap<T, Value>::queryBox(const Box<T>& rect, Vector_t<Box<T> >& ret, spatial::QueryType qt) const {
+  Vector_t<spatial::b_box<T>> vTmp;
+  spatial::SearchCallback_first<spatial::b_box<T> > callback(vTmp);
   spatial::b_box<T> query_box(rect.min_corner(), rect.max_corner());
   switch (qt) {
     case spatial::QueryType::contains :
@@ -385,11 +406,15 @@ void SpatialMap<T, Value>::queryBox(const Box<T>& rect, Vector_t<spatial::b_box<
     default:
       assert(false);
   }
+  ret.reserve(vTmp.size());
+  for (const auto& b : vTmp)
+    ret.emplace_back(b.min_corner(), b.max_corner());
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::queryBoth(const Box<T>& rect, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt) const {
-  spatial::SearchCallback<spatial::b_value<T, Value> > callback(ret);
+void SpatialMap<T, Value>::queryBoth(const Box<T>& rect, Vector_t<Pair_t<Box<T>, Value> >& ret, spatial::QueryType qt) const {
+  Vector_t<spatial::b_value<T, Value>> vTmp;
+  spatial::SearchCallback<spatial::b_value<T, Value> > callback(vTmp);
   spatial::b_box<T> query_box(rect.min_corner(), rect.max_corner());
   switch (qt) {
     case spatial::QueryType::contains :
@@ -409,11 +434,17 @@ void SpatialMap<T, Value>::queryBoth(const Box<T>& rect, Vector_t<spatial::b_val
     default:
       assert(false);
   }
+  ret.reserve(vTmp.size());
+  for (const auto& p : vTmp) {
+    const auto& b = p.first;
+    ret.emplace_back(Box<T>(b.min_corner(), b.max_corner()), p.second);
+  }
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<spatial::b_value<T, Value> >& ret, spatial::QueryType qt) const {
-  spatial::SearchCallback<spatial::b_value<T, Value> > callback(ret);
+void SpatialMap<T, Value>::queryBoth(const Point<T>& min_corner, const Point<T>& max_corner, Vector_t<Pair_t<Box<T>, Value> >& ret, spatial::QueryType qt) const {
+  Vector_t<spatial::b_value<T, Value>> vTmp;
+  spatial::SearchCallback<spatial::b_value<T, Value> > callback(vTmp);
   spatial::b_box<T> query_box(min_corner, max_corner);
   switch (qt) {
     case spatial::QueryType::contains :
@@ -433,17 +464,22 @@ void SpatialMap<T, Value>::queryBoth(const Point<T>& min_corner, const Point<T>&
     default:
       assert(false);
   }
+  ret.reserve(vTmp.size());
+  for (const auto& p : vTmp) {
+    const auto& b = p.first;
+    ret.emplace_back(Box<T>(b.min_corner(), b.max_corner()), p.second);
+  }
 }
 
 template<typename T, typename Value>
-bool SpatialMap<T, Value>::find(const Box<T>& rect, spatial::QueryType qt) const {
+bool SpatialMap<T, Value>::exist(const Box<T>& rect, spatial::QueryType qt) const {
   Vector_t<Value> ret;
   query(rect, ret, qt);
   return !ret.empty();
 }
 
 template<typename T, typename Value>
-bool SpatialMap<T, Value>::find(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt) const {
+bool SpatialMap<T, Value>::exist(const Point<T>& min_corner, const Point<T>& max_corner, spatial::QueryType qt) const {
   Vector_t<Value> ret;
   query(min_corner, max_corner, ret, qt);
   return !ret.empty();
@@ -462,27 +498,47 @@ void SpatialMap<T, Value>::nearestSearch(const Box<T>& box, const UInt_t k, Vect
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::nearestSearchBox(const Point<T>& pt, const UInt_t k, Vector_t<spatial::b_box<T>>& ret) {
-  spatial::SearchCallback<spatial::b_box<T>> callback(ret);
+void SpatialMap<T, Value>::nearestSearchBox(const Point<T>& pt, const UInt_t k, Vector_t<Box<T>>& ret) {
+  Vector_t<spatial::b_box<T>> vTmp;
+  spatial::SearchCallback<spatial::b_box<T>> callback(vTmp);
   _rtreeMap.query(spatial::bgi::nearest(pt, k), boost::make_function_output_iterator(callback));
+  ret.reserve(vTmp.size());
+  for (const auto& b : vTmp)
+    ret.emplace_back(b.min_corner(), b.max_corner());
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::nearestSearchBox(const Box<T>& box, const UInt_t k, Vector_t<spatial::b_box<T>>& ret) {
-  spatial::SearchCallback<spatial::b_box<T>> callback(ret);
+void SpatialMap<T, Value>::nearestSearchBox(const Box<T>& box, const UInt_t k, Vector_t<Box<T>>& ret) {
+  Vector_t<spatial::b_box<T>> vTmp;
+  spatial::SearchCallback<spatial::b_box<T>> callback(vTmp);
   _rtreeMap.query(spatial::bgi::nearest(box, k), boost::make_function_output_iterator(callback));
+  ret.reserve(vTmp.size());
+  for (const auto& b : vTmp)
+    ret.emplace_back(b.min_corner(), b.max_corner());
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::nearestSearchBoth(const Point<T>& pt, const UInt_t k, Vector_t<spatial::b_value<T, Value>>& ret) {
-  spatial::SearchCallback<spatial::b_value<T, Value>> callback(ret);
+void SpatialMap<T, Value>::nearestSearchBoth(const Point<T>& pt, const UInt_t k, Vector_t<Pair_t<Box<T>, Value>>& ret) {
+  Vector_t<spatial::b_value<T, Value>> vTmp;
+  spatial::SearchCallback<spatial::b_value<T, Value> > callback(vTmp);
   _rtreeMap.query(spatial::bgi::nearest(pt, k), boost::make_function_output_iterator(callback));
+  ret.reserve(vTmp.size());
+  for (const auto& p : vTmp) {
+    const auto& b = p.first;
+    ret.emplace_back(Box<T>(b.min_corner(), b.max_corner()), p.second);
+  }
 }
 
 template<typename T, typename Value>
-void SpatialMap<T, Value>::nearestSearchBoth(const Box<T>& box, const UInt_t k, Vector_t<spatial::b_value<T, Value>>& ret) {
-  spatial::SearchCallback<spatial::b_value<T, Value>> callback(ret);
+void SpatialMap<T, Value>::nearestSearchBoth(const Box<T>& box, const UInt_t k, Vector_t<Pair_t<Box<T>, Value>>& ret) {
+  Vector_t<spatial::b_value<T, Value>> vTmp;
+  spatial::SearchCallback<spatial::b_value<T, Value> > callback(vTmp);
   _rtreeMap.query(spatial::bgi::nearest(box, k), boost::make_function_output_iterator(callback));
+  ret.reserve(vTmp.size());
+  for (const auto& p : vTmp) {
+    const auto& b = p.first;
+    ret.emplace_back(Box<T>(b.min_corner(), b.max_corner()), p.second);
+  }
 }
 
 PROJECT_NAMESPACE_END

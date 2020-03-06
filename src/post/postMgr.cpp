@@ -81,7 +81,7 @@ void PostMgr::initPolygons(Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygons) {
 
 bool PostMgr::patchConcaveJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygons) {
   bool hasJog = false;
-  for (Int_t i = 0; i < (Int_t)vvPolygons.size(); ++i) {
+  for (UInt_t i = 0; i < vvPolygons.size(); ++i) {
     if (vvPolygons[i].empty())
       continue;
     assert(_cir.lef().bRoutingLayer(i));
@@ -96,10 +96,10 @@ bool PostMgr::patchConcaveJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolyg
     const auto& vPolygons = vvPolygons[i];
     for (const auto& polygon : vPolygons) {
       const auto& ring = polygon.outer();
-      for (Int_t j = 1; j < (Int_t)ring.size() - 1; ++j) {
+      for (UInt_t j = 1; j < ring.size(); ++j) {
         const auto& pt0 = ring[j - 1];
         const auto& pt1 = ring[j];
-        const auto& pt2 = ring[j + 1];
+        const auto& pt2 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
         Segment<Int_t> edge1(pt0, pt1);
         Segment<Int_t> edge2(pt1, pt2);
         assert((edge1.bHorizontal() and edge2.bVertical())
@@ -128,7 +128,7 @@ bool PostMgr::patchConcaveJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolyg
 
 bool PostMgr::patchConvexJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygons) {
   bool hasJog = false;
-  for (Int_t i = 0; i < (Int_t)vvPolygons.size(); ++i) {
+  for (UInt_t i = 0; i < vvPolygons.size(); ++i) {
     if (vvPolygons[i].empty())
       continue;
     assert(_cir.lef().bRoutingLayer(i));
@@ -143,10 +143,10 @@ bool PostMgr::patchConvexJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygo
     const auto& vPolygons = vvPolygons[i];
     for (const auto& polygon : vPolygons) {
       const auto& ring = polygon.outer();
-      for (Int_t j = 1; j < (Int_t)ring.size() - 1; ++j) {
+      for (UInt_t j = 1; j + 1 < ring.size(); ++j) {
         const auto& pt0 = ring[j - 1];
         const auto& pt1 = ring[j];
-        const auto& pt2 = ring[j + 1];
+        const auto& pt2 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
         Segment<Int_t> edge1(pt0, pt1);
         Segment<Int_t> edge2(pt1, pt2);
         assert((edge1.bHorizontal() and edge2.bVertical())

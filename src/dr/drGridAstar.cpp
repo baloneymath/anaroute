@@ -628,7 +628,7 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       }
 
       //const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1, botType, topType);
-      const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1, botViaWidth, botViaHeight, topViaWidth, topViaHeight);
+      const LefVia& via = _cir.lef().via(botLayerIdx, 1, 2, botViaWidth, botViaHeight, topViaWidth, topViaHeight);
       via2LayerBoxes(x, y, via, vRoutedWires);     
       _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
       // add history cost
@@ -794,7 +794,7 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     const Int_t x = u.x();
     const Int_t y = u.y();
     const Int_t botLayerIdx = std::min(u.z(), v.z());
-    const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1);
+    const LefVia& via = _cir.lef().via(botLayerIdx, 1, 2);
     if (!_drc.checkViaSpacing(_net.idx(), x, y, via))
       return true;
     // TODO: minarea, minstep
@@ -997,7 +997,7 @@ bool DrGridAstar::bInsideGuide(const DrGridAstarNode* pU) {
   const auto& u = pU->coord();
   assert(u.z() < (Int_t)_cir.vSpatialNetGuides(_net.idx()).size() and u.z() > 0);
   const Point<Int_t> u2d(u.x(), u.y());
-  return _cir.vSpatialNetGuides(_net.idx())[u.z()].find(u2d, u2d);
+  return _cir.vSpatialNetGuides(_net.idx())[u.z()].exist(u2d, u2d);
 }
 
 Int_t DrGridAstar::history(const DrGridAstarNode* pU) {

@@ -103,4 +103,35 @@ void LefDB::logInfo() const {
   }
 }
 
+Int_t LefDB::prlSpacing(const Int_t layerIdx, const Int_t wireWidth, const Int_t prl) {
+  assert(bRoutingLayer(layerIdx));
+  const auto& layerPair = _vAllLayers[layerIdx];
+  const auto& layer = _vRoutingLayers[layerPair.second];
+
+  Int_t spacing = 0;
+  if (layer.spacingTable().table.size()) {
+    for (Int_t i = 0; i < (Int_t)layer.spacingTable().table.size(); ++i) {
+      const auto& table = layer.spacingTable().table[i];
+      const auto& width = table.first;
+      const auto& vSpacings = table.second;
+      if (wireWidth >= width) {
+        assert(vSpacings.size() == layer.spacingTable().vParallelRunLength.size());
+        for (Int_t j = 0; j < (Int_t)vSpacings.size(); ++j) {
+          if (prl >= layer.spacingTable().vParallelRunLength[j]) {
+            spacing = vSpacings[j];
+            //spacing = vSpacings.back();
+            break;
+          }
+        }
+        break;
+      }
+    }
+  }
+  else {
+    spacing = layer.spacing(0);
+  }
+  return spacing;
+
+}
+
 PROJECT_NAMESPACE_END

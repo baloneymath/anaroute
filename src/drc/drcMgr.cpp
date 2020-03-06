@@ -9,6 +9,7 @@
 #include "drcMgr.hpp"
 #include "src/geo/segment.hpp"
 #include "src/geo/box2polygon.hpp"
+#include "src/geo/spatial.hpp"
 
 using namespace std;
 
@@ -82,32 +83,11 @@ bool DrcMgr::checkWireMinArea(const UInt_t layerIdx, const Vector_t<Box<Int_t>>&
 // spacing
 bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t layerIdx, const Box<Int_t>& b, const Int_t prl) const {
   assert(_cir.lef().bRoutingLayer(layerIdx));
-  const auto& layerPair = _cir.lef().layerPair(layerIdx);
-  const auto& layer = _cir.lef().routingLayer(layerPair.second);
+  //const auto& layerPair = _cir.lef().layerPair(layerIdx);
+  //const auto& layer = _cir.lef().routingLayer(layerPair.second);
   
-  Int_t prlSpacing = 0;
   const Int_t wireWidth = std::min(b.width(), b.height());
-  if (layer.spacingTable().table.size()) {
-    for (Int_t i = 0; i < (Int_t)layer.spacingTable().table.size(); ++i) {
-      const auto& table = layer.spacingTable().table[i];
-      const auto& width = table.first;
-      const auto& vSpacings = table.second;
-      if (wireWidth >= width) {
-        assert(vSpacings.size() == layer.spacingTable().vParallelRunLength.size());
-        for (Int_t j = 0; j < (Int_t)vSpacings.size(); ++j) {
-          if (prl >= layer.spacingTable().vParallelRunLength[j]) {
-            prlSpacing = vSpacings[j];
-            //prlSpacing = vSpacings.back();
-            break;
-          }
-        }
-        break;
-      }
-    }
-  }
-  else {
-    prlSpacing = layer.spacing(0);
-  }
+  const Int_t prlSpacing = _cir.lef().prlSpacing(layerIdx, wireWidth, prl);
   //const Int_t eolSpacing = layer.numEolSpacings() ? layer.eolSpacing(0) : 0;
   //const Int_t eolWithin = layer.numEolSpacings() ? layer.eolWithin(0) : 0;
   
@@ -253,17 +233,79 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
     assert(_cir.lef().bRoutingLayer(i));
     geo::box2Polygon<Int_t>(vBoxes, vvPolygons[i]);
     const auto& vPolygons = vvPolygons.at(i);
+    
+    Spatial<Int_t> spatialSegs;
     for (const auto& polygon : vPolygons) {
       const auto& ring = polygon.outer();
-      for (j = 0; j + 1 < ring.size(); ++j) {
+      for (j = 0; j < ring.size(); ++j) {
         const auto& pt0 = ring[j];
-        const auto& pt1 = ring[j + 1];
-        Segment<Int_t> seg(pt0, pt1);
-        if (seg.bHorizontal()) {
-
+        const auto& pt1 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
+        Box<Int_t> box(std::min(pt0.x(), pt1.x()),
+                       std::min(pt0.y(), pt1.y()),
+                       std::max(pt0.x(), pt1.x()),
+                       std::max(pt0.y(), pt1.y()));
+        spatialSegs.insert(box);
+      }
+    }
+    for (const auto& polygon : vPolygons) {
+      const auto& ring = polygon.outer();
+      for (j = 0; j < ring.size(); ++j) {
+        const auto& pt0 = ring[j];
+        const auto& pt1 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
+        Box<Int_t> box(std::min(pt0.x(), pt1.x()),
+                       std::min(pt0.y(), pt1.y()),
+                       std::max(pt0.x(), pt1.x()),
+                       std::max(pt0.y(), pt1.y()));
+        // FIXME: PRL
+        const Int_t spacing = _cir.lef().prlSpacing(i, net.minWidth());
+        Box<Int_t> checkBox(box);
+        if (box.yl() == box.yh()) {
+          assert(box.xl() != box.xh());
+          checkBox.shrinkX(1);
+          checkBox.expandY(spacing - 1);
+          Vector_t<Box<Int_t>> vQueryBoxes;
+          spatialSegs.query(checkBox, vQueryBoxes);
+          for (const auto& qb : vQueryBoxes) {
+            if (qb != box) {
+              cerr << box << " " << checkBox << " " << qb << endl;
+              cerr << vPolygons.size() << endl;
+              for (auto polygon : vPolygons) {
+                auto& ring = polygon.outer();
+                for (j = 0; j < ring.size(); ++j) {
+                  const auto& pt0 = ring[j];
+                  const auto& pt1 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
+                  cerr << pt0 << pt1 << endl;
+                }
+                cerr << endl;
+              }
+              exit(0);
+              return false;
+            }
+          }
         }
         else {
-          assert(seg.bVertical());
+          assert(box.xl() == box.xh());
+          assert(box.yl() != box.yh());
+          checkBox.shrinkY(1);
+          checkBox.expandX(spacing - 1);
+          Vector_t<Box<Int_t>> vQueryBoxes;
+          spatialSegs.query(checkBox, vQueryBoxes);
+          for (const auto& qb : vQueryBoxes) {
+            if (qb != box) {
+              cerr << box << " " << checkBox << " " << qb << endl;
+              cerr << vPolygons.size() << endl;
+              for (auto polygon : vPolygons) {
+                auto& ring = polygon.outer();
+                for (j = 0; j < ring.size(); ++j) {
+                  const auto& pt0 = ring[j];
+                  const auto& pt1 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
+                  cerr << pt0 << pt1 << endl;
+                }
+              }
+              exit(0);
+              return false;
+            }
+          }
         }
       }
     }

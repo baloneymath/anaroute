@@ -252,40 +252,36 @@ bool CirDB::existSpatialBlk(const UInt_t layerIdx, const Box<Int_t>& box) {
 
 bool CirDB::querySpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, Vector_t<UInt_t>& vNetIndices, Vector_t<Box<Int_t>>& vWires) {
   assert(layerIdx >= 0 and layerIdx < _vSpatialPins.size());
-  Vector_t<spatial::b_value<Int_t, UInt_t>> vRet;
+  Vector_t<Pair_t<Box<Int_t>, UInt_t>> vRet;
   _vSpatialRoutedWires[layerIdx].queryBoth(bl, tr, vRet);
   vNetIndices.reserve(vRet.size());
   vWires.reserve(vRet.size());
   for (const auto& pair : vRet) {
     vNetIndices.emplace_back(pair.second);
-    vWires.emplace_back(pair.first.min_corner(), pair.first.max_corner());
+    vWires.emplace_back(pair.first);
   }
   return !vRet.empty();
 }
 
 bool CirDB::querySpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box, Vector_t<UInt_t>& vNetIndices, Vector_t<Box<Int_t>>& vWires) {
   assert(layerIdx >= 0 and layerIdx < _vSpatialPins.size());
-  Vector_t<spatial::b_value<Int_t, UInt_t>> vRet;
+  Vector_t<Pair_t<Box<Int_t>, UInt_t>> vRet;
   _vSpatialRoutedWires[layerIdx].queryBoth(box, vRet);
   vNetIndices.reserve(vRet.size());
   vWires.reserve(vRet.size());
   for (const auto& pair : vRet) {
     vNetIndices.emplace_back(pair.second);
-    vWires.emplace_back(pair.first.min_corner(), pair.first.max_corner());
+    vWires.emplace_back(pair.first);
   }
   return !vRet.empty();
 }
 
 bool CirDB::existSpatialRoutedWire(const UInt_t layerIdx, const Point<Int_t>& bl,const Point<Int_t>& tr) {
-  Vector_t<UInt_t> vTmp;
-  Vector_t<Box<Int_t>> vTmp2;
-  return querySpatialRoutedWire(layerIdx, bl, tr, vTmp, vTmp2);
+  return _vSpatialRoutedWires[layerIdx].exist(bl, tr);
 }
 
 bool CirDB::existSpatialRoutedWire(const UInt_t layerIdx, const Box<Int_t>& box) {
-  Vector_t<UInt_t> vTmp;
-  Vector_t<Box<Int_t>> vTmp2;
-  return querySpatialRoutedWire(layerIdx, box, vTmp, vTmp2);
+  return _vSpatialRoutedWires[layerIdx].exist(box);
 }
 
 bool CirDB::existSpatialRoutedWireNet(const UInt_t layerIdx, const Point<Int_t>& bl, const Point<Int_t>& tr, const UInt_t netIdx) {
@@ -338,11 +334,11 @@ void CirDB::markBlks() {
 Int_t CirDB::overlapAreaWithOD(const Box<Int_t> &box) const
 {
     Int_t area = 0;
-    Vector_t<spatial::b_box<Int_t>> rects; 
+    Vector_t<Box<Int_t>> rects; 
     _spatialOD.query(box, rects);
     for (const auto &rect : rects)
     {
-        area += Box<Int_t> ::overlapArea(box, Box<Int_t>(rect.min_corner(), rect.max_corner()));
+        area += Box<Int_t>::overlapArea(box, rect);
     }
     return area;
 }
