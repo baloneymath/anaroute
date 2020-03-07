@@ -12,6 +12,7 @@
 #include "src/global/global.hpp"
 #include "src/db/dbCir.hpp"
 #include "src/geo/box.hpp"
+#include "src/geo/segment.hpp"
 #include "src/geo/spatial.hpp"
 #include "src/geo/spatial3d.hpp"
 
@@ -51,6 +52,8 @@ class DrcMgr {
   const Vector_t<SpatialMap<Int_t, UInt_t>>&  _vSpatialPins;
   const Vector_t<SpatialMap<Int_t, UInt_t>>&  _vSpatialBlks;
   const Vector_t<SpatialMap<Int_t, UInt_t>>&  _vSpatialRoutedWires;
+
+  bool bCanPatch(const Int_t layerIdx, const Segment<Int_t>& s1, const Segment<Int_t>& s2) const;
 
 };
 

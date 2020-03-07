@@ -58,10 +58,37 @@ public:
     else if (_p2.x() != s.p2().x()) return _p2.x() < s.p2().x();
     else return _p2.y() < s.p2().y();
   }
+  
+  // static funcs
+  static bool  bConnect(const Segment& s1, const Segment& s2);
 
 private:
   Point<T> _p1, _p2;  
 };
+
+template<typename T>
+bool Segment<T>::bConnect(const Segment& s1, const Segment& s2) {
+  Int_t o1 = Point<T>::orientation(s1.p1(), s1.p2(), s2.p1());
+  Int_t o2 = Point<T>::orientation(s1.p1(), s1.p2(), s2.p2());
+  Int_t o3 = Point<T>::orientation(s2.p1(), s2.p2(), s1.p1());
+  Int_t o4 = Point<T>::orientation(s2.p1(), s2.p2(), s1.p2());
+
+  // general case
+  if (o1 != o2 and o3 != o4)
+    return true;
+
+  // special cases
+  if (o1 == 0 and Point<T>::bOnSegment(s1.p1(), s2.p1(), s1.p2()))
+    return true; 
+  if (o2 == 0 and Point<T>::bOnSegment(s1.p1(), s2.p2(), s1.p2()))
+    return true; 
+  if (o3 == 0 and Point<T>::bOnSegment(s2.p1(), s1.p1(), s2.p2()))
+    return true; 
+  if (o4 == 0 and Point<T>::bOnSegment(s2.p1(), s1.p2(), s2.p2()))
+    return true; 
+
+  return false;
+}
 
 
 PROJECT_NAMESPACE_END

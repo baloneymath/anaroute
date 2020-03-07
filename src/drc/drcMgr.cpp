@@ -7,9 +7,7 @@
  **/
 
 #include "drcMgr.hpp"
-#include "src/geo/segment.hpp"
 #include "src/geo/box2polygon.hpp"
-#include "src/geo/spatial.hpp"
 
 using namespace std;
 
@@ -211,6 +209,14 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
   UInt_t i, j, layerIdx, pinIdx;
   const Box<Int_t>* cpBox;
   const Pair_t<Box<Int_t>, Int_t>* cpWire;
+  const Blk* cpBlk;
+  Cir_ForEachBlk(_cir, cpBlk, i) {
+    if (cpBlk->bConnect2Pin()) {
+      const UInt_t blkNetIdx = _cir.pin(cpBlk->pinIdx()).netIdx();
+      if (blkNetIdx == netIdx)
+        vvBoxes[cpBlk->layerIdx()].emplace_back(cpBlk->box());
+    }
+  }
   Net_ForEachPinIdx(net, pinIdx, i) {
     const auto& pin = _cir.pin(pinIdx);
     Pin_ForEachLayerIdx(pin, layerIdx) {
@@ -234,7 +240,7 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
     geo::box2Polygon<Int_t>(vBoxes, vvPolygons[i]);
     const auto& vPolygons = vvPolygons.at(i);
     
-    Spatial<Int_t> spatialSegs;
+    SpatialMap<Int_t, Segment<Int_t>> spatialSegs;
     for (const auto& polygon : vPolygons) {
       const auto& ring = polygon.outer();
       for (j = 0; j < ring.size(); ++j) {
@@ -244,7 +250,8 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                        std::min(pt0.y(), pt1.y()),
                        std::max(pt0.x(), pt1.x()),
                        std::max(pt0.y(), pt1.y()));
-        spatialSegs.insert(box);
+        Segment<Int_t> seg(pt0, pt1);
+        spatialSegs.insert(box, seg);
       }
     }
     for (const auto& polygon : vPolygons) {
@@ -256,53 +263,59 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                        std::min(pt0.y(), pt1.y()),
                        std::max(pt0.x(), pt1.x()),
                        std::max(pt0.y(), pt1.y()));
+        Segment<Int_t> seg(pt0, pt1);
         // FIXME: PRL
         const Int_t spacing = _cir.lef().prlSpacing(i, net.minWidth());
         Box<Int_t> checkBox(box);
-        if (box.yl() == box.yh()) {
-          assert(box.xl() != box.xh());
+        if (seg.bHorizontal()) {
+          assert(seg.xl() != seg.xh() and seg.yl() == seg.yh());
           checkBox.shrinkX(1);
           checkBox.expandY(spacing - 1);
-          Vector_t<Box<Int_t>> vQueryBoxes;
-          spatialSegs.query(checkBox, vQueryBoxes);
-          for (const auto& qb : vQueryBoxes) {
-            if (qb != box) {
-              cerr << box << " " << checkBox << " " << qb << endl;
-              cerr << vPolygons.size() << endl;
-              for (auto polygon : vPolygons) {
-                auto& ring = polygon.outer();
-                for (j = 0; j < ring.size(); ++j) {
-                  const auto& pt0 = ring[j];
-                  const auto& pt1 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
-                  cerr << pt0 << pt1 << endl;
-                }
-                cerr << endl;
-              }
-              exit(0);
+          Vector_t<Segment<Int_t>> vSegs;
+          spatialSegs.query(checkBox, vSegs);
+          for (const auto& qs : vSegs) {
+            if (qs.bVertical())
+              continue;
+            if (!Segment<Int_t>::bConnect(qs, seg)
+                and !bCanPatch(i, qs, seg)) {
+                //cerr << qs << seg << endl;
+                //for (const auto& polygon : vPolygons) {
+                  //const auto& ring = polygon.outer();
+                  //for (j = 0; j < ring.size(); ++j) {
+                    //const auto& pt0 = ring[j];
+                    //const auto& pt1 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
+                    //cerr << pt0 << pt1 << endl;
+                  //}
+                  //cerr << endl;
+                //}
+                //exit(0);
               return false;
             }
           }
         }
         else {
-          assert(box.xl() == box.xh());
-          assert(box.yl() != box.yh());
+          assert(seg.bVertical());
+          assert(seg.xl() == seg.xh() and seg.yl() != seg.yh());
           checkBox.shrinkY(1);
           checkBox.expandX(spacing - 1);
-          Vector_t<Box<Int_t>> vQueryBoxes;
-          spatialSegs.query(checkBox, vQueryBoxes);
-          for (const auto& qb : vQueryBoxes) {
-            if (qb != box) {
-              cerr << box << " " << checkBox << " " << qb << endl;
-              cerr << vPolygons.size() << endl;
-              for (auto polygon : vPolygons) {
-                auto& ring = polygon.outer();
-                for (j = 0; j < ring.size(); ++j) {
-                  const auto& pt0 = ring[j];
-                  const auto& pt1 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
-                  cerr << pt0 << pt1 << endl;
-                }
-              }
-              exit(0);
+          Vector_t<Segment<Int_t>> vSegs;
+          spatialSegs.query(checkBox, vSegs);
+          for (const auto& qs : vSegs) {
+            if (qs.bHorizontal())
+              continue;
+            if (!Segment<Int_t>::bConnect(qs, seg)
+                and !bCanPatch(i, qs, seg)) {
+                //cerr << qs << seg << endl;
+                //for (const auto& polygon : vPolygons) {
+                  //const auto& ring = polygon.outer();
+                  //for (j = 0; j < ring.size(); ++j) {
+                    //const auto& pt0 = ring[j];
+                    //const auto& pt1 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
+                    //cerr << pt0 << pt1 << endl;
+                  //}
+                  //cerr << endl;
+                //}
+                //exit(0);
               return false;
             }
           }
@@ -312,6 +325,34 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
   }
   
   return true; 
+}
+
+bool DrcMgr::bCanPatch(const Int_t layerIdx, const Segment<Int_t>& s1, const Segment<Int_t>& s2) const {
+  assert(s1.bHorizontal() == s2.bHorizontal());
+  assert(_cir.lef().bRoutingLayer(layerIdx));
+  const auto& layerPair = _cir.lef().layerPair(layerIdx);
+  const auto& layer = _cir.lef().routingLayer(layerPair.second);
+  const Int_t minStep = layer.minStep(0);
+  Int_t dist = 0;
+  if (s1.bHorizontal()) {
+    dist = std::abs(s1.yl() - s2.yl());
+  }
+  else {
+    dist = std::abs(s1.xl() - s2.xl());
+  }
+  if (dist <= minStep) {
+    if (s1.length() <= minStep or s2.length() <= minStep) {
+      if (s1.bHorizontal()) {
+        if (s1.xl() == s2.xl() or s1.xh() == s2.xh())
+          return true;
+      }
+      else {
+        if (s1.yl() == s2.yl() or s1.yh() == s2.yh())
+          return true;
+      }
+    }
+  }
+  return false;
 }
 
 PROJECT_NAMESPACE_END

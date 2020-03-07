@@ -47,7 +47,9 @@ public:
   void rotate180(const T x, const T y);                        // rotate 180 degree with respect to (x, y)
 
   // static functions
-  static T    Mdistance(const Point& p1, const Point& p2);
+  static T      Mdistance(const Point& p1, const Point& p2);
+  static bool   bOnSegment(const Point& p, const Point& q, const Point& r); // checks if point q lies on line segment 'pr' 
+  static Int_t  orientation(const Point& p, const Point& q, const Point& r); // 0: p,q,r colinear; 1: clockwise; -1:counterclockwise
 
   // operators
   friend std::ostream&  operator <<  (std::ostream& os, const Point& p)        { os << '(' << p._d[0] << ' ' << p._d[1] << ')'; return os; }
@@ -77,7 +79,7 @@ private:
   T _d[2];
 };
 
-template<class T>
+template<typename T>
 void Point<T>::rotate90(const T x, const T y, const bool bClockWise) {
   T lx = _d[0] - x;
   T ly = _d[1] - y;
@@ -91,16 +93,35 @@ void Point<T>::rotate90(const T x, const T y, const bool bClockWise) {
   }
 }
 
-template<class T>
+template<typename T>
 void Point<T>::rotate180(const T x, const T y) {
   _d[0] = x + (x - _d[0]);
   _d[1] = y + (y - _d[1]);
 }
 
-template<class T>
+template<typename T>
 T Point<T>::Mdistance(const Point<T>& p1, const Point<T>& p2) {
   return (p1._d[0] > p2._d[0] ? p1._d[0] - p2._d[0] : p2._d[0] - p1._d[0]) +
          (p1._d[1] > p2._d[1] ? p1._d[1] - p2._d[1] : p2._d[1] - p1._d[1]);
+}
+
+template<typename T>
+Int_t Point<T>::orientation(const Point& p, const Point& q, const Point& r) {
+	T val = (q._d[1] - p._d[1]) * (r._d[0] - q._d[0]) - (q._d[0] - p._d[0]) * (r._d[1] - q._d[1]); 
+	if (val == 0)
+    return 0;  // colinear 
+	return (val > 0)? 1: -1; // clock or counterclock wise 
+}
+
+template<typename T>
+bool Point<T>::bOnSegment(const Point& p, const Point& q, const Point& r) {
+  if (q._d[0] <= std::max(p._d[0], r._d[0])
+      and q._d[0] >= std::min(p._d[0], r._d[0])
+      and q._d[1] <= std::max(p._d[1], r._d[1])
+      and q._d[1] >= std::min(p._d[1], r._d[1])) 
+    return true; 
+
+  return false;
 }
 
 

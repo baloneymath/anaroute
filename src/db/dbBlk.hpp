@@ -39,6 +39,7 @@ class Blk {
   const Point<Int_t>&             min_corner()              const { return _box.min_corner(); }
   const Point<Int_t>&             max_corner()              const { return _box.max_corner(); }
   // connected pin
+  bool                            bConnect2Pin()            const { return _pinIdx != MAX_UINT; }
   UInt_t                          pinIdx()                  const { return _pinIdx; }
 
   // 
