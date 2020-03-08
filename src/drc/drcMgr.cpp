@@ -200,31 +200,59 @@ bool DrcMgr::checkViaSpacing(const UInt_t netIdx, const Int_t x, const Int_t y, 
   return true;
 }
 
+void DrcMgr::addNetShapesBFS(const Int_t netIdx, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes) const {
+  UInt_t i;
+  const Blk* cpBlk;
+  Queue_t<UInt_t> qBlkIndices;
+  Cir_ForEachBlk(_cir, cpBlk, i) {
+    if (cpBlk->bConnect2Pin()) {
+      const Int_t blkNetIdx = _cir.pin(cpBlk->pinIdx()).netIdx();
+      if (blkNetIdx == netIdx)
+        qBlkIndices.emplace(cpBlk->idx());
+    }
+  }
+  Set_t<UInt_t> exploredSet;
+  while (!qBlkIndices.empty()) {
+    const Blk& blk = _cir.blk(qBlkIndices.front());
+    qBlkIndices.pop();
+    exploredSet.emplace(blk.idx());
+    vvBoxes[blk.layerIdx()].emplace_back(blk.box());
+    Vector_t<UInt_t> vBlkIndices;
+    _cir.querySpatialBlk(blk.layerIdx(), blk.box(), vBlkIndices);
+    for (const UInt_t idx : vBlkIndices) {
+      if (exploredSet.find(idx) == exploredSet.end())
+        qBlkIndices.emplace(idx);
+    }
+  }
+}
+
 bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
   const Net& net = _cir.net(netIdx);
   Vector_t<Vector_t<Box<Int_t>>> vvBoxes(_cir.lef().numLayers());
   Vector_t<Vector_t<Polygon<Int_t>>> vvPolygons(_cir.lef().numLayers());
   
   // construct net polygon
-  UInt_t i, j, layerIdx, pinIdx;
-  const Box<Int_t>* cpBox;
+  UInt_t i, j;
+  //UInt_t pinIdx, layerIdx;
+  //const Box<Int_t>* cpBox;
   const Pair_t<Box<Int_t>, Int_t>* cpWire;
-  const Blk* cpBlk;
-  Cir_ForEachBlk(_cir, cpBlk, i) {
-    if (cpBlk->bConnect2Pin()) {
-      const UInt_t blkNetIdx = _cir.pin(cpBlk->pinIdx()).netIdx();
-      if (blkNetIdx == netIdx)
-        vvBoxes[cpBlk->layerIdx()].emplace_back(cpBlk->box());
-    }
-  }
-  Net_ForEachPinIdx(net, pinIdx, i) {
-    const auto& pin = _cir.pin(pinIdx);
-    Pin_ForEachLayerIdx(pin, layerIdx) {
-      Pin_ForEachLayerBox(pin, layerIdx, cpBox, j) {
-        vvBoxes[layerIdx].emplace_back(*cpBox);
-      }
-    }
-  }
+  //const Blk* cpBlk;
+  //Cir_ForEachBlk(_cir, cpBlk, i) {
+    //if (cpBlk->bConnect2Pin()) {
+      //const UInt_t blkNetIdx = _cir.pin(cpBlk->pinIdx()).netIdx();
+      //if (blkNetIdx == netIdx)
+        //vvBoxes[cpBlk->layerIdx()].emplace_back(cpBlk->box());
+    //}
+  //}
+  //Net_ForEachPinIdx(net, pinIdx, i) {
+    //const auto& pin = _cir.pin(pinIdx);
+    //Pin_ForEachLayerIdx(pin, layerIdx) {
+      //Pin_ForEachLayerBox(pin, layerIdx, cpBox, j) {
+        //vvBoxes[layerIdx].emplace_back(*cpBox);
+      //}
+    //}
+  //}
+  addNetShapesBFS(netIdx, vvBoxes);
   Net_ForEachRoutedWire(net, cpWire, i) {
     const auto& box = cpWire->first;
     const Int_t layerIdx = cpWire->second;

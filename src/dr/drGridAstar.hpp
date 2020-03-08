@@ -83,7 +83,7 @@ class DrGridAstar {
     Int_t stackedViaCost = 2000;
     Int_t drcCost = 20000;
     Int_t historyCost = 500; // the cost added to the history map
-    Int_t maxExplore = 200000;
+    Int_t maxExplore = 90000;
   } _param;
   
   enum class PathDir : Byte_t {

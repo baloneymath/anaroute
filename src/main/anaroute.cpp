@@ -113,6 +113,11 @@ Anaroute::Anaroute(int argc, char** argv) {
 
   timer.showUsage("Anaroute", TimeUsage::FULL);
   printf("Peak Memory Usage: %.2f MB\n", util::getPeakMemoryUsage() / MEM_SCALE);
+  
+  //for (UInt_t i = 0; i < cir.numNets(); ++i) {
+    //const auto& net = cir.net(i);
+    //std::cerr << net.name() << " " << net.idx() << std::endl;
+  //}
 }
 
 void Anaroute::parseArgs(int argc, char** argv) {

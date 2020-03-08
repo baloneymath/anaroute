@@ -243,16 +243,24 @@ GDB=""
           #--out $OUT_DIR/gds/BUFF.route.gds 
 
 # CTDSM_TOP_hao on grid
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          --design_file $ANAROUTE_DIR/bench_grid/CTDSM_TOP_hao/DFCND4BWP_LVT.gr \
-          --placement_layout $ANAROUTE_DIR/bench_grid/CTDSM_TOP_hao/DFCND4BWP_LVT.place.gds \
-          --out $OUT_DIR/gds/DFCND4BWP_LVT.route.gds 
-
-# CTDSM_CORE_NEW on grid
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
           #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          #--design_file $ANAROUTE_DIR/bench_grid/CTDSM_CORE_NEW/CTDSM_CORE_NEW.gr \
-          #--placement_layout $ANAROUTE_DIR/bench_grid/CTDSM_CORE_NEW/CTDSM_CORE_NEW.place.gds \
-          #--out $OUT_DIR/gds/CTDSM_CORE_NEW.route.gds 
+          #--design_file $ANAROUTE_DIR/bench_grid/CTDSM_TOP_hao/DFCND4BWP_LVT.gr \
+          #--placement_layout $ANAROUTE_DIR/bench_grid/CTDSM_TOP_hao/DFCND4BWP_LVT.place.gds \
+          #--out $OUT_DIR/gds/DFCND4BWP_LVT.route.gds 
+
+# CTDSM_CORE_NEW on grid
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          --design_file $ANAROUTE_DIR/bench_grid/CTDSM_CORE_NEW/CTDSM_CORE_NEW.gr \
+          --placement_layout $ANAROUTE_DIR/bench_grid/CTDSM_CORE_NEW/CTDSM_CORE_NEW.place.gds \
+          --out $OUT_DIR/gds/CTDSM_CORE_NEW.route.gds 
           #--symnet $ANAROUTE_DIR/bench_grid/CTDSM_CORE_NEW/CTDSM_CORE_NEW.symnet \
+ 
+# CTDSM_TOP on grid
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $ANAROUTE_DIR/bench_grid/CTDSM_TOP/CTDSM_TOP.gr \
+          #--placement_layout $ANAROUTE_DIR/bench_grid/CTDSM_TOP/CTDSM_TOP.place.gds \
+          #--out $OUT_DIR/gds/DFCND4BWP_LVT.route.gds 
+

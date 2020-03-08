@@ -194,7 +194,7 @@ void DrGridRoute::ripupSingleNet(Net& net) {
   }
   net.addDrFail();
   net.clearRouting();
-  fprintf(stderr, "DrGridRoute::%s Ripup net %s\n", __func__, net.name().c_str());
+  fprintf(stderr, "DrGridRoute::%s Ripup net %s (fail %d)\n", __func__, net.name().c_str(), net.drFailCnt());
   // check sym net
   if (net.hasSymNet()) {
     Net& symNet = _cir.net(net.symNetIdx());
@@ -206,7 +206,7 @@ void DrGridRoute::ripupSingleNet(Net& net) {
     }
     symNet.addDrFail();
     symNet.clearRouting();
-    fprintf(stderr, "DrGridRoute::%s Ripup net %s\n", __func__, symNet.name().c_str());
+    fprintf(stderr, "DrGridRoute::%s Ripup net %s (fail %d)\n", __func__, symNet.name().c_str(), symNet.drFailCnt());
   }
 }
 

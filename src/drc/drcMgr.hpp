@@ -53,7 +53,9 @@ class DrcMgr {
   const Vector_t<SpatialMap<Int_t, UInt_t>>&  _vSpatialBlks;
   const Vector_t<SpatialMap<Int_t, UInt_t>>&  _vSpatialRoutedWires;
 
+  void addNetShapesBFS(const Int_t netIdx, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes) const;
   bool bCanPatch(const Int_t layerIdx, const Segment<Int_t>& s1, const Segment<Int_t>& s2) const;
+  
 
 };
 

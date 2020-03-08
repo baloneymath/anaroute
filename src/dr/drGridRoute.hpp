@@ -60,8 +60,8 @@ class DrGridRoute {
   };
 
   struct Param {
-    Int_t maxSymTry = 8;
-    Int_t maxSelfSymTry = 8;
+    Int_t maxSymTry = 5;
+    Int_t maxSelfSymTry = 5;
     Int_t maxIteration = 30;
     Int_t maxIteration2 = 50;
   } _param;

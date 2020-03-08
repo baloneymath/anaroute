@@ -181,6 +181,8 @@ void DrGridAstar::init() {
     }
     
   }
+  yRangeLo -= 10 * _cir.gridStep();
+  yRangeHi += 10 * _cir.gridStep();
   // Add dummy pin at the sym axis for self-symmetric nets
   // Init access points pointing to the left
   if (!_bSelfSymHasPinInBothSide && _bSelfSym) {
@@ -357,7 +359,7 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx) {
   }
   
   // start exploring nodes
-  while (!pq.empty()) {
+  while (!pq.empty() and (Int_t)pq.size() < _param.maxExplore) {
     DrGridAstarNode* pU = pq.top();
     if (bTerminate(pU, tarIdx)) { // u \in tar
       const UInt_t bigCompIdx = mergeComp(srcIdx, tarIdx);
