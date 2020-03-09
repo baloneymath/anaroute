@@ -145,7 +145,7 @@ bool PostMgr::patchConvexJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygo
     const auto& vPolygons = vvPolygons[i];
     for (const auto& polygon : vPolygons) {
       const auto& ring = polygon.outer();
-      for (UInt_t j = 1; j + 1 < ring.size(); ++j) {
+      for (UInt_t j = 1; j < ring.size(); ++j) {
         const auto& pt0 = ring[j - 1];
         const auto& pt1 = ring[j];
         const auto& pt2 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
