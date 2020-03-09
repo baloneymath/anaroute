@@ -27,8 +27,10 @@ void PostMgr::patchJogs() {
 
   while (1) {
     initPolygons(vvPolygons);
-    if (!patchConvexJogs(vvPolygons))
+    if (!patchConvexJogs(vvPolygons)) {
+      addMetal2Net();
       break;
+    }
     else
       addMetal2Net();
   }
