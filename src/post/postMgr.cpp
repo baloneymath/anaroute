@@ -21,18 +21,27 @@ void PostMgr::patchJogs() {
   
   Vector_t<Vector_t<Polygon<Int_t>>> vvPolygons;
   
-  initPolygons(vvPolygons);
-  patchConcaveJogs(vvPolygons);
-  addMetal2Net();
+  //initPolygons(vvPolygons);
+  //patchConcaveJogs(vvPolygons);
+  //addMetal2Net();
 
   while (1) {
     initPolygons(vvPolygons);
-    if (!patchConvexJogs(vvPolygons)) {
+    
+    bool hasJog = false;
+    if (patchConcaveJogs(vvPolygons)) {
       addMetal2Net();
-      break;
+      hasJog = true;
+      continue;
     }
-    else
+
+    if (patchConvexJogs(vvPolygons)) {
       addMetal2Net();
+      hasJog = true;
+      continue;
+    }
+    if (!hasJog)
+      break;
   }
 }
 
