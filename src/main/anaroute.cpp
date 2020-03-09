@@ -69,6 +69,10 @@ Anaroute::Anaroute(int argc, char** argv) {
   cir.markBlks();
   cir.checkNetSymSelfSym();
   timer.showUsage("Circuit database construction", TimeUsage::PARTIAL);
+  //for (UInt_t i = 0; i < cir.numNets(); ++i) {
+    //const auto& net = cir.net(i);
+    //std::cerr << net.name() << " " << net.idx() + 1 << std::endl;
+  //}
   
   // global routing
   //timer.start(TimeUsage::PARTIAL);
@@ -114,10 +118,6 @@ Anaroute::Anaroute(int argc, char** argv) {
   timer.showUsage("Anaroute", TimeUsage::FULL);
   printf("Peak Memory Usage: %.2f MB\n", util::getPeakMemoryUsage() / MEM_SCALE);
   
-  //for (UInt_t i = 0; i < cir.numNets(); ++i) {
-    //const auto& net = cir.net(i);
-    //std::cerr << net.name() << " " << net.idx() << std::endl;
-  //}
 }
 
 void Anaroute::parseArgs(int argc, char** argv) {
