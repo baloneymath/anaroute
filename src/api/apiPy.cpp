@@ -35,6 +35,7 @@ namespace apiPy {
     void parseIspd08(const String_t& filename) { _par.parseIspd08(filename); }
     void parseSymNet(const String_t& filename) { _par.parseSymNet(filename); }
     void parseIOPin(const String_t& filename) { _par.parseIOPin(filename); }
+    void parsePower(const String_t& filename) { _par.parsePower(filename); }
     void setCircuitName(const String_t &cirName) { _cir.setName(cirName); }
 
     /////////////////////////////////////
@@ -60,14 +61,15 @@ namespace apiPy {
     }
     void addNet(const String_t& netName, const Int_t minWidth, const Int_t minCuts, const bool bPG) {
       Net net(netName, _cir.numNets());
-      net.setPowerGround(bPG);
+      net.setPower(bPG);
       net.setMinWidth(minWidth);
       net.setMinCuts(minCuts);
       _cir.addNet(net);
     }
-    void addPin(const String_t& pinName) {
+    void addPin(const String_t& pinName, const bool bPG) {
       Pin pin;
       pin.setName(pinName);
+      pin.setPower(bPG);
       pin.setIdx(_cir.numPins());
       pin.resizeLayerBoxes(_cir.lef().numLayers());
       _cir.addPin(pin);
@@ -217,6 +219,7 @@ void initPyAPI(py::module& m) {
     .def("parseGds", &apiPy::AnaroutePy::parseGds)
     .def("parseIspd08", &apiPy::AnaroutePy::parseIspd08)
     .def("parseSymNet", &apiPy::AnaroutePy::parseSymNet)
+    .def("parsePower", &apiPy::AnaroutePy::parsePower)
     .def("parseIOPin", &apiPy::AnaroutePy::parseIOPin)
     .def("setCirBBox", &apiPy::AnaroutePy::setCirBBox)
     .def("setGridStep", &apiPy::AnaroutePy::setGridStep)
@@ -224,7 +227,7 @@ void initPyAPI(py::module& m) {
     .def("setGridOffsetY", &apiPy::AnaroutePy::setGridOffsetY)
     .def("setSymAxisX", &apiPy::AnaroutePy::setSymAxisX)
     .def("addNet", py::overload_cast<const pro::String_t&, const pro::Int_t, const pro::Int_t, const bool>(&apiPy::AnaroutePy::addNet))
-    .def("addPin", &apiPy::AnaroutePy::addPin)
+    .def("addPin", py::overload_cast<const pro::String_t&, const bool>(&apiPy::AnaroutePy::addPin))
     .def("addPin2Net", py::overload_cast<const pro::String_t&, const pro::String_t&>(&apiPy::AnaroutePy::addPin2Net))
     .def("addPin2Net", py::overload_cast<const pro::UInt_t, const pro::UInt_t>(&apiPy::AnaroutePy::addPin2Net))
     .def("addShape2Pin", py::overload_cast<const pro::String_t&, const pro::UInt_t, const pro::Int_t, const pro::Int_t, const pro::Int_t, const pro::Int_t>(&apiPy::AnaroutePy::addShape2Pin))

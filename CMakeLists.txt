@@ -119,6 +119,7 @@ set(SRC
   src/parser/parGds.cpp
   src/parser/parSymNet.cpp
   src/parser/parIOPin.cpp
+  src/parser/parPower.cpp
   src/gr/grMgr.cpp
   src/gr/grGridRoute.cpp
   src/gr/grAstar.cpp

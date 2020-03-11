@@ -39,6 +39,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   const String_t designFile       = _args.get<String_t>("design_file");
   const String_t symnetFile       = _args.get<String_t>("symnet");
   const String_t iopinFile        = _args.get<String_t>("iopin");
+  const String_t powerFile        = _args.get<String_t>("power");
   const String_t outFile          = _args.get<String_t>("out");
   const String_t outGuideFile     = _args.get<String_t>("out_guide");
   //const String_t outGuideGdsFile  = _args.get<String_t>("out_guide_gds");
@@ -62,6 +63,8 @@ Anaroute::Anaroute(int argc, char** argv) {
   }
   if (iopinFile != "")
     par.parseIOPin(iopinFile);
+  if (powerFile != "")
+    par.parsePower(powerFile);
   //par.correctPinNBlkLoc(); // patch for placement bugs
 
   //cir.printInfo();
@@ -130,6 +133,7 @@ void Anaroute::parseArgs(int argc, char** argv) {
   // non-mandatory
   _args.add<String_t>("symnet", '\0', "symmetric nets file", false);
   _args.add<String_t>("iopin", '\0', "IO-Pin file", false);
+  _args.add<String_t>("power", '\0', "power net file", false);
   _args.add<String_t>("fuck", '\0', "fuck file", false);
   _args.add<String_t>("out_guide", '\0', "output global routing guide file", false);
   //_args.add<String_t>("out_guide_gds", '\0', "output global routing guide file (gds)", false);

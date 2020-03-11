@@ -85,10 +85,6 @@ void NetlistReader::parse(const String_t& filename) {
       net.addPinIdx(pin.idx());
       updateNetBBox(net, pin);
       pin.setNetIdx(netIdx);
-      if (netName == "GND"
-          or netName == "VDD"
-          or netName == "VSS")
-        net.setPowerGround(true);
       net.setMinWidth(to_db_unit(100));
       net.setMinCuts(1);
       _cir.addNet(net);

@@ -95,14 +95,17 @@ class Pin {
   const Vector_t<Box<Int_t>>&             vBoxes(const UInt_t layerIdx)                 const { return _vvBoxes[layerIdx]; }
   const Vector_t<Vector_t<Box<Int_t>>>&   vvBoxes()                                     const { return _vvBoxes; }
   UInt_t                                  numAcsPts()                                   const { return _vAcsPts.size(); }
-  AcsPt&                                  acsPt(const UInt_t i)                                { return _vAcsPts[i]; }
-  const AcsPt&                            acsPt(const UInt_t i)                          const { return _vAcsPts[i]; }
+  AcsPt&                                  acsPt(const UInt_t i)                               { return _vAcsPts[i]; }
+  const AcsPt&                            acsPt(const UInt_t i)                         const { return _vAcsPts[i]; }
   Vector_t<AcsPt>&                        AcsPts()                                            { return _vAcsPts; }
   const Vector_t<AcsPt>&                  AcsPts()                                      const { return _vAcsPts; }
 
   // for grid-based DR
   Int_t                                   xGrid()                                       const { return _xGrid; }
   Int_t                                   yGrid()                                       const { return _yGrid; }
+
+  // for power
+  bool                                    bPower()                                      const { return _bPower; }
 
   ////////////////////////////////////////
   //   Setter                           //
@@ -122,6 +125,9 @@ class Pin {
   void setXGrid(const Int_t x);
   void setYGrid(const Int_t y);
 
+  // for power
+  void setPower(const bool b = true);
+
   // for debug
   void printInfo() const;
 
@@ -137,6 +143,9 @@ class Pin {
   // for grid-based DR
   Int_t                           _xGrid;
   Int_t                           _yGrid;
+
+  // for power
+  bool                            _bPower = false;
 };
 
 ////////////////////////////////////////

@@ -14,6 +14,7 @@
 #include "parSymNet.hpp"
 #include "parIOPin.hpp"
 #include "parNetlist.hpp"
+#include "parPower.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -58,6 +59,12 @@ void Parser::parseNetlist(const String_t& filename) {
   fprintf(stdout, "Parsing Netlist file %s\n", filename.c_str());
   NetlistReader netlistr(_cir);
   netlistr.parse(filename);
+}
+
+void Parser::parsePower(const String_t& filename) {
+  fprintf(stdout, "Parsing Power file %s\n", filename.c_str());
+  PowerNetReader powerr(_cir);
+  powerr.parse(filename);
 }
 
 

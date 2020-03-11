@@ -64,6 +64,10 @@ void Pin::setYGrid(const Int_t y) {
   _yGrid = y;
 }
 
+void Pin::setPower(const bool b) {
+  _bPower = b;
+}
+
 void Pin::printInfo() const {
 
 }

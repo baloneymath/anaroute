@@ -124,7 +124,7 @@ class Net {
   Box<Int_t>         bbox()  const { return Box<Int_t>(_bboxXL, _bboxYL, _bboxXH, _bboxYH); }
 
   // for performance driven and electrical consideration
-  bool    bPowerGround()  const { return _bPowerGround; }
+  bool    bPower()        const { return _bPower; }
   Int_t   minWidth()      const { return _minWidth; }
   Int_t   minCuts()       const { return _minCuts; }
 
@@ -159,7 +159,7 @@ class Net {
   void resetBBox();
   void updateBBox(const Box<Int_t>& box);
 
-  void setPowerGround(const bool b = true);
+  void setPower(const bool b = true);
   void setMinWidth(const Int_t w);
   void setMinCuts(const Int_t c);
 
@@ -189,7 +189,7 @@ class Net {
   Int_t _bboxYH = MIN_INT; // bounding box of pin locations
 
   // for performance driven and electrical consideration
-  bool    _bPowerGround = false;
+  bool    _bPower = false;
   Int_t   _minWidth;
   Int_t   _minCuts;
 

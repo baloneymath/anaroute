@@ -36,8 +36,8 @@ class GrGridRoute {
   // for net comparison in pqueue
   struct Net_Cmp {
     bool operator() (const Net* pn1, const Net* pn2) {
-      if (pn1->bPowerGround() != pn2->bPowerGround()) {
-        return pn1->bPowerGround() > pn2->bPowerGround();
+      if (pn1->bPower() != pn2->bPower()) {
+        return pn1->bPower() > pn2->bPower();
       }
       else if (pn1->bSelfSym() != pn2->bSelfSym()) {
         return pn1->bSelfSym() < pn2->bSelfSym();

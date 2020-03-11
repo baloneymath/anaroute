@@ -206,6 +206,7 @@ GDB=""
           #--design_file $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.pin \
           #--placement_layout $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.place.gds \
           #--iopin $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.iopin \
+          #--power $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.power \
           #--out $OUT_DIR/gds/comp2_mag5.route.gds 
           #--symnet $ANAROUTE_DIR/bench_grid/comp2_mag5/comp2.symnet \
 
@@ -215,6 +216,7 @@ GDB=""
           #--design_file $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.pin \
           #--placement_layout $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.place.gds \
           #--iopin $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.iopin \
+          #--power $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.power \
           #--out $OUT_DIR/gds/Core_test_flow_2.route.gds 
           #--symnet $ANAROUTE_DIR/bench_grid/Core_test_flow_2/Core_test_flow.symnet \
 

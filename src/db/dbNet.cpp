@@ -73,8 +73,8 @@ void Net::updateBBox(const Box<Int_t>& box) {
   _bboxYH = std::max(_bboxYH, box.yh());
 }
 
-void Net::setPowerGround(const bool b) {
-  _bPowerGround = b;
+void Net::setPower(const bool b) {
+  _bPower = b;
 }
  
 void Net::setMinWidth(const Int_t w) {
