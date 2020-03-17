@@ -68,6 +68,10 @@ void Pin::setPower(const bool b) {
   _bPower = b;
 }
 
+void Pin::setStripe(const bool b) {
+  _bStripe = b;
+}
+
 void Pin::printInfo() const {
 
 }

@@ -106,6 +106,7 @@ class Pin {
 
   // for power
   bool                                    bPower()                                      const { return _bPower; }
+  bool                                    bStripe()                                     const { return _bStripe; }
 
   ////////////////////////////////////////
   //   Setter                           //
@@ -127,6 +128,7 @@ class Pin {
 
   // for power
   void setPower(const bool b = true);
+  void setStripe(const bool b = true);
 
   // for debug
   void printInfo() const;
@@ -146,6 +148,7 @@ class Pin {
 
   // for power
   bool                            _bPower = false;
+  bool                            _bStripe = false;
 };
 
 ////////////////////////////////////////
