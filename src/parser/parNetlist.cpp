@@ -68,9 +68,6 @@ void NetlistReader::parse(const String_t& filename) {
     pin.resizeLayerBoxes(_cir.lef().numLayers());
     pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
     
-    pin.setXGrid(xGrid);
-    pin.setYGrid(yGrid);
-
     pin.setNetName(netName);
     if (_cir.hasNet(netName)) {
       netIdx = _cir.str2NetIdx(netName);
@@ -91,6 +88,95 @@ void NetlistReader::parse(const String_t& filename) {
     }
     _cir.addPin(pin);
 
+  }
+
+  ifs.close();
+}
+
+void NetlistReader::parse2(const String_t& filename) {
+  assert(_cir.lef().version() > 0);
+  std::ifstream ifs(filename.c_str(), std::ifstream::in);
+  if (!ifs.is_open()) {
+    fprintf(stderr, "NetlistReader::%s ERROR: Cannot open file `%s`\n", __func__, filename.c_str());
+    exit(0);
+  }
+
+  setScale();
+
+  _cir.resizeVVPinIndices(_cir.lef().numLayers());
+
+  String_t buf;
+  String_t netName, pinName;
+  Int_t routingLayerIdx;
+  Int_t gridStep, gridOffsetX, gridOffsetY, symAxisX;
+  Int_t xl, yl, xh, yh;
+  bool bPower, bStripe;
+
+  ifs >> buf; ifs >> gridStep;
+  ifs >> buf; ifs >> gridOffsetX >> gridOffsetY;
+  ifs >> buf; ifs >> symAxisX;
+
+  gridStep = to_db_unit(gridStep);
+  gridOffsetX = to_db_unit(gridOffsetX);
+  gridOffsetY = to_db_unit(gridOffsetY);
+  symAxisX = to_db_unit(symAxisX);
+  _cir.setGridStep(gridStep);
+  _cir.setGridOffsetX(gridOffsetX);
+  _cir.setGridOffsetY(gridOffsetY);
+  _cir.setSymAxisX(symAxisX);
+
+  while (ifs >> netName >> pinName
+             >> routingLayerIdx >> xl >> yl >> xh >> yh
+             >> bPower >> bStripe) {
+    assert(routingLayerIdx > 0);
+    const Int_t layerIdx = _cir.lef().routingLayerIdx2LayerIdx(routingLayerIdx - 1);
+    xl = to_db_unit(xl);
+    yl = to_db_unit(yl);
+    xh = to_db_unit(xh);
+    yh = to_db_unit(yh);
+
+    const bool hasNet = _cir.hasNet(netName);
+    const bool hasPin = _cir.hasPin(pinName);
+    
+    if (hasNet) {
+      Net& net = _cir.net(netName);
+      if (hasPin) {
+        Pin& pin = _cir.pin(pinName);
+        assert(pin.netIdx() == net.idx());
+        net.addPinIdx(pin.idx());
+        pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
+        updateNetBBox(net, pin);
+      }
+      else {
+        Pin pin(pinName, netName, net.idx(), _cir.numPins());
+        pin.resizeLayerBoxes(_cir.lef().numLayers());
+        pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
+        net.addPinIdx(pin.idx());
+        updateNetBBox(net, pin);
+        _cir.addPin(pin);
+      }
+    }
+    else {
+      Net net(netName, _cir.numNets());
+      net.setMinWidth(to_db_unit(100));
+      net.setMinCuts(1);
+      if (hasPin) {
+        Pin& pin = _cir.pin(pinName);
+        assert(pin.netIdx() == net.idx());
+        pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
+        net.addPinIdx(pin.idx());
+        updateNetBBox(net, pin);
+      }
+      else {
+        Pin pin(pinName, netName, net.idx(), _cir.numPins());
+        pin.resizeLayerBoxes(_cir.lef().numLayers());
+        pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
+        net.addPinIdx(pin.idx());
+        updateNetBBox(net, pin);
+        _cir.addPin(pin);
+      }
+      _cir.addNet(net);
+    }
   }
 
   ifs.close();

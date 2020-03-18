@@ -78,6 +78,7 @@ class CirDB {
   const Pin&        pin(const UInt_t i)                   const  { return _vPins[i]; }
   Pin&              pin(const UInt_t i, const UInt_t j)          { return _vPins[_vvPinIndices[i][j]]; }
   const Pin&        pin(const UInt_t i, const UInt_t j)   const  { return _vPins[_vvPinIndices[i][j]]; }
+  bool              hasPin(const String_t& n)             const  { return _mStr2PinIdx.find(n) != _mStr2PinIdx.end(); }
 
   // Net
   UInt_t            numNets()                     const { return _vNets.size(); }

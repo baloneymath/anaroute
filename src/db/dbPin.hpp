@@ -73,10 +73,10 @@ class Pin {
   friend class CirDB;
   friend class Ispd08Reader;
  public:
-  Pin()
-    : _name(""), _netName(""), _netIdx(MAX_UINT), _idx(MAX_UINT),
-      _minLayerIdx(MAX_UINT), _maxLayerIdx(0),
-      _xGrid(-1), _yGrid(-1)
+  Pin(const String_t& name = "", const String_t& netName = "",
+      const UInt_t netIdx = MAX_UINT, const UInt_t idx = MAX_UINT)
+    : _name(name), _netName(netName), _netIdx(netIdx), _idx(idx),
+      _minLayerIdx(MAX_UINT), _maxLayerIdx(0)
   {}
   ~Pin() {}
 
@@ -100,10 +100,6 @@ class Pin {
   Vector_t<AcsPt>&                        AcsPts()                                            { return _vAcsPts; }
   const Vector_t<AcsPt>&                  AcsPts()                                      const { return _vAcsPts; }
 
-  // for grid-based DR
-  Int_t                                   xGrid()                                       const { return _xGrid; }
-  Int_t                                   yGrid()                                       const { return _yGrid; }
-
   // for power
   bool                                    bPower()                                      const { return _bPower; }
   bool                                    bStripe()                                     const { return _bStripe; }
@@ -122,10 +118,6 @@ class Pin {
   void resizeLayerBoxes(const UInt_t i);
   void addAcsPt(const AcsPt& p);
  
-  // for grid-based DR
-  void setXGrid(const Int_t x);
-  void setYGrid(const Int_t y);
-
   // for power
   void setPower(const bool b = true);
   void setStripe(const bool b = true);
@@ -142,9 +134,6 @@ class Pin {
   UInt_t                          _maxLayerIdx;
   Vector_t<Vector_t<Box<Int_t>>>  _vvBoxes; // Boxes in multiple layers
   Vector_t<AcsPt>                 _vAcsPts;  ///< Access points
-  // for grid-based DR
-  Int_t                           _xGrid;
-  Int_t                           _yGrid;
 
   // for power
   bool                            _bPower = false;

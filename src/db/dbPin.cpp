@@ -56,14 +56,6 @@ void Pin::addAcsPt(const AcsPt& p) {
   _vAcsPts.emplace_back(p);
 }
 
-void Pin::setXGrid(const Int_t x) {
-  _xGrid = x;
-}
-
-void Pin::setYGrid(const Int_t y) {
-  _yGrid = y;
-}
-
 void Pin::setPower(const bool b) {
   _bPower = b;
 }

@@ -20,7 +20,8 @@ class NetlistReader {
     : _cir(c), _scale(0) {}
   ~NetlistReader() {}
 
-  void parse(const String_t& filename);
+  void parse(const String_t& filename); // old format
+  void parse2(const String_t& filename);
 
  private:
   CirDB& _cir;

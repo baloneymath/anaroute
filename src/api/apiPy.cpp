@@ -66,10 +66,11 @@ namespace apiPy {
       net.setMinCuts(minCuts);
       _cir.addNet(net);
     }
-    void addPin(const String_t& pinName, const bool bPG) {
+    void addPin(const String_t& pinName, const bool bPG, const bool bStripe) {
       Pin pin;
       pin.setName(pinName);
       pin.setPower(bPG);
+      pin.setStripe(bStripe);
       pin.setIdx(_cir.numPins());
       pin.resizeLayerBoxes(_cir.lef().numLayers());
       _cir.addPin(pin);
@@ -227,7 +228,7 @@ void initPyAPI(py::module& m) {
     .def("setGridOffsetY", &apiPy::AnaroutePy::setGridOffsetY)
     .def("setSymAxisX", &apiPy::AnaroutePy::setSymAxisX)
     .def("addNet", py::overload_cast<const pro::String_t&, const pro::Int_t, const pro::Int_t, const bool>(&apiPy::AnaroutePy::addNet))
-    .def("addPin", py::overload_cast<const pro::String_t&, const bool>(&apiPy::AnaroutePy::addPin))
+    .def("addPin", py::overload_cast<const pro::String_t&, const bool, const bool>(&apiPy::AnaroutePy::addPin))
     .def("addPin2Net", py::overload_cast<const pro::String_t&, const pro::String_t&>(&apiPy::AnaroutePy::addPin2Net))
     .def("addPin2Net", py::overload_cast<const pro::UInt_t, const pro::UInt_t>(&apiPy::AnaroutePy::addPin2Net))
     .def("addShape2Pin", py::overload_cast<const pro::String_t&, const pro::UInt_t, const pro::Int_t, const pro::Int_t, const pro::Int_t, const pro::Int_t>(&apiPy::AnaroutePy::addShape2Pin))
