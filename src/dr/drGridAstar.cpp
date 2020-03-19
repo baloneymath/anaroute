@@ -544,7 +544,10 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       const Int_t extension = width / 2;
       // generate the exact wire
       Box<Int_t> wire;
-      toWire(u, v, width, extension, wire);
+      if (i == 0 or i == (Int_t)vPathVec.size() - 1)
+        toWire(u, v, width, 0, wire);
+      else
+        toWire(u, v, width, extension, wire);
       vRoutedWires.emplace_back(wire, u.z());
       _cir.addSpatialRoutedWire(_net.idx(), u.z(), wire);
       // add history cost
@@ -630,7 +633,7 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       }
 
       //const LefVia& via = _cir.lef().via(botLayerIdx, 1, 1, botType, topType);
-      const LefVia& via = _cir.lef().via(botLayerIdx, 1, 2, botViaWidth, botViaHeight, topViaWidth, topViaHeight);
+      const LefVia& via = _cir.lef().via(botLayerIdx, _param.numCutsRow, _param.numCutsCol, botViaWidth, botViaHeight, topViaWidth, topViaHeight);
       via2LayerBoxes(x, y, via, vRoutedWires);     
       _cir.addSpatialRoutedVia(_net.idx(), x, y, via);
       // add history cost
@@ -796,7 +799,7 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     const Int_t x = u.x();
     const Int_t y = u.y();
     const Int_t botLayerIdx = std::min(u.z(), v.z());
-    const LefVia& via = _cir.lef().via(botLayerIdx, 1, 2);
+    const LefVia& via = _cir.lef().via(botLayerIdx, _param.numCutsRow, _param.numCutsCol);
     if (!_drc.checkViaSpacing(_net.idx(), x, y, via))
       return true;
     // TODO: minarea, minstep

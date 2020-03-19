@@ -153,7 +153,7 @@ set(SRC_API
 )
 
 add_executable(${PROJECT_NAME} ${SRC} ${SRC_EXE})
-pybind11_add_module(${PROJECT_NAME}Py ${SRC} ${SRC_API})
+#pybind11_add_module(${PROJECT_NAME}Py ${SRC} ${SRC_API})
 
 ##################################################
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
@@ -185,7 +185,7 @@ file(GLOB LIMBO_LIB
 )
 
 target_link_libraries(${PROJECT_NAME} ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
-target_link_libraries(${PROJECT_NAME}Py PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
+#target_link_libraries(${PROJECT_NAME}Py PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #Install
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX_DIR}/bin)

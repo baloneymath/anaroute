@@ -143,12 +143,16 @@ void NetlistReader::parse2(const String_t& filename) {
       if (hasPin) {
         Pin& pin = _cir.pin(pinName);
         assert(pin.netIdx() == net.idx());
+        assert(pin.bPower() == bPower);
+        assert(pin.bStripe() == bStripe);
         net.addPinIdx(pin.idx());
         pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
         updateNetBBox(net, pin);
       }
       else {
         Pin pin(pinName, netName, net.idx(), _cir.numPins());
+        pin.setPower(bPower);
+        pin.setStripe(bStripe);
         pin.resizeLayerBoxes(_cir.lef().numLayers());
         pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
         net.addPinIdx(pin.idx());
@@ -158,17 +162,30 @@ void NetlistReader::parse2(const String_t& filename) {
     }
     else {
       Net net(netName, _cir.numNets());
-      net.setMinWidth(to_db_unit(100));
-      net.setMinCuts(1);
+      net.setPower(bPower);
+      if (bPower) {
+        net.setMinWidth(to_db_unit(5000));
+        net.setMinCuts(8);
+        //net.setMinWidth(to_db_unit(100));
+        //net.setMinCuts(1);
+      }
+      else {
+        net.setMinWidth(to_db_unit(100));
+        net.setMinCuts(1);
+      }
       if (hasPin) {
         Pin& pin = _cir.pin(pinName);
         assert(pin.netIdx() == net.idx());
+        assert(pin.bPower() == bPower);
+        assert(pin.bStripe() == bStripe);
         pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
         net.addPinIdx(pin.idx());
         updateNetBBox(net, pin);
       }
       else {
         Pin pin(pinName, netName, net.idx(), _cir.numPins());
+        pin.setPower(bPower);
+        pin.setStripe(bStripe);
         pin.resizeLayerBoxes(_cir.lef().numLayers());
         pin.addBox(layerIdx, Box<Int_t>(xl, yl, xh, yh));
         net.addPinIdx(pin.idx());

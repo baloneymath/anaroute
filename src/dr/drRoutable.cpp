@@ -16,6 +16,9 @@ void DrRoutable::constructRoutables() {
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
     Net& net = _cir.net(i);
     if (net.numPins() > 1) {
+      if (net.bPower())
+        constructNormalPowerRoutables(net);
+      else
       constructNetRoutables(net, net.hasSymNet(), net.bSelfSym());
       //constructNormalNetRoutables(net);
       //printNetRoutableInfo(net);
@@ -25,14 +28,21 @@ void DrRoutable::constructRoutables() {
 
 void DrRoutable::constructNetRoutables(Net& net, const bool bSym, const bool bSelfSym) {
   if (!bSym and !bSelfSym) {
-    constructNormalNetRoutables(net);
+    if (net.bPower()) 
+      constructNormalPowerRoutables(net);
+    else
+      constructNormalNetRoutables(net);
   }
   else if (bSelfSym) {
     assert(!bSym);
-    constructSelfSymNetRoutables(net);
+    if (net.bPower())
+      constructSelfSymPowerRoutables(net);
+    else
+      constructSelfSymNetRoutables(net);
   }
   else if (bSym) { // sym net
     assert(!bSelfSym);
+    assert(!net.bPower());
     if (bCrossSymNet(net))
       constructCrossSymNetRoutables(net);
     else
@@ -41,7 +51,7 @@ void DrRoutable::constructNetRoutables(Net& net, const bool bSym, const bool bSe
 }
 
 void DrRoutable::constructNormalNetRoutables(Net& net) {
-  Routable ro(false, net.idx());
+  Routable ro(false, 0, net.idx());
   auto& vRoutables = net.vRoutables();
   auto& vRoutableSchedule = net.vRoutableSchedule();
   for (const auto pinIdx : net.vPinIndices()) {
@@ -179,10 +189,39 @@ void DrRoutable::constructSymNetRoutables(Net& net) {
   }
 }
 
-void DrRoutable::constructPowerRoutables(Net& net) {
-
+void DrRoutable::constructNormalPowerRoutables(Net& net) {
+  assert(net.bPower());
+  UInt_t i, pinIdx, stripeIdx = MAX_UINT;
+  // find stripe idx
+  Net_ForEachPinIdx(net, pinIdx, i) {
+    const Pin& pin = _cir.pin(pinIdx);
+    assert(pin.bPower());
+    if (pin.bStripe()) {
+      stripeIdx = pinIdx;
+      break;
+    }
+  }
+  assert(stripeIdx != MAX_UINT);
+  // construct routable of other pins and the stripe
+  auto& vRoutables = net.vRoutables();
+  auto& vRoutableSchedule = net.vRoutableSchedule();
+  Net_ForEachPinIdx(net, pinIdx, i) {
+    const Pin& pin = _cir.pin(pinIdx);
+    if (!pin.bStripe()) {
+      Routable ro;
+      ro.setNetIdx(net.idx());
+      ro.addPinIdx(pinIdx);
+      ro.addPinIdx(stripeIdx);
+      ro.setIdx(vRoutables.size());
+      vRoutables.emplace_back(ro);
+      vRoutableSchedule.emplace_back(ro.idx());
+    }
+  }
 }
 
+void DrRoutable::constructSelfSymPowerRoutables(Net& net) {
+
+}
 
 bool DrRoutable::bCrossSymNet(const Net& net) {
   if (!net.hasSymNet())

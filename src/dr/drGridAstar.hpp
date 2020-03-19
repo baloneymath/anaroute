@@ -23,7 +23,13 @@ class DrGridAstar {
   DrGridAstar(CirDB& c, Net& n, Routable& ro, DrcMgr& d, DrGridRoute& dr,
               const bool bSym, const bool bSelfSym, const bool bStrictDRC)
     : _cir(c), _net(n), _ro(ro), _drc(d), _dr(dr),
-      _bSym(bSym), _bSelfSym(bSelfSym), _bStrictDRC(bStrictDRC) {
+      _bSym(bSym), _bSelfSym(bSelfSym), _bStrictDRC(bStrictDRC)
+  {
+    _param.numCutsRow = _net.bPower() ? _param.numPowerCutsRow : _param.numSignalCutsRow;
+    _param.numCutsCol = _net.bPower() ? _param.numPowerCutsCol : _param.numSignalCutsCol;
+    
+    assert(_param.numCutsRow * _param.numCutsCol >= _net.minCuts());
+
     _vAllNodesMap.resize(_cir.lef().numLayers());
     for (auto& m : _vAllNodesMap) {
       m.set_empty_key(Point<Int_t>(-1, -1));
@@ -74,6 +80,7 @@ class DrGridAstar {
   Vector_t<Vector_t<Pair_t<Box<Int_t>, Int_t>>>               _vvRoutedWires; // final results;
 
   struct Param {
+    // cost
     Int_t horCost = 1;
     Int_t verCost = 1;
     Int_t viaCost; // dynamic determined by gridStep
@@ -84,6 +91,13 @@ class DrGridAstar {
     Int_t drcCost = 20000;
     Int_t historyCost = 500; // the cost added to the history map
     Int_t maxExplore = 90000;
+    // electrical
+    Int_t numCutsRow;
+    Int_t numCutsCol;
+    Int_t numSignalCutsRow = 1;
+    Int_t numSignalCutsCol = 2;
+    Int_t numPowerCutsRow = 2;
+    Int_t numPowerCutsCol = 4;
   } _param;
   
   enum class PathDir : Byte_t {

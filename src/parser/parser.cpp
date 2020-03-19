@@ -58,7 +58,7 @@ void Parser::parseIOPin(const String_t& filename) {
 void Parser::parseNetlist(const String_t& filename) {
   fprintf(stdout, "Parsing Netlist file %s\n", filename.c_str());
   NetlistReader netlistr(_cir);
-  netlistr.parse(filename);
+  netlistr.parse2(filename);
 }
 
 void Parser::parsePower(const String_t& filename) {

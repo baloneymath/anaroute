@@ -84,6 +84,7 @@ void DrGridRoute::addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq) {
     Net* pNet = &_cir.net(i);
     if (pNet->numPins() > 1) {
       if (!pNet->bRouted())
+        if (pNet->bPower())
         pq.push(pNet);
     }
     else { // single pin net

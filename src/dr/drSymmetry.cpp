@@ -35,6 +35,11 @@ void DrSymmetry::solve(const bool bUseSymFile) {
     Net& net1 = _cir.net(i);
     for (UInt_t j = i; j < _cir.numNets(); ++j) {
       Net& net2 = _cir.net(j);
+      // prohibit power nets to be sym with other nets
+      if (i != j) {
+        if (net1.bPower() or net2.bPower())
+          continue;
+      }
       Int_t bestSymAxisX = 0;
       Float_t degSym = 0;
       bestMatching(net1, net2, bestSymAxisX, degSym);
