@@ -84,7 +84,8 @@ void DrGridRoute::addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq) {
     Net* pNet = &_cir.net(i);
     if (pNet->numPins() > 1) {
       if (!pNet->bRouted())
-        if (pNet->bPower())
+        //if (pNet->bPower())
+        //if (pNet->name() == "VDD")
         pq.push(pNet);
     }
     else { // single pin net
@@ -112,6 +113,7 @@ void DrGridRoute::checkSymSelfSym(const Net& net, const Routable& ro, bool& bSym
 bool DrGridRoute::routeSingleNet(Net& net, const bool bStrictDRC) {
   
   if (net.hasSymNet()) {
+    assert(!net.bPower());
     Net& symNet = _cir.net(net.symNetIdx());
     if (net.drFailCnt() >= _param.maxSymTry
         or symNet.drFailCnt() >= _param.maxSymTry) {
@@ -172,7 +174,8 @@ bool DrGridRoute::checkSingleNetDRC(const Net& net) {
     const auto& wire = pair.first;
     const Int_t layerIdx = pair.second;
     if (_cir.lef().bRoutingLayer(layerIdx)) {
-      if (!_drc.checkWireRoutingLayerSpacing(net.idx(), layerIdx, wire))
+      const Int_t prl = std::max(wire.width(), wire.height());
+      if (!_drc.checkWireRoutingLayerSpacing(net.idx(), layerIdx, wire, prl))
         return false;
       if (!_drc.checkWireEolSpacing(net.idx(), layerIdx, wire))
         return false;

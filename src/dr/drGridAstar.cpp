@@ -361,7 +361,7 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx) {
   // start exploring nodes
   while (!pq.empty() and (Int_t)pq.size() < _param.maxExplore) {
     DrGridAstarNode* pU = pq.top();
-    if (bTerminate(pU, tarIdx)) { // u \in tar
+    if (bFindAcsPt(pU, tarIdx)) { // u \in tar
       const UInt_t bigCompIdx = mergeComp(srcIdx, tarIdx);
       //connect2AcsPt(pU);
       backTrack(pU, bigCompIdx, srcIdx, tarIdx);
@@ -385,7 +385,7 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx) {
         Int_t scaledNearestDist;
         tarKD.nearestSearch(scaledP, scaledNearestP, scaledNearestDist);
         Int_t costF = (costG * _param.factorG + scaledNearestDist * _param.factorH);
-        if (bViolateDRC(pU, pV)) {
+        if (bViolateDRC(pU, pV, srcIdx, tarIdx)) {
           if (_bStrictDRC) // do not allow any DRC violation
             continue;
           else // add high cost to DRC violations
@@ -414,7 +414,7 @@ bool DrGridAstar::routeSubNet(Int_t srcIdx, Int_t tarIdx) {
   return false;
 }
 
-bool DrGridAstar::bTerminate(DrGridAstarNode* pU, const Int_t tarIdx) {
+bool DrGridAstar::bFindAcsPt(const DrGridAstarNode* pU, const Int_t tarIdx) {
   const auto& tar = _vCompAcsPts[tarIdx];
   if (tar.find(pU->coord()) != tar.end()) {
     //const AcsPt& acsPt = _pinAcsMap.at(pU->coord());
@@ -464,7 +464,9 @@ void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, c
     _vCompSpatialBoxes[rootIdx][pair.second].insert(pair.first);
   }
   const auto& vRoutePath = _vvRoutePaths.back();
-  for (const auto& vec : vRoutePath) {
+  for (Int_t i = 0; i < (Int_t)vRoutePath.size(); ++i) {
+  //for (const auto& vec : vRoutePath) {
+    const auto& vec = vRoutePath[i];
     const auto& u = vec.first;
     const auto& v = vec.second;
     if (u.z() == v.z()) {
@@ -475,6 +477,8 @@ void DrGridAstar::backTrack(const DrGridAstarNode* pU, const Int_t bigCompIdx, c
       //const Int_t width = layer.minWidth();
       const Int_t width = _net.minWidth();
       const Int_t extension = width / 2;
+      //const Int_t extension = (i == 0 or i == (Int_t)vRoutePath.size() - 1) ?
+                              //0 : width / 2;
       // generate the exact wire shape
       Box<Int_t> wire;
       toWire(u, v, width, extension, wire);
@@ -542,12 +546,11 @@ void DrGridAstar::savePath(const List_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&
       //const Int_t width = layer.minWidth();
       const Int_t width = _net.minWidth();
       const Int_t extension = width / 2;
+      //const Int_t extension = (i == 0 or i == (Int_t)vPathVec.size() - 1) ?
+                              //0 : width / 2;
       // generate the exact wire
       Box<Int_t> wire;
-      if (i == 0 or i == (Int_t)vPathVec.size() - 1)
-        toWire(u, v, width, 0, wire);
-      else
-        toWire(u, v, width, extension, wire);
+      toWire(u, v, width, extension, wire);
       vRoutedWires.emplace_back(wire, u.z());
       _cir.addSpatialRoutedWire(_net.idx(), u.z(), wire);
       // add history cost
@@ -685,7 +688,11 @@ void DrGridAstar::findNeighbors(DrGridAstarNode* pU) {
   const Int_t step = _cir.gridStep();
 
   // find lower layer neighbor
-  if (p.z() > 0) {
+  const Int_t minLowerLayerIdx = _cir.lef().routingLayerIdx2LayerIdx(0);
+  //const Int_t minLowerLayerIdx = _net.bPower() ? 
+                                 //_cir.lef().routingLayerIdx2LayerIdx(5) :
+                                 //_cir.lef().routingLayerIdx2LayerIdx(0);
+  if (p.z() > minLowerLayerIdx) {
     const Point<Int_t> p2d(p.x(), p.y());
     const Int_t layerIdx = p.z() - 2;
     if (layerIdx >= 0 and _cir.lef().bRoutingLayer(layerIdx)) {
@@ -697,7 +704,11 @@ void DrGridAstar::findNeighbors(DrGridAstarNode* pU) {
     }
   }
   // find upper layer neighbor
-  if (p.z() < (Int_t)_vAllNodesMap.size() - 2) {
+  const Int_t maxUpperLayerIdx = _cir.lef().routingLayerIdx2LayerIdx(5);
+  //const Int_t maxUpperLayerIdx = _net.bPower() ?
+                                 //_cir.lef().routingLayerIdx2LayerIdx(5) : // M6
+                                 //_cir.lef().routingLayerIdx2LayerIdx(5); // M6
+  if (p.z() < maxUpperLayerIdx) { 
     const Point<Int_t> p2d(p.x(), p.y());
     const Int_t layerIdx = p.z() + 2;
     if (_cir.lef().bRoutingLayer(layerIdx)) {
@@ -750,7 +761,7 @@ void DrGridAstar::findNeighbors(DrGridAstarNode* pU) {
   }
 }
 
-bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* pV) {
+bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* pV, const Int_t srcIdx, const Int_t tarIdx) {
   const auto& u = pU->coord();
   const auto& v = pV->coord();
   if (u.z() == v.z()) {
@@ -763,8 +774,11 @@ bool DrGridAstar::bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* 
     //const Int_t width = layer.minWidth();
     const Int_t width = _net.minWidth();
     const Int_t extension = width / 2;
+    //const Int_t extension = (bFindAcsPt(pU, srcIdx) or bFindAcsPt(pV, tarIdx)) ?
+                            //0 : width / 2;
     // generate exact wire shape
     Box<Int_t> wire;
+
     toWire(u, v, width, extension, wire);
     // check DRC
     if (!_drc.checkWireRoutingLayerSpacing(_net.idx(), z, wire))

@@ -96,8 +96,8 @@ class DrGridAstar {
     Int_t numCutsCol;
     Int_t numSignalCutsRow = 1;
     Int_t numSignalCutsCol = 2;
-    Int_t numPowerCutsRow = 2;
-    Int_t numPowerCutsCol = 4;
+    Int_t numPowerCutsRow = 3;
+    Int_t numPowerCutsCol = 3;
   } _param;
   
   enum class PathDir : Byte_t {
@@ -128,8 +128,8 @@ class DrGridAstar {
   bool  bNeedMergePath(const Point3d<Int_t>& u1, const Point3d<Int_t>& v1, const Point3d<Int_t>& u2, const Point3d<Int_t>& v2);
   void  addAcsPts(const Int_t idx, const Int_t z, const Box<Int_t>& box);
   void  findNeighbors(DrGridAstarNode* pU);
-  bool  bTerminate(DrGridAstarNode* pU, const Int_t tarIdx);
-  bool  bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* pV);
+  bool  bFindAcsPt(const DrGridAstarNode* pU, const Int_t tarIdx);
+  bool  bViolateDRC(const DrGridAstarNode* pU, const DrGridAstarNode* pV, const Int_t srcIdx, const Int_t tarIdx);
   bool  checkMinArea(const DrGridAstarNode* pU, const DrGridAstarNode* pV);
   bool  bNeedUpdate(const DrGridAstarNode* pV, const Int_t costG, const Int_t bendCnt);
   void  resetAllNodes();

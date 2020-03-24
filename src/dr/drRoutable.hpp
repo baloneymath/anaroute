@@ -44,10 +44,11 @@ class DrRoutable {
   CirDB& _cir;
 
   // helper
-  void addPinShapes(const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes);
-  bool bExistTotallySymPin(const Pin& pin, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes);
-  bool bPinOnLeft(const Pin& pin);
-  bool bPinOnRight(const Pin& pin);
+  void  addPinShapes(const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vvBoxes);
+  bool  bExistTotallySymPin(const Pin& pin, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes);
+  Int_t totallySymPinIdx(const Pin& pin, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes);
+  bool  bPinOnLeft(const Pin& pin);
+  bool  bPinOnRight(const Pin& pin);
 };
 
 PROJECT_NAMESPACE_END

@@ -16,9 +16,6 @@ void DrRoutable::constructRoutables() {
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
     Net& net = _cir.net(i);
     if (net.numPins() > 1) {
-      if (net.bPower())
-        constructNormalPowerRoutables(net);
-      else
       constructNetRoutables(net, net.hasSymNet(), net.bSelfSym());
       //constructNormalNetRoutables(net);
       //printNetRoutableInfo(net);
@@ -27,18 +24,15 @@ void DrRoutable::constructRoutables() {
 }
 
 void DrRoutable::constructNetRoutables(Net& net, const bool bSym, const bool bSelfSym) {
-  if (!bSym and !bSelfSym) {
-    if (net.bPower()) 
-      constructNormalPowerRoutables(net);
+  if (net.bPower()) {
+    if (bSelfSym)
+      constructSelfSymPowerRoutables(net);
     else
-      constructNormalNetRoutables(net);
+      constructNormalPowerRoutables(net);
   }
   else if (bSelfSym) {
     assert(!bSym);
-    if (net.bPower())
-      constructSelfSymPowerRoutables(net);
-    else
-      constructSelfSymNetRoutables(net);
+    constructSelfSymNetRoutables(net);
   }
   else if (bSym) { // sym net
     assert(!bSelfSym);
@@ -47,6 +41,9 @@ void DrRoutable::constructNetRoutables(Net& net, const bool bSym, const bool bSe
       constructCrossSymNetRoutables(net);
     else
       constructSymNetRoutables(net);
+  }
+  else {
+    constructNormalNetRoutables(net);
   }
 }
 
@@ -210,8 +207,8 @@ void DrRoutable::constructNormalPowerRoutables(Net& net) {
     if (!pin.bStripe()) {
       Routable ro;
       ro.setNetIdx(net.idx());
-      ro.addPinIdx(pinIdx);
       ro.addPinIdx(stripeIdx);
+      ro.addPinIdx(pinIdx);
       ro.setIdx(vRoutables.size());
       vRoutables.emplace_back(ro);
       vRoutableSchedule.emplace_back(ro.idx());
@@ -220,7 +217,70 @@ void DrRoutable::constructNormalPowerRoutables(Net& net) {
 }
 
 void DrRoutable::constructSelfSymPowerRoutables(Net& net) {
+  assert(net.bPower());
+  // init pin shapes
+  Vector_t<Vector_t<Box<Int_t>>> vvBoxes;
+  addPinShapes(net, vvBoxes);
 
+  UInt_t i, pinIdx, stripeIdx = MAX_UINT;
+  // find stripe idx
+  Net_ForEachPinIdx(net, pinIdx, i) {
+    const Pin& pin = _cir.pin(pinIdx);
+    assert(pin.bPower());
+    if (pin.bStripe()) {
+      stripeIdx = pinIdx;
+      break;
+    }
+  }
+  assert(stripeIdx != MAX_UINT);
+  // construct routable of other pins and the stripe
+  auto& vRoutables = net.vRoutables();
+  auto& vRoutableSchedule = net.vRoutableSchedule();
+  Net_ForEachPinIdx(net, pinIdx, i) {
+    const Pin& pin = _cir.pin(pinIdx);
+    assert(pin.bPower());
+    if (!pin.bStripe()) {
+      if (bExistTotallySymPin(pin, vvBoxes)) {
+        const Int_t symPinIdx = totallySymPinIdx(pin, vvBoxes);
+        if ((Int_t)pin.idx() < symPinIdx) {
+          Routable roSelfSym(true);
+          roSelfSym.setNetIdx(net.idx());
+          roSelfSym.addPinIdx(pin.idx());
+          roSelfSym.addPinIdx(symPinIdx);
+          roSelfSym.addPinIdx(stripeIdx);
+          roSelfSym.setIdx(vRoutables.size());
+          vRoutables.emplace_back(roSelfSym);
+          vRoutableSchedule.emplace_back(roSelfSym.idx());
+        }
+      }
+    }
+  }
+  Net_ForEachPinIdx(net, pinIdx, i) {
+    const Pin& pin = _cir.pin(pinIdx);
+    assert(pin.bPower());
+    if (!pin.bStripe()) {
+      bool bAddRoutable = false;
+      const bool bExistSymPin = bExistTotallySymPin(pin, vvBoxes);
+      if (!bExistSymPin) {
+        bAddRoutable = true;
+      }
+      else {
+        const Int_t symPinIdx = totallySymPinIdx(pin, vvBoxes);
+        if (symPinIdx == (Int_t)pin.idx()) {
+          bAddRoutable = true;
+        }
+      }
+      if (bAddRoutable) {
+        Routable ro;
+        ro.setNetIdx(net.idx());
+        ro.addPinIdx(pin.idx());
+        ro.addPinIdx(stripeIdx);
+        ro.setIdx(vRoutables.size());
+        vRoutables.emplace_back(ro);
+        vRoutableSchedule.emplace_back(ro.idx());
+      }
+    }
+  }
 }
 
 bool DrRoutable::bCrossSymNet(const Net& net) {
@@ -390,6 +450,17 @@ bool DrRoutable::bExistTotallySymPin(const Pin& pin, const Vector_t<Vector_t<Box
     }
   }
   return true;
+}
+
+Int_t DrRoutable::totallySymPinIdx(const Pin& pin, const Vector_t<Vector_t<Box<Int_t>>>& vvSymBoxes) {
+  assert(bExistTotallySymPin(pin, vvSymBoxes));
+  const Net& net = _cir.net(pin.netIdx());
+  Box<Int_t> symBox = pin.box(pin.minLayerIdx(), 0);
+  symBox.flipX(net.symAxisX());
+  Vector_t<UInt_t> vPinIndices;
+  _cir.querySpatialPin(pin.minLayerIdx(), symBox, vPinIndices);
+  assert(vPinIndices.size() == 1);
+  return vPinIndices[0];
 }
 
 bool DrRoutable::bPinOnLeft(const Pin& pin) {

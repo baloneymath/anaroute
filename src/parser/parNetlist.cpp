@@ -164,7 +164,7 @@ void NetlistReader::parse2(const String_t& filename) {
       Net net(netName, _cir.numNets());
       net.setPower(bPower);
       if (bPower) {
-        net.setMinWidth(to_db_unit(5000));
+        net.setMinWidth(to_db_unit(500));
         net.setMinCuts(8);
         //net.setMinWidth(to_db_unit(100));
         //net.setMinCuts(1);

@@ -38,7 +38,7 @@ class DrGridRoute {
   struct Net_Cmp {
     bool operator() (const Net* pn1, const Net* pn2) {
       if (pn1->bPower() != pn2->bPower()) {
-        return pn1->bPower() > pn2->bPower();
+        return pn1->bPower() < pn2->bPower();
       }
       else if (pn1->drFailCnt() != pn2->drFailCnt()) {
         return pn1->drFailCnt() < pn2->drFailCnt();

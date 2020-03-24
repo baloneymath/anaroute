@@ -294,6 +294,7 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
         Segment<Int_t> seg(pt0, pt1);
         // FIXME: PRL
         const Int_t spacing = _cir.lef().prlSpacing(i, net.minWidth());
+        //cerr << "!!!!!!!!!!!!!!!!!!! " << net.name() << " " << net.minWidth() << " " << spacing << endl;
         Box<Int_t> checkBox(box);
         if (seg.bHorizontal()) {
           assert(seg.xl() != seg.xh() and seg.yl() == seg.yh());

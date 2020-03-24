@@ -114,10 +114,10 @@ Int_t LefDB::prlSpacing(const Int_t layerIdx, const Int_t wireWidth, const Int_t
       const auto& table = layer.spacingTable().table[i];
       const auto& width = table.first;
       const auto& vSpacings = table.second;
-      if (wireWidth >= width) {
+      if (width >= wireWidth) {
         assert(vSpacings.size() == layer.spacingTable().vParallelRunLength.size());
         for (Int_t j = 0; j < (Int_t)vSpacings.size(); ++j) {
-          if (prl >= layer.spacingTable().vParallelRunLength[j]) {
+          if (layer.spacingTable().vParallelRunLength[j] >= prl) {
             spacing = vSpacings[j];
             //spacing = vSpacings.back();
             break;
