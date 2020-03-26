@@ -59,14 +59,15 @@ namespace apiPy {
     void setSymAxisX(const Int_t x) {
       _cir.setSymAxisX(x);
     }
-    void addNet(const String_t& netName, const Int_t minWidth, const Int_t minCuts, const bool bPG) {
+    Int_t addNet(const String_t& netName, const Int_t minWidth, const Int_t minCuts, const bool bPG) {
       Net net(netName, _cir.numNets());
       net.setPower(bPG);
       net.setMinWidth(minWidth);
       net.setMinCuts(minCuts);
       _cir.addNet(net);
+      return net.idx();
     }
-    void addPin(const String_t& pinName, const bool bPG, const bool bStripe) {
+    Int_t addPin(const String_t& pinName, const bool bPG, const bool bStripe) {
       Pin pin;
       pin.setName(pinName);
       pin.setPower(bPG);
@@ -74,6 +75,7 @@ namespace apiPy {
       pin.setIdx(_cir.numPins());
       pin.resizeLayerBoxes(_cir.lef().numLayers());
       _cir.addPin(pin);
+      return pin.idx();
     }
     void addPin2Net(const String_t& pinName, const String_t& netName) {
       Net& net = _cir.net(netName);
