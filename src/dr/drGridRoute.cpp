@@ -85,7 +85,7 @@ bool DrGridRoute::runNRR(auto& pq, const bool bPower, const Int_t maxIteration) 
       assert(bSuccess);
     }
     // check DRC violations
-    bool bFinish = checkDRC();
+    bool bFinish = checkDRC(bPower);
     if (bFinish) {
       return true;
     }
@@ -163,7 +163,7 @@ bool DrGridRoute::routeSingleNet(Net& net, const bool bStrictDRC) {
   return true;
 }
 
-bool DrGridRoute::checkDRC() {
+bool DrGridRoute::checkDRC(const bool bPower) {
   // randomize the checking sequence
   Vector_t<Int_t> vIndices;
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
@@ -174,11 +174,13 @@ bool DrGridRoute::checkDRC() {
   for (auto i : vIndices) {
     Net& net = _cir.net(i);
     if (!checkSingleNetDRC(net)) {
-      ripupSingleNet(net);
-      //for (Int_t j = 0; j < (Int_t)_cir.numNets(); ++j) {
-        //ripupSingleNet(_cir.net(j));
-      //}
-      bValid = false;
+      if (net.bPower() == bPower) {
+        ripupSingleNet(net);
+        //for (Int_t j = 0; j < (Int_t)_cir.numNets(); ++j) {
+          //ripupSingleNet(_cir.net(j));
+        //}
+        bValid = false;
+      }
     }
   }
   return bValid;

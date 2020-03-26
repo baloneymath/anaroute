@@ -94,7 +94,7 @@ class DrGridRoute {
 
   bool routeSingleNet(Net& net, const bool bStrictDRC);
 
-  bool checkDRC();
+  bool checkDRC(const bool bPower);
   bool checkSingleNetDRC(const Net& net);
   
   void ripupSingleNet(Net& net);

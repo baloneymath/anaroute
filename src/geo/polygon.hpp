@@ -206,11 +206,11 @@ namespace boost { namespace polygon {
 
     static inline compact_iterator_type begin_compact(const PROJECT_NAMESPACE::Polygon<CoordType> &t)
     {
-      return compact_iterator_type(t.outer().begin());
+      return compact_iterator_type(t.outer().begin(), t.outer().end());
     }
     static inline compact_iterator_type end_compact(const PROJECT_NAMESPACE::Polygon<CoordType> &t)
     {
-      return compact_iterator_type(t.outer().end());
+      return compact_iterator_type(t.outer().end(), t.outer().end());
     }
     static inline unsigned int size(const PROJECT_NAMESPACE::Polygon<CoordType> &t)
     {

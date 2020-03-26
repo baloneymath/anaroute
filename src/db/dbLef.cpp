@@ -103,7 +103,7 @@ void LefDB::logInfo() const {
   }
 }
 
-Int_t LefDB::prlSpacing(const Int_t layerIdx, const Int_t wireWidth, const Int_t prl) {
+Int_t LefDB::prlSpacing(const Int_t layerIdx, const Int_t wireWidth, const Int_t wirePrl) {
   assert(bRoutingLayer(layerIdx));
   const auto& layerPair = _vAllLayers[layerIdx];
   const auto& layer = _vRoutingLayers[layerPair.second];
@@ -114,12 +114,21 @@ Int_t LefDB::prlSpacing(const Int_t layerIdx, const Int_t wireWidth, const Int_t
       const auto& table = layer.spacingTable().table[i];
       const auto& width = table.first;
       const auto& vSpacings = table.second;
-      if (width >= wireWidth) {
+
+      const Int_t nextWidth = (i < (Int_t)layer.spacingTable().table.size() - 1) ?
+                              layer.spacingTable().table[i + 1].first : MAX_INT;
+
+      if (width <= wireWidth and wireWidth < nextWidth) {
         assert(vSpacings.size() == layer.spacingTable().vParallelRunLength.size());
         for (Int_t j = 0; j < (Int_t)vSpacings.size(); ++j) {
-          if (layer.spacingTable().vParallelRunLength[j] >= prl) {
-            spacing = vSpacings[j];
-            //spacing = vSpacings.back();
+          const Int_t prl = layer.spacingTable().vParallelRunLength[j];
+          const Int_t nextPrl = (j < (Int_t)vSpacings.size() - 1) ?
+                                layer.spacingTable().vParallelRunLength[j + 1] : MAX_INT;
+
+          if (prl <= wirePrl and wirePrl < nextPrl) {
+            // FIXME
+            //spacing = vSpacings[j];
+            spacing = vSpacings.back();
             break;
           }
         }

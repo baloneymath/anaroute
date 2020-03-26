@@ -85,7 +85,8 @@ bool DrcMgr::checkWireRoutingLayerSpacing(const UInt_t netIdx, const UInt_t laye
   //const auto& layer = _cir.lef().routingLayer(layerPair.second);
   
   const Int_t wireWidth = std::min(b.width(), b.height());
-  const Int_t prlSpacing = _cir.lef().prlSpacing(layerIdx, wireWidth, prl);
+  // FIXME: power
+  Int_t prlSpacing = _cir.lef().prlSpacing(layerIdx, wireWidth, prl);
   //const Int_t eolSpacing = layer.numEolSpacings() ? layer.eolSpacing(0) : 0;
   //const Int_t eolWithin = layer.numEolSpacings() ? layer.eolWithin(0) : 0;
   
@@ -268,6 +269,8 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
     geo::box2Polygon<Int_t>(vBoxes, vvPolygons[i]);
     const auto& vPolygons = vvPolygons.at(i);
     
+    const Int_t spacing = _cir.lef().prlSpacing(i, net.minWidth());
+    
     SpatialMap<Int_t, Segment<Int_t>> spatialSegs;
     for (const auto& polygon : vPolygons) {
       const auto& ring = polygon.outer();
@@ -292,8 +295,7 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                        std::max(pt0.x(), pt1.x()),
                        std::max(pt0.y(), pt1.y()));
         Segment<Int_t> seg(pt0, pt1);
-        // FIXME: PRL
-        const Int_t spacing = _cir.lef().prlSpacing(i, net.minWidth());
+        // FIXME: PRL and power
         //cerr << "!!!!!!!!!!!!!!!!!!! " << net.name() << " " << net.minWidth() << " " << spacing << endl;
         Box<Int_t> checkBox(box);
         if (seg.bHorizontal()) {
@@ -307,6 +309,8 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
               continue;
             if (!Segment<Int_t>::bConnect(qs, seg)
                 and !bCanPatch(i, qs, seg)) {
+              Segment<Int_t> centerConnectLine(qs.center(), seg.center());
+              const auto& checkPt = centerConnectLine.center();
                 //cerr << qs << seg << endl;
                 //for (const auto& polygon : vPolygons) {
                   //const auto& ring = polygon.outer();
@@ -318,7 +322,8 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                   //cerr << endl;
                 //}
                 //exit(0);
-              return false;
+              if (!boost::polygon::contains(polygon, checkPt))
+                return false;
             }
           }
         }
@@ -334,6 +339,8 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
               continue;
             if (!Segment<Int_t>::bConnect(qs, seg)
                 and !bCanPatch(i, qs, seg)) {
+              Segment<Int_t> centerConnectLine(qs.center(), seg.center());
+              const auto& checkPt = centerConnectLine.center();
                 //cerr << qs << seg << endl;
                 //for (const auto& polygon : vPolygons) {
                   //const auto& ring = polygon.outer();
@@ -345,7 +352,8 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                   //cerr << endl;
                 //}
                 //exit(0);
-              return false;
+              if (!boost::polygon::contains(polygon, checkPt))
+                return false;
             }
           }
         }

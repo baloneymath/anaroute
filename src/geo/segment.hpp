@@ -29,18 +29,21 @@ public:
   void setP2(const Point<T> p)  { _p2 = p; check(); }
 
   // Basic access functions
-  Point<T>&        p1()          { return _p1; }
-  const Point<T>&  p1()    const { return _p1; }
-  Point<T>&        p2()          { return _p2; }
-  const Point<T>&  p2()    const { return _p2; }
+  Point<T>&        p1()           { return _p1; }
+  const Point<T>&  p1()     const { return _p1; }
+  Point<T>&        p2()           { return _p2; }
+  const Point<T>&  p2()     const { return _p2; }
 
-  T         length()       const { return Point<T>::Mdistance(_p1, _p2); }
-  T         xl()           const { return std::min(_p1.x(), _p2.x()); }
-  T         xh()           const { return std::max(_p1.x(), _p2.x()); }
-  T         yl()           const { return std::min(_p1.y(), _p2.y()); }
-  T         yh()           const { return std::max(_p1.y(), _p2.y()); }
-  bool      bHorizontal()  const { return _p1.x() != _p2.x() && _p1.y() == _p2.y(); }
-  bool      bVertical()    const { return _p1.x() == _p2.x() && _p1.y() != _p2.y(); }
+  T         length()        const { return Point<T>::Mdistance(_p1, _p2); }
+  T         xl()            const { return std::min(_p1.x(), _p2.x()); }
+  T         xh()            const { return std::max(_p1.x(), _p2.x()); }
+  T         yl()            const { return std::min(_p1.y(), _p2.y()); }
+  T         yh()            const { return std::max(_p1.y(), _p2.y()); }
+  T         centerX()       const { return (xl() + xh()) / 2; }
+  T         centerY()       const { return (yl() + yh()) / 2; }
+  Point<T>  center()        const { return Point<T>(centerX(), centerY()); }
+  bool      bHorizontal()   const { return _p1.x() != _p2.x() && _p1.y() == _p2.y(); }
+  bool      bVertical()     const { return _p1.x() == _p2.x() && _p1.y() != _p2.y(); }
 
   // util functions
   void shiftX(const T x)               { _p1.shiftX(x); _p2.shiftX(x); check(); }
