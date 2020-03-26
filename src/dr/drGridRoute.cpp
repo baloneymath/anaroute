@@ -13,36 +13,26 @@
 PROJECT_NAMESPACE_START
 
 void DrGridRoute::solve() {
+  bool bSuccess = true;
   
   // initialize net routing priority queue
-  PairingHeap<Net*, Net_Cmp> pq;
+  PairingHeap<Net*, PowerNetCmp> pqp;
+  PairingHeap<Net*, SignalNetCmp> pqs;
 
   // add unrouted nets to pq
-  addUnroutedNetsToPQ(pq);
+  addUnroutedNetsToPQ(pqp, true);
+  addUnroutedNetsToPQ(pqs, false);
+  
+  
+  bSuccess &= solveDR(pqp, true);
+  bSuccess &= solveDR(pqs, false);
+  if (!bSuccess) {
+    checkFailed();
+  }
+}
 
-  // start routing process with ripup and reroute
-  if (runNRR(pq, _param.maxIteration)) {
-    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
-    return;
-  }
-  
-  // second try
-  fprintf(stderr, "DrGridRoute::%s Second Stage\n", __func__);
-  // reset history map
-  for (auto& historyMap : _vSpatialHistoryMaps) {
-    historyMap.clear();
-  }
-  // reset net fail cnt
-  for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
-    _cir.net(i).clearDrFail();
-  }
-  if (runNRR(pq, _param.maxIteration2)) {
-    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
-    return;
-  }
-  
-  // Failed QQ
-  fprintf(stderr, "DrGridRoute::%s Failed!!!!\n", __func__);
+void DrGridRoute::checkFailed() {
+  fprintf(stderr, "!!!!!!!!!!!!!!!!! DR Failed !!!!!!!!!!!!!!!!\n");
   fprintf(stderr, "Unrouted Nets:");
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
     const Net& net = _cir.net(i);
@@ -53,7 +43,34 @@ void DrGridRoute::solve() {
   fprintf(stderr, "\n");
 }
 
-bool DrGridRoute::runNRR(PairingHeap<Net*, Net_Cmp>& pq, const Int_t maxIteration) {
+bool DrGridRoute::solveDR(auto& pq, const bool bPower) {
+
+  // start routing process with ripup and reroute
+  if (runNRR(pq, bPower, _param.maxIteration)) {
+    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
+    return true;
+  }
+  
+  // second try
+  fprintf(stderr, "DrGridRoute::%s Second Stage\n", __func__);
+  // reset history map
+  for (auto& historyMap : _vSpatialHistoryMaps) {
+    historyMap.clear();
+  }
+  // reset net fail cnt
+  for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+    Net& net = _cir.net(i);
+    net.clearDrFail();
+  }
+  if (runNRR(pq, bPower, _param.maxIteration2)) {
+    fprintf(stderr, "DrGridRoute::%s Solved!!!!\n", __func__);
+    return true;
+  }
+ 
+  return false;
+}
+
+bool DrGridRoute::runNRR(auto& pq, const bool bPower, const Int_t maxIteration) {
   for (Int_t iter = 0; iter < maxIteration; ++iter) {
     fprintf(stderr, "\nDrGridRoute::%s\tIteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
     while (!pq.empty()) {
@@ -73,20 +90,20 @@ bool DrGridRoute::runNRR(PairingHeap<Net*, Net_Cmp>& pq, const Int_t maxIteratio
       return true;
     }
     else {
-      addUnroutedNetsToPQ(pq);
+      addUnroutedNetsToPQ(pq, bPower);
     }
   }
   return false;
 }
 
-void DrGridRoute::addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq) {
+void DrGridRoute::addUnroutedNetsToPQ(auto& pq, const bool bPower) {
   for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
     Net* pNet = &_cir.net(i);
     if (pNet->numPins() > 1) {
       if (!pNet->bRouted())
-        //if (pNet->bPower())
-        //if (pNet->name() == "VDD")
-        pq.push(pNet);
+        if (pNet->bPower() == bPower)
+          //if (pNet->name() != "VSS")
+          pq.push(pNet);
     }
     else { // single pin net
       pNet->setRouted(true);
@@ -148,8 +165,10 @@ bool DrGridRoute::routeSingleNet(Net& net, const bool bStrictDRC) {
 
 bool DrGridRoute::checkDRC() {
   // randomize the checking sequence
-  Vector_t<Int_t> vIndices(_cir.numNets(), 0);
-  std::iota(vIndices.begin(), vIndices.end(), 0);
+  Vector_t<Int_t> vIndices;
+  for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+    vIndices.emplace_back(i);
+  }
   std::random_shuffle(vIndices.begin(), vIndices.end());
   bool bValid = true;
   for (auto i : vIndices) {

@@ -24,6 +24,8 @@ class DrGridRoute {
   ~DrGridRoute() {}
 
   void solve();
+  bool solveDR(auto& pq, const bool bPower);
+  void checkFailed();
 
  private:
   CirDB&    _cir;
@@ -35,12 +37,9 @@ class DrGridRoute {
   /////////////////////////////////////////
   //    Private structs                  //
   /////////////////////////////////////////
-  struct Net_Cmp {
+  struct SignalNetCmp {
     bool operator() (const Net* pn1, const Net* pn2) {
-      if (pn1->bPower() != pn2->bPower()) {
-        return pn1->bPower() < pn2->bPower();
-      }
-      else if (pn1->drFailCnt() != pn2->drFailCnt()) {
+      if (pn1->drFailCnt() != pn2->drFailCnt()) {
         return pn1->drFailCnt() < pn2->drFailCnt();
       }
       else if (pn1->bSelfSym() != pn2->bSelfSym()) {
@@ -59,21 +58,39 @@ class DrGridRoute {
     }
   };
 
+  struct PowerNetCmp {
+    bool operator() (const Net* pn1, const Net* pn2) {
+      if (pn1->drFailCnt() != pn2->drFailCnt()) {
+        return pn1->drFailCnt() < pn2->drFailCnt();
+      }
+      else if (pn1->bSelfSym() != pn2->bSelfSym()) {
+        return pn1->bSelfSym() < pn2->bSelfSym();
+      }
+      else if (pn1->bbox().hpwl() != pn2->bbox().hpwl()) {
+        return pn1->bbox().hpwl() > pn2->bbox().hpwl();
+      }
+      else if (pn1->numPins() != pn2->numPins()) {
+        return pn1->numPins() < pn2->numPins();
+      }
+      return true;
+    }
+  };
+
   struct Param {
     Int_t maxSymTry = 5;
     Int_t maxSelfSymTry = 5;
-    Int_t maxIteration = 30;
-    Int_t maxIteration2 = 50;
+    Int_t maxIteration = 15;
+    Int_t maxIteration2 = 20;
   } _param;
   
   /////////////////////////////////////////
   //    Private functions                //
   /////////////////////////////////////////
-  void addUnroutedNetsToPQ(PairingHeap<Net*, Net_Cmp>& pq);
+  void addUnroutedNetsToPQ(auto& pq, const bool bPower);
 
   void checkSymSelfSym(const Net& net, const Routable& ro, bool& bSym, bool& bSelfSym);
 
-  bool runNRR(PairingHeap<Net*, Net_Cmp>& pq, const Int_t maxIteration);
+  bool runNRR(auto& pq, const bool bPower, const Int_t maxIteration);
 
   bool routeSingleNet(Net& net, const bool bStrictDRC);
 

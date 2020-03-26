@@ -9,7 +9,7 @@
 #ifndef _DR_POWER_HPP_
 #define _DR_POWER_HPP_
 
-#include "src/db/dbCir.hpp"
+#include "drMgr.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -22,7 +22,7 @@ class DrPower {
   void solve();
 
  private:
-  CirDB& _cir;
+  CirDB&  _cir;
 };
 
 PROJECT_NAMESPACE_END

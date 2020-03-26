@@ -75,12 +75,12 @@ GDB="gdb --args"
           #--out $OUT_DIR/gds/CTDSM_CORE_NEW.route.gds
 
 # Core_test_flow on grid power
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
-          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          --design_file $BENCH_DIR/Core_test_flow/Core_test_flow.gr \
-          --placement_layout $BENCH_DIR/Core_test_flow/Core_test_flow.place.gds \
-          --iopin $BENCH_DIR/Core_test_flow/Core_test_flow.iopin \
-          --out $OUT_DIR/gds/Core_test_flow.route.gds
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $BENCH_DIR/Core_test_flow/Core_test_flow.gr \
+          #--placement_layout $BENCH_DIR/Core_test_flow/Core_test_flow.place.gds \
+          #--iopin $BENCH_DIR/Core_test_flow/Core_test_flow.iopin \
+          #--out $OUT_DIR/gds/Core_test_flow.route.gds
 
 # CTDSM_CORE_NEW_2 on grid power
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -90,4 +90,19 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
           #--iopin $BENCH_DIR/2019_CTDSM_CORE_NEW/CTDSM_CORE_NEW.iopin \
           #--out $OUT_DIR/gds/CTDSM_CORE_NEW.route.gds
 
+# 2019_CTDSM_MAGICAL on grid power
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $BENCH_DIR/2019_CTDSM_MAGICAL_m25/DFCNQD2BWP_LVT_schematic.gr \
+          #--placement_layout $BENCH_DIR/2019_CTDSM_MAGICAL_m25/DFCNQD2BWP_LVT_schematic.place.gds \
+          #--iopin $BENCH_DIR/2019_CTDSM_CORE_NEW_m25/DFCNQD2BWP_LVT_schematic.iopin \
+          #--out $OUT_DIR/gds/DFCNQD2BWP_LVT_schematic.route.gds
 
+
+# 2019_CTDSM_MAGICAL_TAPEOUT on grid power
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          --design_file $BENCH_DIR/2019_CTDSM_MAGICAL_TAPEOUT/C1_BANK.gr \
+          --placement_layout $BENCH_DIR/2019_CTDSM_MAGICAL_TAPEOUT/C1_BANK.place.gds \
+          --iopin $BENCH_DIR/2019_CTDSM_CORE_NEW_TAPEOUT/C1_BANK.iopin \
+          --out $OUT_DIR/gds/C1_Bank.route.gds

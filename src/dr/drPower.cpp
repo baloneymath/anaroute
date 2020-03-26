@@ -7,6 +7,8 @@
  **/
 
 #include "drPower.hpp"
+#include "drGridAstar.hpp"
+#include "drRoutable.hpp"
 
 PROJECT_NAMESPACE_START
 
