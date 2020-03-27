@@ -21,9 +21,9 @@ class DrMgr {
     : _cir(c), _drcMgr(d) {}
   ~DrMgr() {}
 
-  void solve(const bool bGrid = true, const bool bUseSymFile = false);
-  void runGridlessRoute();
-  void runGridRoute(const bool bUseSymFile);
+  bool solve(const bool bGrid = true, const bool bUseSymFile = false);
+  bool runGridlessRoute();
+  bool runGridRoute(const bool bUseSymFile);
 
  private:
   CirDB&  _cir;

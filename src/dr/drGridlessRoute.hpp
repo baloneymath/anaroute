@@ -29,7 +29,7 @@ class DrGridlessRoute {
     //}
   }
 
-  void solve();
+  bool solve();
 
  private:
   CirDB&  _cir;

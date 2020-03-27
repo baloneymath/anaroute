@@ -13,7 +13,7 @@
 
 PROJECT_NAMESPACE_START
 
-void DrGridlessRoute::solve() {
+bool DrGridlessRoute::solve() {
   
   //_vAllAstarNodesMap.resize(_cir.lef().numLayers());
   //for (auto& m : _vAllAstarNodesMap)
@@ -58,7 +58,11 @@ void DrGridlessRoute::solve() {
       }
     }
   }
-
+  for (Int_t i = 0; i < (Int_t)_cir.numNets(); ++i) {
+    if (!_cir.net(i).bRouted())
+      return false;
+  }
+  return true;
   // debug
   //visualize();
 }

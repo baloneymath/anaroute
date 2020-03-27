@@ -23,7 +23,7 @@ class DrGridRoute {
       _vSpatialHistoryMaps(c.lef().numLayers()) {}
   ~DrGridRoute() {}
 
-  void solve();
+  bool solve();
   bool solveDR(auto& pq, const bool bPower);
   void checkFailed();
 

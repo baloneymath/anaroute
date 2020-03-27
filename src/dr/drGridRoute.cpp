@@ -12,7 +12,7 @@
 
 PROJECT_NAMESPACE_START
 
-void DrGridRoute::solve() {
+bool DrGridRoute::solve() {
   bool bSuccess = true;
   
   // initialize net routing priority queue
@@ -29,6 +29,7 @@ void DrGridRoute::solve() {
   if (!bSuccess) {
     checkFailed();
   }
+  return bSuccess;
 }
 
 void DrGridRoute::checkFailed() {

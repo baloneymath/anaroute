@@ -15,20 +15,20 @@
 
 PROJECT_NAMESPACE_START
 
-void DrMgr::solve(const bool bGrid, const bool bUseSymFile) {
+bool DrMgr::solve(const bool bGrid, const bool bUseSymFile) {
   fprintf(stderr, "\nDrMgr::%s Start Detailed Routing\n", __func__);
   if (bGrid)
-    runGridRoute(bUseSymFile);
+    return runGridRoute(bUseSymFile);
   else
-    runGridlessRoute();
+    return runGridlessRoute();
 }
 
-void DrMgr::runGridlessRoute() {
+bool DrMgr::runGridlessRoute() {
   DrGridlessRoute kernel(_cir, *this, _drcMgr);
-  kernel.solve();
+  return kernel.solve();
 }
 
-void DrMgr::runGridRoute(const bool bUseSymFile) {
+bool DrMgr::runGridRoute(const bool bUseSymFile) {
 
   DrSymmetry sym(_cir);
   sym.solve(bUseSymFile);
@@ -37,7 +37,7 @@ void DrMgr::runGridRoute(const bool bUseSymFile) {
   ro.constructRoutables();
 
   DrGridRoute kernel(_cir, *this, _drcMgr);
-  kernel.solve();
+  return kernel.solve();
 }
 
 /////////////////////////////////////////

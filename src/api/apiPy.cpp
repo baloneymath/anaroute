@@ -151,7 +151,7 @@ namespace apiPy {
     /////////////////////////////////////
     // solve
     /////////////////////////////////////
-    void solve(const bool bUseSymFile = false) {
+    bool solve(const bool bUseSymFile = false) {
       _cir.resizeVVPinIndices(_cir.lef().numLayers());
       _cir.resizeVVBlkIndices(_cir.lef().numLayers());
       _cir.buildSpatial();
@@ -160,14 +160,20 @@ namespace apiPy {
       //GrMgr gr(_cir);
       //gr.solve();
       _cir.buildSpatialNetGuides();
+      
       AcsMgr acs(_cir);
       acs.computeAcs();
+
       _cir.visualize();
+      
       DrcMgr drc(_cir);
       DrMgr dr(_cir, drc);
-      dr.solve(true, bUseSymFile);
+      if (!dr.solve(true, bUseSymFile))
+        return false;
+
       PostMgr post(_cir);
       post.solve();
+      return true;
     }
 
     void init() {
@@ -186,11 +192,11 @@ namespace apiPy {
       gr.solve();
     }
 
-    void solveDR(const bool bUseSymFile) {
+    bool solveDR(const bool bUseSymFile) {
       _cir.buildSpatialNetGuides();
       DrcMgr drc(_cir);
       DrMgr dr(_cir, drc);
-      dr.solve(true, bUseSymFile);
+      return dr.solve(true, bUseSymFile);
     }
 
     void postProcess() {
