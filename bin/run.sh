@@ -75,12 +75,12 @@ GDB="gdb --args"
           #--out $OUT_DIR/gds/CTDSM_CORE_NEW.route.gds
 
 # comp2 on grid power
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
-          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          --design_file $BENCH_DIR/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.gr \
-          --placement_layout $BENCH_DIR/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.place.gds \
-          --iopin $BENCH_DIR/Core_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.iopin \
-          --out $OUT_DIR/gds/COMPARATOR_PRE_AMP_2018_Modify_test_flow.route.gds
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $BENCH_DIR/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.gr \
+          #--placement_layout $BENCH_DIR/COMPARATOR_PRE_AMP_2018_Modify_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.place.gds \
+          #--iopin $BENCH_DIR/Core_test_flow/COMPARATOR_PRE_AMP_2018_Modify_test_flow.iopin \
+          #--out $OUT_DIR/gds/COMPARATOR_PRE_AMP_2018_Modify_test_flow.route.gds
 
 # Core_test_flow on grid power
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
@@ -97,3 +97,11 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
           #--placement_layout $BENCH_DIR/2019_CTDSM_MAGICAL_TAPEOUT/C1_BANK.place.gds \
           #--iopin $BENCH_DIR/2019_CTDSM_CORE_NEW_TAPEOUT/C1_BANK.iopin \
           #--out $OUT_DIR/gds/C1_BANK.route.gds
+
+# 2019_CTDSM_MAGICAL_TAPEOUT_wrapper_2 on grid power
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          --design_file $BENCH_DIR/2019_CTDSM_MAGICAL_TAPEOUT_wrapper_2/CTDSM_CORE_NEW.gr \
+          --placement_layout $BENCH_DIR/2019_CTDSM_MAGICAL_TAPEOUT_wrapper_2/CTDSM_CORE_NEW.place.gds \
+          --iopin $BENCH_DIR/2019_CTDSM_CORE_NEW_TAPEOUT_wrapper_2/CTDSM_CORE_NEW.iopin \
+          --out $OUT_DIR/gds/CTDSM_CORE_NEW_wrapper_2.route.gds
