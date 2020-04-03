@@ -124,17 +124,18 @@ void GdsReader::saveShapesAsBlockages() {
       };
       if (poly.layer == MAX_UINT) {
         // dummy blks
-        for (const auto& blk : vBlks) {
-          if (Box<Int_t>::bCover(blk, box)) {
-            for (UInt_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx) {
+        //for (const auto& blk : vBlks) {
+          //if (Box<Int_t>::bCover(blk, box)) {
+            //for (UInt_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx) {
+            for (UInt_t layerIdx = 0; layerIdx <= _cir.lef().routingLayerIdx2LayerIdx(4); ++layerIdx) {
               if (_cir.lef().bRoutingLayer(layerIdx)) {
                 Box<Int_t> lvsBox1(box.xl(), box.yl(), box.xh(), box.centerY());
                 Box<Int_t> lvsBox2(box.xl(), box.centerY(), box.xh(), box.yh());
                 __addBlk(cnt++, layerIdx, lvsBox1, true);
                 __addBlk(cnt++, layerIdx, lvsBox2, true);
               }
-            }
-          }
+            //}
+          //}
         }
       }
       else {
