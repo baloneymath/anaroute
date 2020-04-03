@@ -133,7 +133,7 @@ namespace ExtractShapeLayerActionDetails {
 /// @brief detailed struct for the functions of processing gds shapes
 namespace ExtractPoBlkActionDetails {
 	constexpr Int_t POBLK_LAYER = 150;
-	constexpr Int_t POBLK_DATATYPE = 20;
+	constexpr Int_t POBLK_DATATYPE = 2;
 
 	namespace gtl = boost::polygon;
 	/// @brief convert from gds layer to router layer
