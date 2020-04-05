@@ -704,10 +704,10 @@ void DrGridAstar::findNeighbors(DrGridAstarNode* pU) {
     }
   }
   // find upper layer neighbor
-  const Int_t maxUpperLayerIdx = _cir.lef().routingLayerIdx2LayerIdx(5);
-  //const Int_t maxUpperLayerIdx = _net.bPower() ?
-                                 //_cir.lef().routingLayerIdx2LayerIdx(5) : // M6
-                                 //_cir.lef().routingLayerIdx2LayerIdx(5); // M6
+  //const Int_t maxUpperLayerIdx = _cir.lef().routingLayerIdx2LayerIdx(5);
+  const Int_t maxUpperLayerIdx = _net.bPower() ?
+                                 _cir.lef().routingLayerIdx2LayerIdx(5) : // M6
+                                 _cir.lef().routingLayerIdx2LayerIdx(4); // M5
   if (p.z() < maxUpperLayerIdx) { 
     const Point<Int_t> p2d(p.x(), p.y());
     const Int_t layerIdx = p.z() + 2;
