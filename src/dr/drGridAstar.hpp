@@ -27,6 +27,10 @@ class DrGridAstar {
   {
     _param.numCutsRow = _net.bPower() ? _param.numPowerCutsRow : _param.numSignalCutsRow;
     _param.numCutsCol = _net.bPower() ? _param.numPowerCutsCol : _param.numSignalCutsCol;
+    if (_net.numCutsRow() and _net.numCutsCol()) {
+      _param.numCutsRow = _net.numCutsRow();
+      _param.numCutsCol = _net.numCutsCol();
+    }
     
     assert(_param.numCutsRow * _param.numCutsCol >= _net.minCuts());
 

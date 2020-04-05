@@ -85,6 +85,14 @@ void Net::setMinCuts(const Int_t c) {
   _minCuts = c;
 }
 
+void Net::setNumCutsRow(const Int_t c) {
+  _numCutsRow = c;
+}
+
+void Net::setNumCutsCol(const Int_t c) {
+  _numCutsCol = c;
+}
+
 void Net::clearRoutables() {
   _vRoutables.clear();
   _vRoutableSchedule.clear();

@@ -127,6 +127,8 @@ class Net {
   bool    bPower()        const { return _bPower; }
   Int_t   minWidth()      const { return _minWidth; }
   Int_t   minCuts()       const { return _minCuts; }
+  Int_t   numCutsRow()    const { return _numCutsRow; }
+  Int_t   numCutsCol()    const { return _numCutsCol; }
 
   // for not-quite-symmetric structure
   Int_t                       numRoutables()                  const { return _vRoutables.size(); }
@@ -162,6 +164,8 @@ class Net {
   void setPower(const bool b = true);
   void setMinWidth(const Int_t w);
   void setMinCuts(const Int_t c);
+  void setNumCutsRow(const Int_t c);
+  void setNumCutsCol(const Int_t c);
 
   void clearRoutables();
   void clearRouting();
@@ -192,6 +196,8 @@ class Net {
   bool    _bPower = false;
   Int_t   _minWidth;
   Int_t   _minCuts;
+  Int_t   _numCutsRow;
+  Int_t   _numCutsCol;
 
   // for not-quite-symmetric structure
   Vector_t<Routable>  _vRoutables;

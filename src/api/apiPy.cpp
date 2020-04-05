@@ -59,11 +59,13 @@ namespace apiPy {
     void setSymAxisX(const Int_t x) {
       _cir.setSymAxisX(x);
     }
-    Int_t addNet(const String_t& netName, const Int_t minWidth, const Int_t minCuts, const bool bPG) {
+    Int_t addNet(const String_t& netName, const Int_t minWidth, const Int_t minCuts, const bool bPG, const Int_t numCutsRow = 0, const Int_t numCutsCol = 0) {
       Net net(netName, _cir.numNets());
       net.setPower(bPG);
       net.setMinWidth(minWidth);
       net.setMinCuts(minCuts);
+      net.setNumCutsRow(numCutsRow);
+      net.setNumCutsCol(numCutsCol);
       _cir.addNet(net);
       return net.idx();
     }
@@ -235,7 +237,7 @@ void initPyAPI(py::module& m) {
     .def("setGridOffsetX", &apiPy::AnaroutePy::setGridOffsetX)
     .def("setGridOffsetY", &apiPy::AnaroutePy::setGridOffsetY)
     .def("setSymAxisX", &apiPy::AnaroutePy::setSymAxisX)
-    .def("addNet", py::overload_cast<const pro::String_t&, const pro::Int_t, const pro::Int_t, const bool>(&apiPy::AnaroutePy::addNet))
+    .def("addNet", py::overload_cast<const pro::String_t&, const pro::Int_t, const pro::Int_t, const bool, const pro::Int_t, const pro::Int_t>(&apiPy::AnaroutePy::addNet))
     .def("addPin", py::overload_cast<const pro::String_t&, const bool, const bool>(&apiPy::AnaroutePy::addPin))
     .def("addPin2Net", py::overload_cast<const pro::String_t&, const pro::String_t&>(&apiPy::AnaroutePy::addPin2Net))
     .def("addPin2Net", py::overload_cast<const pro::UInt_t, const pro::UInt_t>(&apiPy::AnaroutePy::addPin2Net))
