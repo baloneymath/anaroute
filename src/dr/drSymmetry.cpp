@@ -83,6 +83,17 @@ void DrSymmetry::solve(const bool bUseSymFile) {
       net2.setSymAxisX(symAxisX);
       net1.setSymNetIdx(net2.idx());
       net2.setSymNetIdx(net1.idx());
+
+      net1.setMinWidth(std::max(net1.minWidth(), net2.minWidth()));
+      net1.setMinCuts(std::max(net1.minCuts(), net2.minCuts()));
+      net1.setNumCutsRow(std::max(net1.numCutsRow(), net2.numCutsRow()));
+      net1.setNumCutsCol(std::max(net1.numCutsCol(), net2.numCutsCol()));
+      
+      net2.setMinWidth(std::max(net1.minWidth(), net2.minWidth()));
+      net2.setMinCuts(std::max(net1.minCuts(), net2.minCuts()));
+      net2.setNumCutsRow(std::max(net1.numCutsRow(), net2.numCutsRow()));
+      net2.setNumCutsCol(std::max(net1.numCutsCol(), net2.numCutsCol()));
+      
       fprintf(stderr, "DrSymmetry::%s Sym:      %s %s\n", __func__, net1.name().c_str(), net2.name().c_str());
       //cerr << net1.name() << " " << net2.name() << endl;
     }
