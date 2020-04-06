@@ -179,6 +179,7 @@ namespace apiPy {
     }
 
     void init() {
+      std::srand(1234);
       _cir.resizeVVPinIndices(_cir.lef().numLayers());
       _cir.resizeVVBlkIndices(_cir.lef().numLayers());
       _par.correctPinNBlkLoc();

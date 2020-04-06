@@ -120,6 +120,7 @@ set(SRC
   src/parser/parSymNet.cpp
   src/parser/parIOPin.cpp
   src/parser/parPower.cpp
+  src/parser/parNetSpec.cpp
   src/gr/grMgr.cpp
   src/gr/grGridRoute.cpp
   src/gr/grAstar.cpp

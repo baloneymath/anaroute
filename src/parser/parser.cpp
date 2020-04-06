@@ -15,6 +15,7 @@
 #include "parIOPin.hpp"
 #include "parNetlist.hpp"
 #include "parPower.hpp"
+#include "parNetSpec.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -67,6 +68,11 @@ void Parser::parsePower(const String_t& filename) {
   powerr.parse(filename);
 }
 
+void Parser::parseNetSpec(const String_t& filename) {
+  fprintf(stdout, "Parsing Net Spec file %s\n", filename.c_str());
+  NetSpecReader netspecr(_cir);
+  netspecr.parse(filename);
+}
 
 // patch for placement bugs .... orz
 void Parser::correctPinNBlkLoc() {

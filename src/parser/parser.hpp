@@ -28,6 +28,7 @@ public:
   void parseIOPin(const String_t& filename);
   void parseNetlist(const String_t& filename);
   void parsePower(const String_t& filename);
+  void parseNetSpec(const String_t& filename);
 
   // patch for the bug from placement
   void correctPinNBlkLoc();

@@ -73,7 +73,11 @@ bool DrGridRoute::solveDR(auto& pq, const bool bPower) {
 
 bool DrGridRoute::runNRR(auto& pq, const bool bPower, const Int_t maxIteration) {
   for (Int_t iter = 0; iter < maxIteration; ++iter) {
-    fprintf(stderr, "\nDrGridRoute::%s\tIteration %d Unrouted nets %d\n", __func__, iter, (Int_t)pq.size());
+    fprintf(stderr, "\nDrGridRoute::%s\tIteration %d Unrouted nets %d,", __func__, iter, (Int_t)pq.size());
+    for (Net* pNet : pq) {
+      std::cout << " " << pNet->name();
+    }
+    std::cout << std::endl;
     while (!pq.empty()) {
       Net* pNet = pq.top();
       pq.pop();
@@ -136,7 +140,7 @@ bool DrGridRoute::routeSingleNet(Net& net, const bool bStrictDRC) {
     if (net.drFailCnt() >= _param.maxSymTry
         or symNet.drFailCnt() >= _param.maxSymTry) {
       net.clearRoutables();
-      symNet.clearRoutables();
+      //symNet.clearRoutables();
       DrRoutable drRo(_cir);
       drRo.constructNetRoutables(net, false, false);
     }
@@ -148,7 +152,6 @@ bool DrGridRoute::routeSingleNet(Net& net, const bool bStrictDRC) {
       drRo.constructNetRoutables(net, false, false);
     }
   }
-  
   for (Int_t i = 0; i < net.numRoutables(); ++i) {
     auto& ro = net.routable(i);
     // check sym and self sym
