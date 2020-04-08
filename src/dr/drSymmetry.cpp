@@ -43,6 +43,7 @@ void DrSymmetry::solve(const bool bUseSymFile) {
       Int_t bestSymAxisX = 0;
       Float_t degSym = 0;
       bestMatching(net1, net2, bestSymAxisX, degSym);
+      //cerr << net1.name() << " " << net2.name() << " " << degSym << endl;
       
       vvAxis[i][j] = bestSymAxisX;
       vvAxis[j][i] = bestSymAxisX;
@@ -146,7 +147,7 @@ Float_t DrSymmetry::degSymPre(const Net& net1, const Net& net2, const Int_t symA
       ++match;
   }
   const Int_t numPins = std::max(net1.numPins(), net2.numPins());
-  Float_t ratio = (Float_t)match / numPins;
+  Float_t ratio = (Float_t)match / numPins * 2; // * 2 because of sym
   return ratio;
 }
 

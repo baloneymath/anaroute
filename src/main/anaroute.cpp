@@ -23,7 +23,7 @@ PROJECT_NAMESPACE_START
 
 Anaroute::Anaroute(int argc, char** argv) {
  
-  std::srand(1234);
+  std::srand(123);
   util::showSysInfo();
 
   TimeUsage timer;

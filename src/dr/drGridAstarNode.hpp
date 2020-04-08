@@ -84,8 +84,8 @@ struct DrGridAstarNodeCmp {
       return n1.costF() > n2.costF();
     else if (n1.bendCnt() != n2.bendCnt())
       return n1.bendCnt() > n2.bendCnt();
-    else if (n1.costG() != n2.costG())
-      return n1.costG() > n2.costG();
+    //else if (n1.costG() != n2.costG())
+      //return n1.costG() > n2.costG();
     else
       return false;
   }
@@ -94,8 +94,8 @@ struct DrGridAstarNodeCmp {
       return pN1->costF() > pN2->costF();
     else if (pN1->bendCnt() != pN2->bendCnt())
       return pN1->bendCnt() > pN2->bendCnt();
-    else if (pN1->costG() != pN2->costG())
-      return pN1->costG() > pN2->costG();
+    //else if (pN1->costG() != pN2->costG())
+      //return pN1->costG() > pN2->costG();
     else
       return false;
   }
