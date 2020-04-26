@@ -176,6 +176,17 @@ class CirDB {
   bool bSatisfySelfSymCondition(const Net& net, const Int_t symAxisX) const;
   void checkNetSymSelfSym();
 
+  // evaluation
+  void    computeNSetAllNetStatistics();
+  void    computeNSetNetStatistics(Net& net);
+  void    computeNSetNetDegSym(Net& net);
+  void    computeTotalStatistics();
+  Int_t   computeTotalWireLength();
+  Int_t   computeTotalViaCnt();
+  Float_t computeTotalWireArea();
+  Float_t computeTotalDegSym();
+  Float_t computeAvgDegSym();
+
   // for debug
   void printInfo() const;
   void visualize() const;

@@ -35,9 +35,11 @@ class Routable {
   Vector_t<Int_t>& vPinIndices()      { return _vPinIndices; }
   Vector_t<Int_t>& vRoutableIndices() { return _vRoutableIndices; }
   Vector_t<Int_t>& vWireIndices()     { return _vWireIndices; }
+  Vector_t<Int_t>& vPathIndices()     { return _vPathIndices; }
   const Vector_t<Int_t>& vPinIndices()      const { return _vPinIndices; }
   const Vector_t<Int_t>& vRoutableIndices() const { return _vRoutableIndices; }
   const Vector_t<Int_t>& vWireIndices()     const { return _vWireIndices; }
+  const Vector_t<Int_t>& vPathIndices()     const { return _vPathIndices; }
   
   Int_t   numPins()                   const { return _vPinIndices.size(); }
   Int_t   numRoutables()              const { return _vRoutableIndices.size(); }
@@ -64,6 +66,7 @@ class Routable {
   void addPinIdx(const Int_t i) { _vPinIndices.emplace_back(i); }
   void addRoutableIdx(const Int_t i) { _vRoutableIndices.emplace_back(i); }
   void addWireIdx(const Int_t i) { _vWireIndices.emplace_back(i); }
+  void addPathIdx(const Int_t i) { _vPathIndices.emplace_back(i); }
 
   void setRouted(const bool b = true) { _bRouted = b; }
 
@@ -71,7 +74,8 @@ class Routable {
   Vector_t<Int_t> _vPinIndices;
   Vector_t<Int_t> _vRoutableIndices; // idx of the routables of the net
   Vector_t<Int_t> _vWireIndices; // idx of _vWires in Net
-  
+  Vector_t<Int_t> _vPathIndices; // idx of _vRoutePaths in Net
+
   bool    _bSelfSym;
   Int_t   _idx;
   Int_t   _netIdx;
@@ -115,10 +119,12 @@ class Net {
   Vector_t<Pair_t<Box<Int_t>, Int_t>>&        vGuides()            { return _vGuides; }
   const Vector_t<Pair_t<Box<Int_t>, Int_t>>&  vGuides()      const { return _vGuides; }
   // detailed routing
-  Int_t                                       drFailCnt()    const { return _drFailCnt; }
-  bool                                        bRouted()      const { return _bRouted; }
-  Vector_t<Pair_t<Box<Int_t>, Int_t>>&        vWires()             { return _vWires; }
-  const Vector_t<Pair_t<Box<Int_t>, Int_t>>&  vWires()       const { return _vWires; }
+  Int_t                                                   drFailCnt()   const { return _drFailCnt; }
+  bool                                                    bRouted()     const { return _bRouted; }
+  Vector_t<Pair_t<Box<Int_t>, Int_t>>&                    vWires()            { return _vWires; }
+  const Vector_t<Pair_t<Box<Int_t>, Int_t>>&              vWires()      const { return _vWires; }
+  Vector_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>&       vRoutePaths()       { return _vRoutePaths; } 
+  const Vector_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>& vRoutePaths() const { return _vRoutePaths; } 
 
   // net ordering
   Box<Int_t>         bbox()  const { return Box<Int_t>(_bboxXL, _bboxYL, _bboxXH, _bboxYH); }
@@ -142,6 +148,11 @@ class Net {
 
   Int_t                       symAxisX()                      const { return _symAxisX; }
 
+  // evaluation
+  Int_t                       viaCnt()      const { return _viaCnt; }
+  Int_t                       wireLength()  const { return _wireLength; }
+  Float_t                     wireArea()    const { return _wireArea; }
+  Float_t                     degSym()      const { return _degSym; }
   //////////////////////////////////
   //  Setter                      //
   //////////////////////////////////
@@ -172,19 +183,28 @@ class Net {
 
   void setSymAxisX(const Int_t x);
 
+  void setViaCnt(const Int_t n);
+  void setWireLength(const Int_t l);
+  void setWireArea(const Float_t a);
+  void setDegSym(const Float_t d);
+  
+  void computeNSetWireLength();
+  void computeNSetWireArea();
+
  private:
-  String_t                            _name;
-  UInt_t                              _idx;
-  UInt_t                              _symNetIdx; // MAX_UINT if no sym net
-  bool                                _bSelfSym;
-  bool                                _bRouted;
-  bool                                _bIOPort;
-  Vector_t<UInt_t>                    _vPinIndices;
-  Vector_t<NetNode>                   _vNodes;
-  Int_t                               _grFailCnt;
-  Int_t                               _drFailCnt;
-  Vector_t<Pair_t<Box<Int_t>, Int_t>> _vGuides; // from global routing
-  Vector_t<Pair_t<Box<Int_t>, Int_t>> _vWires;
+  String_t                                          _name;
+  UInt_t                                            _idx;
+  UInt_t                                            _symNetIdx; // MAX_UINT if no sym net
+  bool                                              _bSelfSym;
+  bool                                              _bRouted;
+  bool                                              _bIOPort;
+  Vector_t<UInt_t>                                  _vPinIndices;
+  Vector_t<NetNode>                                 _vNodes;
+  Int_t                                             _grFailCnt;
+  Int_t                                             _drFailCnt;
+  Vector_t<Pair_t<Box<Int_t>, Int_t>>               _vGuides; // from global routing
+  Vector_t<Pair_t<Box<Int_t>, Int_t>>               _vWires;
+  Vector_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>>  _vRoutePaths;
 
   // for net ordering
   Int_t _bboxXL = MAX_INT; // bounding box of pin locations
@@ -203,6 +223,12 @@ class Net {
   Vector_t<Routable>  _vRoutables;
   Vector_t<Int_t>     _vRoutableSchedule;
   Int_t               _symAxisX;
+
+  // evaluation
+  Int_t   _viaCnt = 0;
+  Int_t   _wireLength = 0;
+  Float_t _wireArea = 0;
+  Float_t _degSym = 0;
 };
 
 //////////////////////////////////

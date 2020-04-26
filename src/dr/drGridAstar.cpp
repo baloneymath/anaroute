@@ -876,6 +876,12 @@ void DrGridAstar::resetAllNodes() {
 }
 
 void DrGridAstar::saveResult2Net() {
+  for (const auto& vRoutePath : _vvRoutePaths) {
+    for (const auto& pair : vRoutePath) {
+      _ro.vPathIndices().emplace_back(_net.vRoutePaths().size());
+      _net.vRoutePaths().emplace_back(pair);
+    }
+  } 
   for (const auto& vRoutedWires : _vvRoutedWires) {
     for (const auto& pair : vRoutedWires) {
       _ro.vWireIndices().emplace_back(_net.vWires().size());
@@ -892,6 +898,16 @@ void DrGridAstar::saveResult2Net() {
   if (_bSym) {
     Net& symNet = _cir.net(_net.symNetIdx());
     Routable& symRo = symNet.routable(_ro.symNetRoutableIdx());
+    for (const auto& vRoutePath : _vvRoutePaths) {
+      for (const auto& pair : vRoutePath) {
+        const Point3d<Int_t>& u = pair.first;
+        const Point3d<Int_t>& v = pair.second;
+        Point3d<Int_t> symU(u); symU.flipX(_net.symAxisX());
+        Point3d<Int_t> symV(v); symV.flipX(_net.symAxisX());
+        symRo.vPathIndices().emplace_back(symNet.vRoutePaths().size());
+        symNet.vRoutePaths().emplace_back(symU, symV);
+      }
+    }
     for (const auto& vRoutedWires : _vvRoutedWires) {
       for (const auto& pair : vRoutedWires) {
         const Box<Int_t>& wire = pair.first;
@@ -911,6 +927,19 @@ void DrGridAstar::saveResult2Net() {
   }
   if (_bSelfSym)
   {
+    for (const auto& vRoutePath : _vvRoutePaths) {
+      for (const auto& pair : vRoutePath) {
+        const Point3d<Int_t>& u = pair.first;
+        const Point3d<Int_t>& v = pair.second;
+        Point3d<Int_t> symU(u); symU.flipX(_net.symAxisX());
+        Point3d<Int_t> symV(v); symV.flipX(_net.symAxisX());
+        Pair_t<Point3d<Int_t>, Point3d<Int_t>> symPath(symU, symV);
+        if (symPath != pair) {
+          _ro.vPathIndices().emplace_back(_net.vRoutePaths().size());
+          _net.vRoutePaths().emplace_back(symPath);
+        }
+      }
+    }
     for (const auto& vRoutedWires : _vvRoutedWires) {
       for (const auto& pair : vRoutedWires) {
         const Box<Int_t>& wire = pair.first;

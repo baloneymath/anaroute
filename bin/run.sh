@@ -88,7 +88,17 @@ GDB="gdb --args"
           #--design_file $BENCH_DIR/Core_test_flow/Core_test_flow.gr \
           #--placement_layout $BENCH_DIR/Core_test_flow/Core_test_flow.place.gds \
           #--iopin $BENCH_DIR/Core_test_flow/Core_test_flow.iopin \
+          #--spec $BENCH_DIR/Core_test_flow/Core_test_flow.gr.spec \
           #--out $OUT_DIR/gds/Core_test_flow.route.gds
+
+# OTA_XT_MAGICAL on grid power
+$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
+          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          --design_file $BENCH_DIR/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.gr \
+          --placement_layout $BENCH_DIR/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.place.gds \
+          --iopin $BENCH_DIR/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.iopin \
+          --spec $BENCH_DIR/OTA_XT_MAGICAL/OTA_XT_MAGICAL_2.gr.spec \
+          --out $OUT_DIR/gds/OTA_XT_MAGICAL.route.gds
 
 # 2019_CTDSM_MAGICAL_TAPEOUT on grid power
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
@@ -107,10 +117,10 @@ GDB="gdb --args"
           #--out $OUT_DIR/gds/CTDSM_CORE_NEW_wrapper_2.route.gds
 
 # 2019_CTDSM_MAGICAL_TAPEOUT_wrapper_3 on grid power
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
-          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          --design_file $BENCH_DIR/2019_CTDSM_MAGICAL_wrapper_3/CTDSM_CORE_NEW_schematic.gr \
-          --placement_layout $BENCH_DIR/2019_CTDSM_MAGICAL_wrapper_3/CTDSM_CORE_NEW_schematic.place.gds \
-          --iopin $BENCH_DIR/2019_CTDSM_MAGICAL_wrapper_3/CTDSM_CORE_NEW_schematic.iopin \
-          --spec $BENCH_DIR/2019_CTDSM_MAGICAL_wrapper_3/CTDSM_CORE_NEW_schematic.spec \
-          --out $OUT_DIR/gds/CTDSM_CORE_NEW_wrapper_3.route.gds
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_vhv.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $BENCH_DIR/2019_CTDSM_MAGICAL_wrapper_3/CTDSM_CORE_NEW_schematic.gr \
+          #--placement_layout $BENCH_DIR/2019_CTDSM_MAGICAL_wrapper_3/CTDSM_CORE_NEW_schematic.place.gds \
+          #--iopin $BENCH_DIR/2019_CTDSM_MAGICAL_wrapper_3/CTDSM_CORE_NEW_schematic.iopin \
+          #--spec $BENCH_DIR/2019_CTDSM_MAGICAL_wrapper_3/CTDSM_CORE_NEW_schematic.spec \
+          #--out $OUT_DIR/gds/CTDSM_CORE_NEW_wrapper_3.route.gds

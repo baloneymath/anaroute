@@ -45,6 +45,8 @@ public:
   // util functions
   void rotate90(const T x, const T y, const bool bClockWise); // rotate 90 degree with respect to (x, y)
   void rotate180(const T x, const T y);                        // rotate 180 degree with respect to (x, y)
+  void flipX(const T x);
+  void flipY(const T y);
 
   // static functions
   static T      Mdistance(const Point& p1, const Point& p2);
@@ -97,6 +99,16 @@ template<typename T>
 void Point<T>::rotate180(const T x, const T y) {
   _d[0] = x + (x - _d[0]);
   _d[1] = y + (y - _d[1]);
+}
+
+template<typename T>
+void Point<T>::flipX(const T x) {
+  _d[0] = 2 * x - _d[0];
+}
+
+template<typename T>
+void Point<T>::flipY(const T y) {
+  _d[1] = 2* y - _d[1];
 }
 
 template<typename T>

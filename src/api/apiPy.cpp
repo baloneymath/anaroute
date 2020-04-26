@@ -179,7 +179,7 @@ namespace apiPy {
     }
 
     void init() {
-      std::srand(123);
+      std::srand(1234);
       _cir.resizeVVPinIndices(_cir.lef().numLayers());
       _cir.resizeVVBlkIndices(_cir.lef().numLayers());
       _par.correctPinNBlkLoc();
@@ -205,6 +205,12 @@ namespace apiPy {
     void postProcess() {
       PostMgr post(_cir);
       post.solve();
+    }
+
+    // evaluate
+    void showEvaluation() {
+      _cir.computeNSetAllNetStatistics();
+      _cir.computeTotalStatistics();
     }
 
     // write
@@ -255,6 +261,7 @@ void initPyAPI(py::module& m) {
     .def("solveGR", &apiPy::AnaroutePy::solveGR)
     .def("solveDR", &apiPy::AnaroutePy::solveDR)
     .def("postProcess", &apiPy::AnaroutePy::postProcess)
+    .def("evaluate", &apiPy::AnaroutePy::showEvaluation)
     .def("writeLayoutGds", &apiPy::AnaroutePy::writeLayoutGds)
     .def("writeDumb", &apiPy::AnaroutePy::writeDumb)
     .def("setCircuitName", &apiPy::AnaroutePy::setCircuitName);

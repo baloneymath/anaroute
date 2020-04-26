@@ -23,7 +23,7 @@ PROJECT_NAMESPACE_START
 
 Anaroute::Anaroute(int argc, char** argv) {
  
-  std::srand(123);
+  std::srand(1234);
   util::showSysInfo();
 
   TimeUsage timer;
@@ -112,6 +112,10 @@ Anaroute::Anaroute(int argc, char** argv) {
   PostMgr post(cir);
   post.solve();
   timer.showUsage("Post Processing", TimeUsage::PARTIAL);
+
+  // evaluation
+  cir.computeNSetAllNetStatistics();
+  cir.computeTotalStatistics();
 
   // write files
   Writer wr(cir);

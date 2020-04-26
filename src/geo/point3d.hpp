@@ -60,6 +60,10 @@ public:
                    p1.z() * p2.x() - p2.z() * p1.x(), 
                    p1.x() * p2.y() - p2.x() * p1.y());
   }
+  
+  void flipX(const T x) { _d[0] = 2 * x - _d[0]; }
+  void flipY(const T y) { _d[1] = 2 * y - _d[1]; }
+  void flipZ(const T z) { _d[2] = 2 * z - _d[2]; }
 
   // operators
   friend std::ostream&  operator <<  (std::ostream& os, const Point3d& p)       { os << '(' << p._d[0] << ' ' << p._d[1] << ' ' << p._d[2] << ')'; return os; }

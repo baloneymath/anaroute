@@ -104,11 +104,54 @@ void Net::clearRouting() {
     ro.setRouted(false);
   }
   _vWires.clear();
+  _vRoutePaths.clear();
   _bRouted = false;
 }
 
 void Net::setSymAxisX(const Int_t x) {
   _symAxisX = x;
+}
+
+// evaluation
+void Net::setViaCnt(const Int_t n) {
+  _viaCnt = n;
+}
+
+void Net::setWireLength(const Int_t l) {
+  _wireLength = l;
+}
+
+void Net::setWireArea(const Float_t a) {
+  _wireArea = a;
+}
+
+void Net::setDegSym(const Float_t d) {
+  _degSym = d;
+}
+
+void Net::computeNSetWireLength() {
+  Int_t viaCnt = 0;
+  Int_t wireLength = 0;
+  for (const auto& pair : _vRoutePaths) {
+    const auto& u = pair.first;
+    const auto& v = pair.second;
+    if (u.z() == v.z()) {
+      wireLength += Point3d<Int_t>::Mdistance(u, v);
+    }
+    else { // via
+      ++viaCnt;
+    }
+  }
+  setViaCnt(viaCnt);
+  setWireLength(wireLength);
+}
+
+void Net::computeNSetWireArea() {
+  Float_t area = 0;
+  for (const auto& pair : _vWires) {
+    area += pair.first.area();
+  }
+  setWireArea(area);
 }
 
 PROJECT_NAMESPACE_END

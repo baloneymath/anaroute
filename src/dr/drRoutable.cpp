@@ -39,8 +39,9 @@ void DrRoutable::constructNetRoutables(Net& net, const bool bSym, const bool bSe
     assert(!net.bPower());
     if (bCrossSymNet(net))
       constructCrossSymNetRoutables(net);
-    else
+    else {
       constructSymNetRoutables(net);
+    }
   }
   else {
     constructNormalNetRoutables(net);
@@ -122,7 +123,7 @@ void DrRoutable::constructSymNetRoutables(Net& net) {
   roSym2.setNetIdx(symNet.idx());
   roSym2.setSymNetIdx(net.idx());
   roRest2.setNetIdx(symNet.idx());
-  
+
   for (const auto pinIdx : net.vPinIndices()) {
     const Pin& pin = _cir.pin(pinIdx);
     if (bExistTotallySymPin(pin, vvBoxes2)) {
