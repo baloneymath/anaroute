@@ -212,6 +212,22 @@ namespace apiPy {
       _cir.computeNSetAllNetStatistics();
       _cir.computeTotalStatistics();
     }
+    Int_t computeTotalWireLength() {
+      return _cir.computeTotalWireLength();
+    }
+    Int_t computeTotalViaCnt() {
+      return _cir.computeTotalViaCnt();
+    }
+    Float_t computeTotalWireArea() {
+      return _cir.computeTotalWireArea();
+    }
+    Float_t computeTotalDegSym() {
+      return _cir.computeTotalDegSym();
+    }
+    Float_t computeAvgDegSym() {
+      return _cir.computeAvgDegSym();
+    }
+
 
     // write
     void writeLayoutGds(const String_t& placefilename, const String_t& outfilename, const bool bFlatten) {
@@ -264,7 +280,12 @@ void initPyAPI(py::module& m) {
     .def("evaluate", &apiPy::AnaroutePy::showEvaluation)
     .def("writeLayoutGds", &apiPy::AnaroutePy::writeLayoutGds)
     .def("writeDumb", &apiPy::AnaroutePy::writeDumb)
-    .def("setCircuitName", &apiPy::AnaroutePy::setCircuitName);
+    .def("setCircuitName", &apiPy::AnaroutePy::setCircuitName)
+    .def("computeTotalWireLength", &apiPy::AnaroutePy::computeTotalWireLength)
+    .def("computeTotalViaCnt", &apiPy::AnaroutePy::computeTotalViaCnt)
+    .def("computeTotalWireArea", &apiPy::AnaroutePy::computeTotalWireArea)
+    .def("computeTotalDegSym", &apiPy::AnaroutePy::computeTotalDegSym)
+    .def("computeAvgDegSym", &apiPy::AnaroutePy::computeAvgDegSym);
 
 }
 
