@@ -175,6 +175,9 @@ namespace apiPy {
 
       PostMgr post(_cir);
       post.solve();
+      
+      _cir.computeNSetAllNetStatistics();
+      
       return true;
     }
 
@@ -209,7 +212,6 @@ namespace apiPy {
 
     // evaluate
     void showEvaluation() {
-      _cir.computeNSetAllNetStatistics();
       _cir.computeTotalStatistics();
     }
     Int_t computeTotalWireLength() {
