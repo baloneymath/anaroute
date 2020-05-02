@@ -192,8 +192,8 @@ bool DrGridRoute::checkDRC(const bool bPower) {
 
 bool DrGridRoute::checkSingleNetDRC(const Net& net) {
   // check same net
-  if (!_drc.checkSameNetRoutingLayerSpacing(net.idx()))
-    return false;
+  //if (!_drc.checkSameNetRoutingLayerSpacing(net.idx()))
+    //return false;
   // check other nets
   for (const auto& pair : net.vWires()) {
     const auto& wire = pair.first;
@@ -202,8 +202,8 @@ bool DrGridRoute::checkSingleNetDRC(const Net& net) {
       const Int_t prl = std::max(wire.width(), wire.height());
       if (!_drc.checkWireRoutingLayerSpacing(net.idx(), layerIdx, wire, prl))
         return false;
-      if (!_drc.checkWireEolSpacing(net.idx(), layerIdx, wire))
-        return false;
+      //if (!_drc.checkWireEolSpacing(net.idx(), layerIdx, wire))
+        //return false;
     }
     else {
       assert(_cir.lef().bCutLayer(layerIdx));

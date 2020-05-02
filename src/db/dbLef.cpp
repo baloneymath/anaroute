@@ -104,6 +104,7 @@ void LefDB::logInfo() const {
 }
 
 Int_t LefDB::prlSpacing(const Int_t layerIdx, const Int_t wireWidth, const Int_t wirePrl) {
+  return 140;
   assert(bRoutingLayer(layerIdx));
   const auto& layerPair = _vAllLayers[layerIdx];
   const auto& layer = _vRoutingLayers[layerPair.second];
