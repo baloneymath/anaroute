@@ -119,6 +119,7 @@ Anaroute::Anaroute(int argc, char** argv) {
 
   // write files
   Writer wr(cir);
+  wr.writeIspd08(_args.get<String_t>("design_file") + ".ispd08");
   wr.writeLayoutGds(_args.get<String_t>("placement_layout"), _args.get<String_t>("out"), bFlatten);
   if (outGuideFile != "")
     wr.writeGrGuide(_args.get<String_t>("out_guide"));

@@ -36,7 +36,8 @@ class Writer {
   
   // ....
   void writeDumb(const String_t& placementFilename, const String_t& outputFilename);
-    
+  void writeIspd08(const String_t& outputFilename); // for GeniusRoute benchmark
+
  private:
   const CirDB&  _cir;
   GrGuideWriter _grGuidew;

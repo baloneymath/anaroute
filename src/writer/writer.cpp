@@ -38,4 +38,32 @@ void Writer::writeDumb(const String_t& placementFilename, const String_t& output
   _dumbw.write(placementFilename, outputFilename);
 }
 
+void Writer::writeIspd08(const String_t& outputFilename) {
+  fprintf(stderr, "Writing Ispd08 File %s\n", outputFilename.c_str());
+  FILE* fout = fopen(outputFilename.c_str(), "w");
+  fprintf(fout, "num net %d\n", (Int_t)_cir.numNets());
+  for (Int_t i = 0 ; i < (Int_t)_cir.numNets(); ++i) {
+    const Net& net = _cir.net(i);
+    fprintf(fout, "%s %d %d 1 %d\n", net.name().c_str(), i, (Int_t)net.numPins(), 70);
+    for (Int_t j = 0; j < (Int_t)net.numPins(); ++j) {
+      const Pin& pin = _cir.pin(net.pinIdx(j));
+      UInt_t layerIdx, k;
+      const Box<Int_t>* cpBox;
+      Pin_ForEachLayerIdx(pin, layerIdx) {
+        Pin_ForEachLayerBox(pin, layerIdx, cpBox, k) {
+          fprintf(fout, "%d %d %d %d %d %d %d %d %d\n",
+                  layerIdx / 2,
+                  cpBox->xl() / 2, cpBox->yl() / 2,
+                  cpBox->xh() / 2, cpBox->yl() / 2,
+                  cpBox->xh() / 2, cpBox->yh() / 2,
+                  cpBox->xl() / 2, cpBox->yh() / 2);
+        }
+      }
+    }
+    fprintf(fout, "666\n");
+  }
+  fclose(fout);
+
+}
+
 PROJECT_NAMESPACE_END
