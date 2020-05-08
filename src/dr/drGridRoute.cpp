@@ -87,7 +87,6 @@ bool DrGridRoute::runNRR(auto& pq, const bool bPower, const Int_t maxIteration) 
       if (!bSuccess) {
         bSuccess = routeSingleNet(*pNet, false);
       }
-      assert(bSuccess);
     }
     // check DRC violations
     bool bFinish = checkDRC(bPower);
