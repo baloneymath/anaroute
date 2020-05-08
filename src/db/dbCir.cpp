@@ -592,10 +592,10 @@ void CirDB::computeNSetNetDegSym(Net& net) {
 
 void CirDB::computeTotalStatistics() {
   fprintf(stderr, "Total wl: %d, Total #via: %d, "
-          "Total area: %.2f, Total degSym: %.2f, Avg degSym: %.2f\n\n",
+          "Total Sym wl: %d, Total degSym: %.4f, Avg degSym: %.4f\n\n",
           computeTotalWireLength(),
           computeTotalViaCnt(),
-          computeTotalWireArea(),
+          computeTotalSymWireLength(),
           computeTotalDegSym(),
           computeAvgDegSym());
 }
@@ -606,6 +606,32 @@ Int_t CirDB::computeTotalWireLength() {
     wl += net.wireLength();
   }
   return wl;
+}
+
+Int_t CirDB::computeTotalSymWireLength() {
+  Float_t symLength = 0;
+  for (const Net& net : _vNets) {
+    Vector_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>> vPaths;
+    if (net.hasSymNet()) {
+      const Net& symNet = this->net(net.symNetIdx());
+      vPaths = symNet.vRoutePaths();
+    }
+    else {
+      vPaths = net.vRoutePaths();
+    }
+    std::sort(vPaths.begin(), vPaths.end());
+    for (const auto& pair : net.vRoutePaths()) {
+      const auto& u = pair.first;
+      const auto& v = pair.second;
+      Point3d<Int_t> symU(u); symU.flipX(net.symAxisX());
+      Point3d<Int_t> symV(v); symV.flipX(net.symAxisX());
+      Pair_t<Point3d<Int_t>, Point3d<Int_t>> symPath(symU, symV);
+      if (std::binary_search(vPaths.begin(), vPaths.end(), symPath)) {
+        symLength += Point3d<Int_t>::Mdistance(u, v);
+      }
+    }
+  }
+  return symLength;
 }
 
 Int_t CirDB::computeTotalViaCnt() {

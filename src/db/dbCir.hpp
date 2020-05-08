@@ -182,6 +182,7 @@ class CirDB {
   void    computeNSetNetDegSym(Net& net);
   void    computeTotalStatistics();
   Int_t   computeTotalWireLength();
+  Int_t   computeTotalSymWireLength();
   Int_t   computeTotalViaCnt();
   Float_t computeTotalWireArea();
   Float_t computeTotalDegSym();

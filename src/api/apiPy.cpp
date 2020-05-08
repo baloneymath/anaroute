@@ -217,6 +217,9 @@ namespace apiPy {
     Int_t computeTotalWireLength() {
       return _cir.computeTotalWireLength();
     }
+    Int_t computeTotalSymWireLength() {
+      return _cir.computeTotalSymWireLength();
+    }
     Int_t computeTotalViaCnt() {
       return _cir.computeTotalViaCnt();
     }
