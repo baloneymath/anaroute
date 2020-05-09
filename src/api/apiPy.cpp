@@ -287,6 +287,7 @@ void initPyAPI(py::module& m) {
     .def("writeDumb", &apiPy::AnaroutePy::writeDumb)
     .def("setCircuitName", &apiPy::AnaroutePy::setCircuitName)
     .def("computeTotalWireLength", &apiPy::AnaroutePy::computeTotalWireLength)
+    .def("computeTotalSymWireLength", &apiPy::AnaroutePy::computeTotalSymWireLength)
     .def("computeTotalViaCnt", &apiPy::AnaroutePy::computeTotalViaCnt)
     .def("computeTotalWireArea", &apiPy::AnaroutePy::computeTotalWireArea)
     .def("computeTotalDegSym", &apiPy::AnaroutePy::computeTotalDegSym)

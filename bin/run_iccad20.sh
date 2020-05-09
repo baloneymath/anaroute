@@ -9,13 +9,13 @@ OUT_DIR="./out"
 GDB=""
 
 #comp2 on grid power
-$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
-          --tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          --design_file $BENCH_DIR/comp/COMPARATOR_PRE_AMP_2018_Modify_test_flow.gr \
-          --placement_layout $BENCH_DIR/comp/COMPARATOR_PRE_AMP_2018_Modify_test_flow.place.gds \
-          --iopin $BENCH_DIR/comp/COMPARATOR_PRE_AMP_2018_Modify_test_flow.iopin \
-          --spec $BENCH_DIR/comp/COMPARATOR_PRE_AMP_2018_Modify_test_flow.gr.spec \
-          --out $OUT_DIR/gds/comp.route.gds
+#$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
+          #--tech_file $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          #--design_file $BENCH_DIR/comp/COMPARATOR_PRE_AMP_2018_Modify_test_flow.gr \
+          #--placement_layout $BENCH_DIR/comp/COMPARATOR_PRE_AMP_2018_Modify_test_flow.place.gds \
+          #--iopin $BENCH_DIR/comp/COMPARATOR_PRE_AMP_2018_Modify_test_flow.iopin \
+          #--spec $BENCH_DIR/comp/COMPARATOR_PRE_AMP_2018_Modify_test_flow.gr.spec \
+          #--out $OUT_DIR/gds/comp.route.gds
 
 # Core_test_flow on grid power
 #$GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
@@ -72,14 +72,14 @@ $GDB ./anaroute --tech_lef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
           #--iopin $BENCH_DIR/Core_test_flow/Core_test_flow.iopin \
           #--out $OUT_DIR/ARouter/Core_test_flow.route.gds
 
-#$GDB ./ARouter --designType ispd08pin \
-          #--techLef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
-          #--techfile $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
-          #--designFile $BENCH_DIR/OTA_XT/OTA_XT_MAGICAL.gr.ispd08 \
-          #--placementLayout $BENCH_DIR/OTA_XT/OTA_XT_MAGICAL.place.gds \
-          #--symnet $BENCH_DIR/OTA_XT/OTA_XT_MAGICAL.symnet \
-          #--iopin $BENCH_DIR/OTA_XT/OTA_XT_MAGICAL.iopin \
-          #--out $OUT_DIR/ARouter/OTA_XT_MAGICAL.route.gds
+$GDB ./ARouter --designType ispd08pin \
+          --techLef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
+          --techfile $HAO_WORKSPACE/packages/tech/tsmc40_techfile \
+          --designFile $BENCH_DIR/OTA_XT/OTA_XT_MAGICAL.gr.ispd08 \
+          --placementLayout $BENCH_DIR/OTA_XT/OTA_XT_MAGICAL.place.gds \
+          --symnet $BENCH_DIR/OTA_XT/OTA_XT_MAGICAL.symnet \
+          --iopin $BENCH_DIR/OTA_XT/OTA_XT_MAGICAL.iopin \
+          --out $OUT_DIR/ARouter/OTA_XT_MAGICAL.route.gds
 
 #$GDB ./ARouter --designType ispd08pin \
           #--techLef $HAO_WORKSPACE/packages/tech/tsmc40_hvh_tapeout.lef \
