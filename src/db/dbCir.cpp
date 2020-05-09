@@ -609,7 +609,7 @@ Int_t CirDB::computeTotalWireLength() {
 }
 
 Int_t CirDB::computeTotalSymWireLength() {
-  Float_t symLength = 0;
+  Int_t symLength = 0;
   for (const Net& net : _vNets) {
     Vector_t<Pair_t<Point3d<Int_t>, Point3d<Int_t>>> vPaths;
     if (net.hasSymNet()) {
