@@ -623,6 +623,8 @@ Int_t CirDB::computeTotalSymWireLength() {
     for (const auto& pair : net.vRoutePaths()) {
       const auto& u = pair.first;
       const auto& v = pair.second;
+      if (u.z() != v.z())
+        continue;
       Point3d<Int_t> symU(u); symU.flipX(net.symAxisX());
       Point3d<Int_t> symV(v); symV.flipX(net.symAxisX());
       Pair_t<Point3d<Int_t>, Point3d<Int_t>> symPath(symU, symV);
