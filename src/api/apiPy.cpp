@@ -17,6 +17,7 @@
 #include "src/drc/drcMgr.hpp"
 #include "src/post/postMgr.hpp"
 #include "src/writer/writer.hpp"
+#include "src/util/timeUsage.hpp"
 
 namespace py = pybind11;
 
@@ -154,6 +155,8 @@ namespace apiPy {
     // solve
     /////////////////////////////////////
     bool solve(const bool bUseSymFile = false) {
+      TimeUsage timer;
+      timer.start(TimeUsage::FULL);
       _cir.resizeVVPinIndices(_cir.lef().numLayers());
       _cir.resizeVVBlkIndices(_cir.lef().numLayers());
       _cir.buildSpatial();
@@ -177,6 +180,7 @@ namespace apiPy {
       post.solve();
       
       _cir.computeNSetAllNetStatistics();
+      timer.showUsage("Anaroute", TimeUsage::FULL);
       
       return true;
     }
