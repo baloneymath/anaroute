@@ -536,6 +536,7 @@ void CirDB::checkNetSymSelfSym() {
 
 // evaluation
 void CirDB::computeNSetAllNetStatistics() {
+    int idx = 0;
   for (Net& net : _vNets) {
     if (net.numPins() > 1) {
       if (net.bRouted()) {
@@ -548,12 +549,13 @@ void CirDB::computeNSetAllNetStatistics() {
                 net.degSym());     
       }
       else {
-        fprintf(stderr, "Net %s route failed\n", net.name().c_str());
+        fprintf(stderr, "Net %d %s route failed\n", idx, net.name().c_str());
       }
     }
     else {
       fprintf(stderr, "Net %s 1-pin ignored\n", net.name().c_str());
     }
+    ++idx;
   }
 }
 
