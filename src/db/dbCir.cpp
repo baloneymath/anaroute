@@ -593,8 +593,9 @@ void CirDB::computeNSetNetDegSym(Net& net) {
 }
 
 void CirDB::computeTotalStatistics() {
-  fprintf(stderr, "Total wl: %d, Total #via: %d, "
+  fprintf(stderr, "%s Total wl: %d, Total #via: %d, "
           "Total area: %.2f, Total degSym: %.2f, Avg degSym: %.2f\n\n",
+          _name.c_str(),
           computeTotalWireLength(),
           computeTotalViaCnt(),
           computeTotalWireArea(),
