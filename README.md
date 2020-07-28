@@ -2,7 +2,7 @@
 
 The MAGICAL analog router.
 
-# How to Install ?
+# How to install ?
 
 The following dependencies are required.
 
@@ -23,7 +23,7 @@ make
 make install 
 ```
 
-# Usage
+# How to use ?
 Binary executable
 ```
 ./anaroute --tech_lef=string --tech_file=string --design_file=string --placement_layout=string --out=string [options] ...
