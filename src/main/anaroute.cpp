@@ -98,7 +98,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   acs.computeAcs();
   timer.showUsage("Access Points Generation", TimeUsage::PARTIAL);
   
-  cir.visualize();
+  //cir.visualize();
   
   // detailed routing
   timer.start(TimeUsage::PARTIAL);
@@ -119,11 +119,11 @@ Anaroute::Anaroute(int argc, char** argv) {
 
   // write files
   Writer wr(cir);
-  wr.writeIspd08(_args.get<String_t>("design_file") + ".ispd08");
+  //wr.writeIspd08(_args.get<String_t>("design_file") + ".ispd08");
   wr.writeLayoutGds(_args.get<String_t>("placement_layout"), _args.get<String_t>("out"), bFlatten);
   if (outGuideFile != "")
     wr.writeGrGuide(_args.get<String_t>("out_guide"));
-  wr.writeGrGuideGds("a.gds");
+  //wr.writeGrGuideGds("a.gds");
   if (dumbFile != "")
     wr.writeDumb(_args.get<String_t>("placement_layout"), _args.get<String_t>("fuck"));
 
