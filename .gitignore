@@ -2,6 +2,7 @@ bin/anaroute
 bin/out
 bin/k.sh
 bin/run.sh
+bin/run_iccad20.sh
 bin/ARouter
 build/
 bench/
