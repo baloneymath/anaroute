@@ -18,9 +18,10 @@ In the directory of limbo library, run
 ```
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=absolute/path/to/your/installation
+cmake -DCMAKE_INSTALL_PREFIX=absolute/path/to/your/installation -DPYTHON_EXECUTABLE=<path> ..
 make
-make install 
+make install
+cp *.so ~/.local/lib/pythonX.X/site-packages/ (your python version)
 ```
 
 # How to use ?
