@@ -14,7 +14,7 @@ The following dependencies are required.
     Set the env variable `PYBIND11_DIR` or specify `cmake -DPYBIND11_DIR=<path>`.
     To use other Python versions, add cmake flags `cmake -DPYTHON_EXECUTABLE=<path>`
  
-In the directory of limbo library, run
+In the directory of anaroute, run
 ```
 mkdir build
 cd build
