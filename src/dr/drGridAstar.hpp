@@ -94,7 +94,7 @@ class DrGridAstar {
     Int_t stackedViaCost = 2000;
     Int_t drcCost = 20000;
     Int_t historyCost = 500; // the cost added to the history map
-    Int_t maxExplore = 90000;
+    Int_t maxExplore = 500000;
     // electrical
     Int_t numCutsRow;
     Int_t numCutsCol;
