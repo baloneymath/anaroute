@@ -214,10 +214,10 @@ class Net {
 
   // for performance driven and electrical consideration
   bool    _bPower = false;
-  Int_t   _minWidth;
-  Int_t   _minCuts;
-  Int_t   _numCutsRow;
-  Int_t   _numCutsCol;
+  Int_t   _minWidth = 0;
+  Int_t   _minCuts = 1;
+  Int_t   _numCutsRow = 1;
+  Int_t   _numCutsCol = 1;
 
   // for not-quite-symmetric structure
   Vector_t<Routable>  _vRoutables;

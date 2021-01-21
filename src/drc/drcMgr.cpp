@@ -205,14 +205,15 @@ void DrcMgr::addNetShapesBFS(const Int_t netIdx, Vector_t<Vector_t<Box<Int_t>>>&
   UInt_t i;
   const Blk* cpBlk;
   Queue_t<UInt_t> qBlkIndices;
+  Set_t<UInt_t> exploredSet;
   Cir_ForEachBlk(_cir, cpBlk, i) {
     if (cpBlk->bConnect2Pin()) {
       const Int_t blkNetIdx = _cir.pin(cpBlk->pinIdx()).netIdx();
-      if (blkNetIdx == netIdx)
+      if (blkNetIdx == netIdx) {
         qBlkIndices.emplace(cpBlk->idx());
+      }
     }
   }
-  Set_t<UInt_t> exploredSet;
   while (!qBlkIndices.empty()) {
     const Blk& blk = _cir.blk(qBlkIndices.front());
     qBlkIndices.pop();
