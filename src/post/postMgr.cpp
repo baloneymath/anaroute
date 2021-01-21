@@ -113,8 +113,8 @@ bool PostMgr::patchConcaveJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolyg
         const auto& pt2 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
         Segment<Int_t> edge1(pt0, pt1);
         Segment<Int_t> edge2(pt1, pt2);
-        assert((edge1.bHorizontal() and edge2.bVertical())
-               or (edge1.bVertical() and edge2.bHorizontal()));
+        assert((edge1.bHor() and edge2.bVer())
+               or (edge1.bVer() and edge2.bHor()));
         if (edge1.length() < layer.minStep(0)
             and edge2.length() < layer.minStep(0)) {
           Box<Int_t> box(std::min({pt0.x(), pt1.x(), pt2.x()}),
@@ -160,8 +160,8 @@ bool PostMgr::patchConvexJogs(const Vector_t<Vector_t<Polygon<Int_t>>>& vvPolygo
         const auto& pt2 = j + 1 == ring.size() ? ring[0] : ring[j + 1];
         Segment<Int_t> edge1(pt0, pt1);
         Segment<Int_t> edge2(pt1, pt2);
-        assert((edge1.bHorizontal() and edge2.bVertical())
-               or (edge1.bVertical() and edge2.bHorizontal()));
+        assert((edge1.bHor() and edge2.bVer())
+               or (edge1.bVer() and edge2.bHor()));
         if (edge1.length() < layer.minStep(0)
             and edge2.length() < layer.minStep(0)) {
           

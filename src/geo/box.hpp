@@ -9,9 +9,9 @@
 #ifndef _GEO_BOX_HPP_
 #define _GEO_BOX_HPP_
 
-#include "src/global/global.hpp"
 #include "point.hpp"
 #include "interval.hpp"
+#include "src/global/global.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -31,6 +31,8 @@ public:
   ~Box() {}
 
   // Basic setting functions
+  void  setBL(const Point<T>& p)        { _bl = p; }
+  void  setTR(const Point<T>& p)        { _tr = p; }
   void  setXL(T l)                      { _bl.setX(l); }
   void  setXH(T r)                      { _tr.setX(r); }
   void  setYL(T b)                      { _bl.setY(b); }
@@ -94,8 +96,15 @@ public:
   static bool  bOverlap(const Box& box1, const Box& box2);
   static bool  bConnect(const Box& box1, const Box& box2);
   static bool  bCover(const Box& box1, const Box& box2);
+  static bool  bContain(const Box& box1, const Box& box2);
   static bool  bInside(const Box& box, const Point<T>& pt);
   static bool  bConnect(const Box& box, const Point<T>& pt);
+  static bool  bOnBoundary(const Box& box, const Point<T>& pt);
+  static bool  bOnBoundary(const Box& box, const Point<T>& pt, const Int_t t);
+  static bool  bOnBoundaryL(const Box& box, const Point<T>& pt);
+  static bool  bOnBoundaryR(const Box& box, const Point<T>& pt);
+  static bool  bOnBoundaryB(const Box& box, const Point<T>& pt);
+  static bool  bOnBoundaryT(const Box& box, const Point<T>& pt);
   static T     overlapArea(const Box& box1, const Box& box2);
   static void  intersection(const Box& box1, const Box& box2, Vector_t<Box>& result);
   static void  intersection2(const Box& box1, const Box& box2, Vector_t<Box>& result);
@@ -103,10 +112,16 @@ public:
 
   //operator
   bool operator < (const Box<T>& box) const {
-    if (_bl.x() != box.xl()) return _bl.x() < box.xl();
-    if (_bl.y() != box.yl()) return _bl.y() < box.yl();
-    if (_tr.x() != box.xh()) return _tr.x() < box.xh();
-    return _tr.y() < box.yh();
+    return bContain(box, *this);
+  }
+  bool operator <= (const Box<T>& box) const {
+    return bCover(box, *this);
+  }
+  bool operator > (const Box<T>& box) const {
+    return bContain(*this, box);
+  }
+  bool operator >= (const Box<T>& box) const {
+    return bCover(*this, box);
   }
   
   bool operator == (const Box<T>& box) const {
@@ -423,9 +438,76 @@ bool Box<T>::bConnect(const Box<T>& box1, const Box<T>& box2) {
 }
 
 template<typename T>
+bool Box<T>::bOnBoundary(const Box& box, const Point<T>& pt) {
+  if (pt.x() == box.xl()) {
+    if (pt.y() < box.yl()) return false;
+    if (pt.y() > box.yh()) return false;
+  }
+  else if (pt.x() == box.xh()) {
+    if (pt.y() < box.yl()) return false;
+    if (pt.y() > box.yh()) return false;
+  }
+  else {
+    if (pt.y() != box.yl()) return false;
+    if (pt.y() != box.yh()) return false;
+  }
+  return true;
+}
+
+template<typename T>
+bool Box<T>::bOnBoundary(const Box& box, const Point<T>& pt, const Int_t t) {
+  switch (t) {
+    case 0: return Box<T>::bOnBoundaryL(box, pt);
+    case 1: return Box<T>::bOnBoundaryB(box, pt);
+    case 2: return Box<T>::bOnBoundaryR(box, pt);
+    case 3: return Box<T>::bOnBoundaryT(box, pt);
+    default: assert(false);
+  }
+  return false;
+}
+
+template<typename T>
+bool Box<T>::bOnBoundaryL(const Box& box, const Point<T>& pt){
+  if (pt.x() != box.xl()) return false;
+  if (pt.y() < box.yl()) return false;
+  if (pt.y() > box.yh()) return false;
+  return true;
+}
+
+template<typename T>
+bool Box<T>::bOnBoundaryR(const Box& box, const Point<T>& pt) {
+  if (pt.x() != box.xh()) return false;
+  if (pt.y() < box.yl()) return false;
+  if (pt.y() > box.yh()) return false;
+  return true;
+}
+
+template<typename T>
+bool Box<T>::bOnBoundaryB(const Box& box, const Point<T>& pt) {
+  if (pt.y() != box.yl()) return false;
+  if (pt.x() < box.xl()) return false;
+  if (pt.x() > box.xh()) return false;
+  return true;
+}
+
+template<typename T>
+bool Box<T>::bOnBoundaryT(const Box& box, const Point<T>& pt) {
+  if (pt.y() != box.yh()) return false;
+  if (pt.x() < box.xl()) return false;
+  if (pt.x() > box.xh()) return false;
+  return true;
+}
+
+template<typename T>
 bool Box<T>::bCover(const Box& box1, const Box& box2) {
   return bConnect(box1, box2.min_corner()) &&
          bConnect(box1, box2.max_corner());
+}
+
+template<typename T>
+bool Box<T>::bContain(const Box& box1, const Box& box2) {
+  return bInside(box1, box2.min_corner()) &&
+         bInside(box1, box2.max_corner());
 }
 
 template<typename T>
@@ -544,63 +626,126 @@ void Box<T>::difference2(const Box<T>& box1, const Box<T>& box2, Vector_t<Box<T>
 
 PROJECT_NAMESPACE_END
 
-// boost traits
+// boost geometry traits
+#include <boost/geometry/geometries/register/box.hpp>
+
+namespace boost { namespace geometry { namespace traits {
+  
+  template<typename CoordType>
+    struct tag<PROJECT_NAMESPACE::Box<CoordType>> {
+      typedef box_tag type;
+    };
+
+  template<typename CoordType>
+    struct point_type<PROJECT_NAMESPACE::Box<CoordType>> {
+      typedef PROJECT_NAMESPACE::Point<CoordType> type;
+    };
+  
+  template<typename CoordType>
+    struct indexed_access<PROJECT_NAMESPACE::Box<CoordType>, min_corner, 0> {
+
+      static inline CoordType get(const PROJECT_NAMESPACE::Box<CoordType>& b) {
+        return b.min_corner().x();
+      }
+      
+      static inline void set(PROJECT_NAMESPACE::Box<CoordType>& b, CoordType const& value) {
+        b.setXL(value);
+      }
+    };
+  
+  template<typename CoordType>
+    struct indexed_access<PROJECT_NAMESPACE::Box<CoordType>, min_corner, 1> {
+
+      static inline CoordType get(const PROJECT_NAMESPACE::Box<CoordType>& b) {
+        return b.min_corner().y();
+      }
+      
+      static inline void set(PROJECT_NAMESPACE::Box<CoordType>& b, CoordType const& value) {
+        b.setYL(value);
+      }
+    };
+  
+  template<typename CoordType>
+    struct indexed_access<PROJECT_NAMESPACE::Box<CoordType>, max_corner, 0> {
+
+      static inline CoordType get(const PROJECT_NAMESPACE::Box<CoordType>& b) {
+        return b.max_corner().x();
+      }
+      
+      static inline void set(PROJECT_NAMESPACE::Box<CoordType>& b, CoordType const& value) {
+        b.setXH(value);
+      }
+    };
+  
+  template<typename CoordType>
+    struct indexed_access<PROJECT_NAMESPACE::Box<CoordType>, max_corner, 1> {
+
+      static inline CoordType get(const PROJECT_NAMESPACE::Box<CoordType>& b) {
+        return b.max_corner().y();
+      }
+      
+      static inline void set(PROJECT_NAMESPACE::Box<CoordType>& b, CoordType const& value) {
+        b.setYH(value);
+      }
+    };
+  
+
+} } }
+
+// boost polygon traits
 #include <boost/polygon/rectangle_traits.hpp>
 #include <boost/polygon/polygon.hpp>
-namespace boost
-{
-    namespace polygon
-    {
-        template<typename CoordType>
-        struct geometry_concept<PROJECT_NAMESPACE::Box<CoordType>> { typedef rectangle_concept type; };
+namespace boost { namespace polygon {
+  template<typename CoordType>
+  struct geometry_concept<PROJECT_NAMESPACE::Box<CoordType>> { typedef rectangle_concept type; };
 
-        template<typename CoordType>
-        struct rectangle_traits<PROJECT_NAMESPACE::Box<CoordType>, typename gtl_same_type<typename PROJECT_NAMESPACE::Box<CoordType>::interval_type, typename PROJECT_NAMESPACE::Box<CoordType>::interval_type>::type>
-        {
-            typedef CoordType coordinate_type;
-            typedef typename PROJECT_NAMESPACE::Box<CoordType>::interval_type interval_type;
-            static inline interval_type get(const PROJECT_NAMESPACE::Box<CoordType> &rectangle, orientation_2d orient)
-            {
-                if (orient == HORIZONTAL)
-                {
-                    return boost::polygon::interval_mutable_traits<interval_type>::construct(rectangle.xl(), rectangle.xh());
-                }
-                else
-                {
-                    return boost::polygon::interval_mutable_traits<interval_type>::construct(rectangle.yl(), rectangle.yh());
-                }
-            }
-        };
-        template<typename CoordType>
-        struct rectangle_mutable_traits<PROJECT_NAMESPACE::Box<CoordType>>
-        {
-            template<typename T2>
-            static inline void set(PROJECT_NAMESPACE::Box<CoordType> &rectangle, orientation_2d orient, const T2& interval)
-            {
-                if (orient == HORIZONTAL)
-                {
-                    rectangle.setXL(boost::polygon::interval_traits<T2>::get(interval, LOW));
-                    rectangle.setXH(boost::polygon::interval_traits<T2>::get(interval, HIGH));
-                }
-                else
-                {
-                    rectangle.setYL(boost::polygon::interval_traits<T2>::get(interval, LOW));
-                    rectangle.setYH(boost::polygon::interval_traits<T2>::get(interval, HIGH));
-                }
-            }
-            template<typename T2, typename T3>
-            static inline PROJECT_NAMESPACE::Box<CoordType> construct(const T2& interval_horizontal,
-                                                                      const T3& interval_vertical)
-            {
-                return PROJECT_NAMESPACE::Box<CoordType>
-                    (
-                         boost::polygon::interval_traits<T2>::get(interval_horizontal, LOW),
-                         boost::polygon::interval_traits<T2>::get(interval_vertical, LOW),
-                         boost::polygon::interval_traits<T2>::get(interval_horizontal, HIGH),
-                         boost::polygon::interval_traits<T2>::get(interval_vertical, HIGH)
-                    );
-            }
-        };
-    };
-}; // boost
+  template<typename CoordType>
+  struct rectangle_traits<PROJECT_NAMESPACE::Box<CoordType>, typename gtl_same_type<typename PROJECT_NAMESPACE::Box<CoordType>::interval_type, typename PROJECT_NAMESPACE::Box<CoordType>::interval_type>::type>
+  {
+      typedef CoordType coordinate_type;
+      typedef typename PROJECT_NAMESPACE::Box<CoordType>::interval_type interval_type;
+      static inline interval_type get(const PROJECT_NAMESPACE::Box<CoordType> &rectangle, orientation_2d orient)
+      {
+          if (orient == HORIZONTAL)
+          {
+              return boost::polygon::interval_mutable_traits<interval_type>::construct(rectangle.xl(), rectangle.xh());
+          }
+          else
+          {
+              return boost::polygon::interval_mutable_traits<interval_type>::construct(rectangle.yl(), rectangle.yh());
+          }
+      }
+  };
+  template<typename CoordType>
+  struct rectangle_mutable_traits<PROJECT_NAMESPACE::Box<CoordType>>
+  {
+      template<typename T2>
+      static inline void set(PROJECT_NAMESPACE::Box<CoordType> &rectangle, orientation_2d orient, const T2& interval)
+      {
+          if (orient == HORIZONTAL)
+          {
+              rectangle.setXL(boost::polygon::interval_traits<T2>::get(interval, LOW));
+              rectangle.setXH(boost::polygon::interval_traits<T2>::get(interval, HIGH));
+          }
+          else
+          {
+              rectangle.setYL(boost::polygon::interval_traits<T2>::get(interval, LOW));
+              rectangle.setYH(boost::polygon::interval_traits<T2>::get(interval, HIGH));
+          }
+      }
+      template<typename T2, typename T3>
+      static inline PROJECT_NAMESPACE::Box<CoordType> construct(const T2& interval_horizontal,
+                                                                const T3& interval_vertical)
+      {
+          return PROJECT_NAMESPACE::Box<CoordType>
+              (
+                   boost::polygon::interval_traits<T2>::get(interval_horizontal, LOW),
+                   boost::polygon::interval_traits<T2>::get(interval_vertical, LOW),
+                   boost::polygon::interval_traits<T2>::get(interval_horizontal, HIGH),
+                   boost::polygon::interval_traits<T2>::get(interval_vertical, HIGH)
+              );
+      }
+  };
+
+}} // boost
 #endif /// _GEO_BOX_HPP_

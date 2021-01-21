@@ -11,7 +11,7 @@
 
 #include <boost/geometry.hpp>
 #include <boost/functional/hash.hpp>
-#include "src/global/global.hpp"
+#include "src/global/namespace.hpp"
 
 PROJECT_NAMESPACE_START
 
@@ -139,24 +139,15 @@ bool Point<T>::bOnSegment(const Point& p, const Point& q, const Point& r) {
 
 PROJECT_NAMESPACE_END
 
-#if 0
-namespace boost { namespace geometry { namespace traits {
-  // int32_t
-  using Int_t = PROJECT_NAMESPACE::Int_t;
-  template<> struct tag<PROJECT_NAMESPACE::Point<Int_t> > { typedef point_tag type; };
-  template<> struct coordinate_type<PROJECT_NAMESPACE::Point<Int_t> > { typedef Int_t type; };
-  template<> struct coordinate_system<PROJECT_NAMESPACE::Point<Int_t> > { typedef cs::cartesian type; };
-  template<> struct dimension<PROJECT_NAMESPACE::Point<Int_t> > : boost::mpl::int_<2> {};
-  template<> struct access<PROJECT_NAMESPACE::Point<Int_t>, 0> {
-    static Int_t get(PROJECT_NAMESPACE::Point<Int_t>  const& p) { return p.x(); }
-    static void set(PROJECT_NAMESPACE::Point<Int_t> & p, Int_t const& value) { p.setX(value); }
+#include <parallel_hashmap/phmap_utils.h>
+namespace std {
+  template<typename CoordType>
+  struct hash<PROJECT_NAMESPACE::Point<CoordType>> {
+    std::size_t operator() (const PROJECT_NAMESPACE::Point<CoordType>& p) const {
+      return phmap::HashState().combine(0, p.x(), p.y());
+    }
   };
-  template<> struct access<PROJECT_NAMESPACE::Point<Int_t>, 1> {
-    static int get(PROJECT_NAMESPACE::Point<Int_t> const& p) { return p.y(); }
-    static void set(PROJECT_NAMESPACE::Point<Int_t> & p, Int_t const& value) { p.setY(value); }
-  };
-}}}
-#endif
+}
 
 // boost polygon
 #include <boost/polygon/point_traits.hpp>
