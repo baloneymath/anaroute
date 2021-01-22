@@ -312,7 +312,6 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                 and !bCanPatch(i, qs, seg)) {
               Segment<Int_t> centerConnectLine(qs.center(), seg.center());
               const auto& checkPt = centerConnectLine.center();
-                //cerr << qs << seg << endl;
                 //for (const auto& polygon : vPolygons) {
                   //const auto& ring = polygon.outer();
                   //for (j = 0; j < ring.size(); ++j) {
@@ -323,8 +322,9 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                   //cerr << endl;
                 //}
                 //exit(0);
-              if (!boost::polygon::contains(polygon, checkPt))
+              if (!boost::polygon::contains(polygon, checkPt)) {
                 return false;
+              }
             }
           }
         }
@@ -353,8 +353,9 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                   //cerr << endl;
                 //}
                 //exit(0);
-              if (!boost::polygon::contains(polygon, checkPt))
+              if (!boost::polygon::contains(polygon, checkPt)) {
                 return false;
+              }
             }
           }
         }

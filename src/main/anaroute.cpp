@@ -98,7 +98,7 @@ Anaroute::Anaroute(int argc, char** argv) {
   acs.computeAcs();
   timer.showUsage("Access Points Generation", TimeUsage::PARTIAL);
   
-  //cir.visualize();
+  cir.visualize();
   
   // detailed routing
   timer.start(TimeUsage::PARTIAL);

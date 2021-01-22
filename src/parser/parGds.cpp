@@ -129,8 +129,8 @@ void GdsReader::saveShapesAsBlockages() {
             //for (UInt_t layerIdx = 0; layerIdx < _cir.lef().numLayers(); ++layerIdx) {
             for (UInt_t layerIdx = 0; layerIdx <= _cir.lef().routingLayerIdx2LayerIdx(4); ++layerIdx) {
               if (_cir.lef().bRoutingLayer(layerIdx)) {
-                Box<Int_t> lvsBox1(box.xl(), box.yl() + 200, box.xh(), box.centerY());
-                Box<Int_t> lvsBox2(box.xl(), box.centerY(), box.xh(), box.yh() - 200);
+                Box<Int_t> lvsBox1(box.xl(), box.yl() + 100, box.xh(), box.centerY());
+                Box<Int_t> lvsBox2(box.xl(), box.centerY(), box.xh(), box.yh() - 100);
                 __addBlk(cnt++, layerIdx, lvsBox1, true);
                 __addBlk(cnt++, layerIdx, lvsBox2, true);
               }
