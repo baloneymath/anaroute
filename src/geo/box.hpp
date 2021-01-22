@@ -195,16 +195,16 @@ template<typename T>
 void Box<T>::flipX(const T x) {
   int l = _bl.x();
   int r = _tr.x();
-  setXL(x + (x - r));
-  setXH(x + (x - l));
+  setXL(2 * x - r);
+  setXH(2 * x - l);
 }
 
 template<typename T>
 void Box<T>::flipY(const T y) {
   int b = _bl.y();
   int t = _tr.y();
-  setYL(y + (y - t));
-  setYH(y + (y - b));
+  setYL(2 * y - t);
+  setYH(2 * y - b);
 }
 
 template<typename T>
