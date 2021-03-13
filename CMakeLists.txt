@@ -16,6 +16,18 @@ endif()
 message(STATUS "Install Prefix: ${CMAKE_INSTALL_PREFIX}")
 unset(CMAKE_INSTALL_PREFIX)
 
+
+
+# deal with GCC dual ABI issue 
+if(NOT CMAKE_CXX_ABI)
+    set(CMAKE_CXX_ABI 0 CACHE STRING
+        "Choose the value for _GLIBCXX_USE_CXX11_ABI, options are: 0|1."
+        FORCE)
+endif(NOT CMAKE_CXX_ABI)
+message(STATUS "CMAKE_CXX_ABI: _GLIBCXX_USE_CXX11_ABI=${CMAKE_CXX_ABI}")
+add_definitions(-D_GLIBCXX_USE_CXX11_ABI=${CMAKE_CXX_ABI})
+
+
 # Find LIMBO
 if (LIMBO_DIR)
   set(LIMBO_ROOT_DIR ${LIMBO_DIR})
@@ -183,6 +195,8 @@ file(GLOB LIMBO_LIB
   #limbo gdsparser
   ${LIMBO_ROOT_DIR}/lib/libgdsdb.a 
   ${LIMBO_ROOT_DIR}/lib/libgdsparser.a
+  # gzstream
+  ${LIMBO_ROOT_DIR}/lib/libgzstream.a
 )
 
 target_link_libraries(${PROJECT_NAME} ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
