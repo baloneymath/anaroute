@@ -192,23 +192,27 @@ bool DrGridRoute::checkDRC(const bool bPower) {
 
 bool DrGridRoute::checkSingleNetDRC(const Net& net) {
   // check same net
-  if (!_drc.checkSameNetRoutingLayerSpacing(net.idx()))
+  if (!_drc.checkSameNetRoutingLayerSpacing(net.idx())) {
     return false;
+  }
   // check other nets
   for (const auto& pair : net.vWires()) {
     const auto& wire = pair.first;
     const Int_t layerIdx = pair.second;
     if (_cir.lef().bRoutingLayer(layerIdx)) {
       const Int_t prl = std::max(wire.width(), wire.height());
-      if (!_drc.checkWireRoutingLayerSpacing(net.idx(), layerIdx, wire, prl))
+      if (!_drc.checkWireRoutingLayerSpacing(net.idx(), layerIdx, wire, prl)) {
         return false;
-      if (!_drc.checkWireEolSpacing(net.idx(), layerIdx, wire))
+      }
+      if (!_drc.checkWireEolSpacing(net.idx(), layerIdx, wire)) {
         return false;
+      }
     }
     else {
       assert(_cir.lef().bCutLayer(layerIdx));
-      if (!_drc.checkWireCutLayerSpacing(net.idx(), layerIdx, wire))
+      if (!_drc.checkWireCutLayerSpacing(net.idx(), layerIdx, wire)) {
         return false;
+      }
     }
   }
   return true;

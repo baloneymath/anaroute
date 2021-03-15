@@ -43,7 +43,7 @@ void DrSymmetry::solve(const bool bUseSymFile) {
       Int_t bestSymAxisX = 0;
       Float_t degSym = 0;
       bestMatching(net1, net2, bestSymAxisX, degSym);
-      //cerr << net1.name() << " " << net2.name() << " " << degSym << endl;
+      //cerr << net1.name() << " " << net2.name() << " " <<  bestSymAxisX << " " << degSym << endl;
       
       vvAxis[i][j] = bestSymAxisX;
       vvAxis[j][i] = bestSymAxisX;
@@ -74,8 +74,6 @@ void DrSymmetry::solve(const bool bUseSymFile) {
       net.setSymAxisX(symAxisX);
       net.setSelfSym();
       fprintf(stderr, "DrSymmetry::%s Self-sym: %s\n", __func__, net.name().c_str());
-      //cerr << net.name() << endl;
-      
     }
     else {
       Net& net1 = _cir.net(netIdx1);
@@ -96,7 +94,6 @@ void DrSymmetry::solve(const bool bUseSymFile) {
       net2.setNumCutsCol(std::max(net1.numCutsCol(), net2.numCutsCol()));
       
       fprintf(stderr, "DrSymmetry::%s Sym:      %s %s\n", __func__, net1.name().c_str(), net2.name().c_str());
-      //cerr << net1.name() << " " << net2.name() << endl;
     }
     
   }
@@ -123,6 +120,9 @@ void DrSymmetry::bestMatching(const Net& net1, const Net& net2, Int_t& bestSymAx
       const auto pair2 = accumX(pinIdx2);
       const Int_t symAxisX = (pair1.first + pair2.first) / (pair1.second + pair2.second);
       Float_t degSym = degSymPre(net1, net2, symAxisX);
+      //if (net1.name() == "CLKC") {
+        //cerr << symAxisX << "  " << degSym << endl;
+      //}
       if (degSym > maxDegSymPre) {
         maxDegSymPre = degSym;
         bestSymAxisX = symAxisX;
@@ -138,7 +138,6 @@ Float_t DrSymmetry::degSymPre(const Net& net1, const Net& net2, const Int_t symA
   // construct pin locations vector
   Vector_t<Vector_t<Box<Int_t>>> vvBoxes;
   addPinShapes(net2, vvBoxes);
-
   // count match pins
   Int_t match = 0;
   for (const Int_t pinIdx : net1.vPinIndices()) {
@@ -160,8 +159,9 @@ Float_t DrSymmetry::degSelfSymPre(const Net& net, const Int_t symAxisX) {
   Int_t match = 0;
   for (const Int_t pinIdx : net.vPinIndices()) {
     const Pin& pin = _cir.pin(pinIdx);
-    if (bExistTotallySymPin(pin, symAxisX, vvBoxes))
+    if (bExistTotallySymPin(pin, symAxisX, vvBoxes)) {
       ++match;
+    }
   }
   Float_t ratio = (Float_t)match / net.numPins();
   return ratio;
@@ -180,7 +180,11 @@ void DrSymmetry::addPinShapes(const Net& net, Vector_t<Vector_t<Box<Int_t>>>& vv
     }
   }
   for (auto& vBoxes : vvBoxes) {
-    std::sort(vBoxes.begin(), vBoxes.end());
+    std::sort(vBoxes.begin(), vBoxes.end(), [](const Box<Int_t>& b1, const Box<Int_t>& b2) {
+              if (b1.xl() != b2.xl()) return b1.xl() < b2.xl();
+              else if (b1.yl() != b2.yl()) return b1.yl() < b2.yl();
+              else return false;
+              });
   }
 }
 
@@ -191,7 +195,12 @@ bool DrSymmetry::bExistTotallySymPin(const Pin& pin, const Int_t symAxisX, const
     Pin_ForEachLayerBox(pin, layerIdx, cpBox, i) {
       Box<Int_t> symBox(*cpBox);
       symBox.flipX(symAxisX);
-      if (!std::binary_search(vvSymBoxes[layerIdx].begin(), vvSymBoxes[layerIdx].end(), symBox)) {
+      //if (std::find(vvSymBoxes[layerIdx].begin(), vvSymBoxes[layerIdx].end(), symBox) == vvSymBoxes[layerIdx].end()) {
+      if (!std::binary_search(vvSymBoxes[layerIdx].begin(), vvSymBoxes[layerIdx].end(), symBox, [](const Box<Int_t>& b1, const Box<Int_t>& b2) {
+              if (b1.xl() != b2.xl()) return b1.xl() < b2.xl();
+              else if (b1.yl() != b2.yl()) return b1.yl() < b2.yl();
+              else return false;
+              })) {
         return false;
       }
     }

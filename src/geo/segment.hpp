@@ -9,7 +9,7 @@
 #ifndef _GEO_SEGMENT_HPP_
 #define _GEO_SEGMENT_HPP_
 
-#include "src/global/global.hpp"
+#include "src/global/namespace.hpp"
 #include "point.hpp"
 
 PROJECT_NAMESPACE_START
@@ -42,8 +42,11 @@ public:
   T         centerX()       const { return (xl() + xh()) / 2; }
   T         centerY()       const { return (yl() + yh()) / 2; }
   Point<T>  center()        const { return Point<T>(centerX(), centerY()); }
-  bool      bHorizontal()   const { return _p1.x() != _p2.x() && _p1.y() == _p2.y(); }
-  bool      bVertical()     const { return _p1.x() == _p2.x() && _p1.y() != _p2.y(); }
+  Point<T>  min_corner()    const { return Point<T>(xl(), yl()); }
+  Point<T>  max_corner()    const { return Point<T>(xh(), yh()); }
+  bool      bHor()          const { return _p1.x() != _p2.x() && _p1.y() == _p2.y(); }
+  bool      bVer()          const { return _p1.x() == _p2.x() && _p1.y() != _p2.y(); }
+  bool      b90()           const { return bHor() or bVer(); }
 
   // util functions
   void shiftX(const T x)               { _p1.shiftX(x); _p2.shiftX(x); check(); }

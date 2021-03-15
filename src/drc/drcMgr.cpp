@@ -205,14 +205,15 @@ void DrcMgr::addNetShapesBFS(const Int_t netIdx, Vector_t<Vector_t<Box<Int_t>>>&
   UInt_t i;
   const Blk* cpBlk;
   Queue_t<UInt_t> qBlkIndices;
+  Set_t<UInt_t> exploredSet;
   Cir_ForEachBlk(_cir, cpBlk, i) {
     if (cpBlk->bConnect2Pin()) {
       const Int_t blkNetIdx = _cir.pin(cpBlk->pinIdx()).netIdx();
-      if (blkNetIdx == netIdx)
+      if (blkNetIdx == netIdx) {
         qBlkIndices.emplace(cpBlk->idx());
+      }
     }
   }
-  Set_t<UInt_t> exploredSet;
   while (!qBlkIndices.empty()) {
     const Blk& blk = _cir.blk(qBlkIndices.front());
     qBlkIndices.pop();
@@ -298,20 +299,19 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
         // FIXME: PRL and power
         //cerr << "!!!!!!!!!!!!!!!!!!! " << net.name() << " " << net.minWidth() << " " << spacing << endl;
         Box<Int_t> checkBox(box);
-        if (seg.bHorizontal()) {
+        if (seg.bHor()) {
           assert(seg.xl() != seg.xh() and seg.yl() == seg.yh());
           checkBox.shrinkX(1);
           checkBox.expandY(spacing - 1);
           Vector_t<Segment<Int_t>> vSegs;
           spatialSegs.query(checkBox, vSegs);
           for (const auto& qs : vSegs) {
-            if (qs.bVertical())
+            if (qs.bVer())
               continue;
             if (!Segment<Int_t>::bConnect(qs, seg)
                 and !bCanPatch(i, qs, seg)) {
               Segment<Int_t> centerConnectLine(qs.center(), seg.center());
               const auto& checkPt = centerConnectLine.center();
-                //cerr << qs << seg << endl;
                 //for (const auto& polygon : vPolygons) {
                   //const auto& ring = polygon.outer();
                   //for (j = 0; j < ring.size(); ++j) {
@@ -322,20 +322,21 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                   //cerr << endl;
                 //}
                 //exit(0);
-              if (!boost::polygon::contains(polygon, checkPt))
+              if (!boost::polygon::contains(polygon, checkPt)) {
                 return false;
+              }
             }
           }
         }
         else {
-          assert(seg.bVertical());
+          assert(seg.bVer());
           assert(seg.xl() == seg.xh() and seg.yl() != seg.yh());
           checkBox.shrinkY(1);
           checkBox.expandX(spacing - 1);
           Vector_t<Segment<Int_t>> vSegs;
           spatialSegs.query(checkBox, vSegs);
           for (const auto& qs : vSegs) {
-            if (qs.bHorizontal())
+            if (qs.bHor())
               continue;
             if (!Segment<Int_t>::bConnect(qs, seg)
                 and !bCanPatch(i, qs, seg)) {
@@ -352,8 +353,9 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
                   //cerr << endl;
                 //}
                 //exit(0);
-              if (!boost::polygon::contains(polygon, checkPt))
+              if (!boost::polygon::contains(polygon, checkPt)) {
                 return false;
+              }
             }
           }
         }
@@ -365,13 +367,13 @@ bool DrcMgr::checkSameNetRoutingLayerSpacing(const UInt_t netIdx) const {
 }
 
 bool DrcMgr::bCanPatch(const Int_t layerIdx, const Segment<Int_t>& s1, const Segment<Int_t>& s2) const {
-  assert(s1.bHorizontal() == s2.bHorizontal());
+  assert(s1.bHor() == s2.bHor());
   assert(_cir.lef().bRoutingLayer(layerIdx));
   const auto& layerPair = _cir.lef().layerPair(layerIdx);
   const auto& layer = _cir.lef().routingLayer(layerPair.second);
   const Int_t minStep = layer.minStep(0);
   Int_t dist = 0;
-  if (s1.bHorizontal()) {
+  if (s1.bHor()) {
     dist = std::abs(s1.yl() - s2.yl());
   }
   else {
@@ -379,7 +381,7 @@ bool DrcMgr::bCanPatch(const Int_t layerIdx, const Segment<Int_t>& s1, const Seg
   }
   if (dist <= minStep) {
     if (s1.length() <= minStep or s2.length() <= minStep) {
-      if (s1.bHorizontal()) {
+      if (s1.bHor()) {
         if (s1.xl() == s2.xl() or s1.xh() == s2.xh())
           return true;
       }

@@ -96,8 +96,8 @@ class DrGridAstar {
     Int_t historyCost = 500; // the cost added to the history map
     Int_t maxExplore = 90000;
     // electrical
-    Int_t numCutsRow;
-    Int_t numCutsCol;
+    Int_t numCutsRow = 1;
+    Int_t numCutsCol = 1;
     Int_t numSignalCutsRow = 1;
     Int_t numSignalCutsCol = 2;
     Int_t numPowerCutsRow = 3;

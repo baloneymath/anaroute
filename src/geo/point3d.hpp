@@ -11,13 +11,13 @@
 
 #include <boost/geometry.hpp>
 #include <boost/functional/hash.hpp>
-#include "src/global/global.hpp"
+#include "src/global/namespace.hpp"
 
 PROJECT_NAMESPACE_START
 
 template<typename T>
 class Point3d {
-public:
+ public:
   Point3d(T x = 0, T y = 0, T z = 0) : _d{x, y, z} {}
   Point3d(const Point3d& p) { memcpy(_d, p.d(), 3 * sizeof(T)); }
   ~Point3d() {}
@@ -60,7 +60,7 @@ public:
                    p1.z() * p2.x() - p2.z() * p1.x(), 
                    p1.x() * p2.y() - p2.x() * p1.y());
   }
-  
+
   void flipX(const T x) { _d[0] = 2 * x - _d[0]; }
   void flipY(const T y) { _d[1] = 2 * y - _d[1]; }
   void flipZ(const T z) { _d[2] = 2 * z - _d[2]; }
@@ -96,11 +96,73 @@ public:
     return ss.str();
   }
 
-private:
+ private:
   T _d[3];
 };
 
 PROJECT_NAMESPACE_END
+
+#include <parallel_hashmap/phmap_utils.h>
+namespace std {
+  template<typename CoordType>
+  struct hash<PROJECT_NAMESPACE::Point3d<CoordType>> {
+    std::size_t operator() (const PROJECT_NAMESPACE::Point3d<CoordType>& p) const {
+      return phmap::HashState().combine(0, p.x(), p.y(), p.z());
+    }
+  };
+}
+
+namespace boost { namespace geometry { namespace traits {
+  template<typename CoordType>
+  struct tag<PROJECT_NAMESPACE::Point3d<CoordType>> {
+    typedef point_tag type;
+  };
+
+  template<typename CoordType>
+  struct coordinate_type<PROJECT_NAMESPACE::Point3d<CoordType>> {
+    typedef CoordType type;
+  };
+
+  template<typename CoordType>
+  struct coordinate_system<PROJECT_NAMESPACE::Point3d<CoordType>> {
+    typedef boost::geometry::cs::cartesian type;
+  };
+  
+  template<typename CoordType>
+  struct dimension<PROJECT_NAMESPACE::Point3d<CoordType>>
+    : boost::mpl::int_<3> {};
+
+  template<typename CoordType>
+  struct access<PROJECT_NAMESPACE::Point3d<CoordType>, 0> {
+    static inline CoordType get(const PROJECT_NAMESPACE::Point3d<CoordType>& p) {
+      return p.x();
+    }
+    static inline void set(PROJECT_NAMESPACE::Point3d<CoordType>& p, CoordType const& value) {
+      p.setX(value);
+    }
+  };
+
+  template<typename CoordType>
+  struct access<PROJECT_NAMESPACE::Point3d<CoordType>, 1> {
+    static inline CoordType get(const PROJECT_NAMESPACE::Point3d<CoordType>& p) {
+      return p.y();
+    }
+    static inline void set(PROJECT_NAMESPACE::Point3d<CoordType> & p, CoordType const& value) {
+      p.setY(value);
+    }
+  };
+
+  template<typename CoordType>
+  struct access<PROJECT_NAMESPACE::Point3d<CoordType>, 2> {
+    static inline CoordType get(PROJECT_NAMESPACE::Point3d<CoordType>  const& p) {
+      return p.z();
+    }
+    static inline void set(PROJECT_NAMESPACE::Point3d<CoordType> & p, CoordType const& value) {
+      p.setZ(value);
+    }
+  };
+
+}}}
 
 #endif /// _GEO_POINT3D_HPP_
 

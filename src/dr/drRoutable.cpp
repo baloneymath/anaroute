@@ -142,6 +142,9 @@ void DrRoutable::constructSymNetRoutables(Net& net) {
       roRest2.addPinIdx(pinIdx);
     }
   }
+  //cerr << net.name() << " " << symNet.name() << endl;
+  //cerr << net.numPins() << " " << symNet.numPins() << endl;
+  //cerr << roSym1.numPins() << " " << roSym2.numPins() << endl;
   assert(roSym1.numPins() == roSym2.numPins());
   assert(roSym1.numRoutables() == 0);
   assert(roSym1.numRoutables() == roSym2.numRoutables());
