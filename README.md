@@ -38,7 +38,6 @@ options:
       --iopin               IO-Pin file (string [=])
       --power               power net file (string [=])
       --spec                net spec file (string [=])
-      --fuck                fuck file (string [=])
       --out_guide           output global routing guide file (string [=])
       --flatten             flatten output GDS
   -?, --help                print this message
