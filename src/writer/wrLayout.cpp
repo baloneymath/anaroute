@@ -62,7 +62,7 @@ void LayoutWriter::addRoutingLayout(GdsCell& gdsCell, const Float_t scale) {
       const Int_t layerIdx = pair.second;
       const Int_t maskIdx = _cir.layerIdx2MaskIdx(pair.second);
       if (layerIdx > (Int_t)_cir.lef().routingLayerIdx2LayerIdx(5))
-        addBox2Cell(gdsCell, maskIdx, box, scale, 40);
+        addBox2Cell(gdsCell, maskIdx, box, scale, 0);
       else
         addBox2Cell(gdsCell, maskIdx, box, scale, 0);
     }
